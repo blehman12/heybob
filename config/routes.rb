@@ -37,33 +37,37 @@ Rails.application.routes.draw do
   get 'calendar/:event_id/export', to: 'calendar#export', as: 'export_event_calendar'
 
   # Admin routes - protected by authentication and admin role
-  namespace :admin do
-    # Redirect old destroy URLs to the proper show page
-    get 'users/:id/destroy', to: redirect('/admin/users/%{id}')
-    
-    # REDIRECT old bulk actions to new dedicated interface
-    get 'users/bulk_actions', to: redirect('/admin/bulk_users')
-    
-    # Admin dashboard
-    get 'dashboard', to: 'dashboard#index'
-    root 'dashboard#index'
-
-    # User management
-    resources :users do
-      member do
-        patch 'toggle_admin'
-#        delete 'destroy'
-      end
-      collection do
-        # OLD bulk actions route is now redirected above
-        # get 'bulk_actions'  # <- This is now redirected to /admin/bulk_users
-        post 'bulk_create'
-        post 'bulk_invite'
-        post 'bulk_delete'
-        get 'export'
-        post 'import'
-      end
+  
+namespace :admin do
+  # Redirect old destroy URLs to the proper show page
+  get 'users/:id/destroy', to: redirect('/admin/users/%{id}')
+  
+  # REDIRECT old bulk actions to new dedicated interface
+  get 'users/bulk_actions', to: redirect('/admin/bulk_users')
+  
+  # Admin dashboard
+  get 'dashboard', to: 'dashboard#index'
+  root 'dashboard#index'
+  
+  # User management
+  resources :users do
+    member do
+      patch 'toggle_admin'
     end
+    collection do
+      post 'bulk_create'
+      post 'bulk_invite'
+      post 'bulk_delete'
+      get 'export'
+      post 'import'
+    end
+  end  # <-- resources :users ENDS HERE
+  
+  # Sidekiq Web UI - ADD IT HERE (AFTER resources :users)
+  require 'sidekiq/web'
+  authenticate :user, ->(user) { user.admin? } do
+    mount Sidekiq::Web => '/sidekiq'
+  end
 
     # NEW Dedicated Bulk User Management Interface
     resources :bulk_users, only: [:index] do

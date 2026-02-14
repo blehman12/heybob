@@ -1,28 +1,20 @@
-# app/models/user.rb
 class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-  # ONLY role belongs on User - it's a system-wide permission level
   enum role: { attendee: 0, admin: 1 }
+  enum rsvp_status: { pending: 0, yes: 1, no: 2, maybe: 3 }
 
-  # Associations
   has_many :event_participants, dependent: :destroy
   has_many :events, through: :event_participants
   has_many :created_events, class_name: 'Event', foreign_key: 'creator_id'
   has_many :vendor_events, -> { where(event_participants: { role: :vendor }) }, 
            through: :event_participants, source: :event
 
-  # Validations
   validates :first_name, :last_name, :phone, :company, presence: true
 
-  # Scopes
-  scope :admins, -> { where(role: :admin) }
-  scope :attendees_only, -> { where(role: :attendee) }
-  scope :by_company, ->(company) { where(company: company) }
-  scope :text_capable, -> { where(text_capable: true) }
+  scope :invited, -> { where.not(invited_at: nil) }
   scope :registered, -> { where.not(registered_at: nil) }
-  scope :with_phone, -> { where.not(phone: [nil, '']) }
 
   # Admin safety validations
   validate :cannot_demote_last_admin
@@ -30,7 +22,6 @@ class User < ApplicationRecord
 
   attr_accessor :editing_self
 
-  # Instance methods
   def full_name
     "#{first_name} #{last_name}"
   end
@@ -39,31 +30,20 @@ class User < ApplicationRecord
     role == 'admin'
   end
 
-  # Event-specific methods - delegate to event_participants
-  def participant_for_event(event)
-    # Cache to avoid N+1 queries
-    @participants_by_event_id ||= event_participants.index_by(&:event_id)
-    @participants_by_event_id[event.id]
-  end
-
   def role_for_event(event)
-    participant_for_event(event)&.role || 'attendee'
+    event_participants.find_by(event: event)&.role || 'attendee'
   end
 
   def vendor_for_event?(event)
-    participant_for_event(event)&.vendor? || false
+    event_participants.find_by(event: event, role: :vendor).present?
   end
 
   def organizer_for_event?(event)
-    participant_for_event(event)&.organizer? || false
+    event_participants.find_by(event: event, role: :organizer).present?
   end
 
   def rsvp_status_for_event(event)
-    participant_for_event(event)&.rsvp_status || 'pending'
-  end
-
-  def checked_in_for_event?(event)
-    participant_for_event(event)&.checked_in? || false
+    event_participants.find_by(event: event)&.rsvp_status || 'pending'
   end
 
   private

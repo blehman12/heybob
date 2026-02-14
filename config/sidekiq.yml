@@ -1,0 +1,15 @@
+---
+:concurrency: 5
+:queues:
+  - critical
+  - mailers
+  - default
+  - low
+
+:max_retries: 3
+
+production:
+  :concurrency: 10
+  
+development:
+  :concurrency: 2

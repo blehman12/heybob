@@ -1,0 +1,10 @@
+a7387b1 first commit
+24df98d Add admin authorization to protect all admin routes
+dd0daac Fix custom questions JavaScript for Turbo compatibility
+bbf0166 Fix nil role error in admin user show view
+ced52f4 Add SMTP configuration for email in production
+67fbf20 Fix Devise login form: replace simple_form_for with standard Rails forms
+a68936d Production setup: Boativersary 2025 event ready
+a1283fe Add comprehensive RSpec test suite - all 30 tests passing
+e72071a Complete event management system with working functionality
+732ac77 Remove duplicate admin checkin controller

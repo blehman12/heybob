@@ -1,4 +1,3 @@
-# app/controllers/admin/events_controller.rb
 require 'csv'
 
 class Admin::EventsController < Admin::BaseController
@@ -7,8 +6,7 @@ class Admin::EventsController < Admin::BaseController
   before_action :load_users, only: [:new, :create, :edit, :update]
 
   def index
-    # FIXED: Add eager loading to prevent N+1 queries
-    @events = Event.includes(:venue, :creator, event_participants: :user)
+    @events = Event.includes(:venue, :creator, :event_participants)
                    .order(:event_date)
                    .page(params[:page])
                    .per(20)
@@ -22,14 +20,13 @@ class Admin::EventsController < Admin::BaseController
     @vendors = @participants.where(role: 'vendor') 
     @attendees = @participants.where(role: 'attendee')
     
-    # FIXED: Query event_participants directly instead of joining to users
     @stats = {
       total_participants: @participants.count,
-      yes_responses: @participants.where(rsvp_status: :yes).count,
-      no_responses: @participants.where(rsvp_status: :no).count,
-      maybe_responses: @participants.where(rsvp_status: :maybe).count,
-      pending_responses: @participants.where(rsvp_status: :pending).count,
-      checked_in: @participants.checked_in.count  # Use the scope
+      yes_responses: @participants.joins(:user).where(users: { rsvp_status: User.rsvp_statuses[:yes] }).count,
+      no_responses: @participants.joins(:user).where(users: { rsvp_status: User.rsvp_statuses[:no] }).count,
+      maybe_responses: @participants.joins(:user).where(users: { rsvp_status: User.rsvp_statuses[:maybe] }).count,
+      pending_responses: @participants.joins(:user).where(users: { rsvp_status: User.rsvp_statuses[:pending] }).count,
+      checked_in: @participants.where.not(checked_in_at: nil).count
     }
   end
 
@@ -69,13 +66,12 @@ class Admin::EventsController < Admin::BaseController
   def participants
     @participants = @event.event_participants.includes(:user)
     
-    # FIXED: Use event_participants.rsvp_status instead of users.rsvp_status
     @participant_counts = {
       total: @participants.count,
-      yes: @participants.where(rsvp_status: :yes).count,
-      no: @participants.where(rsvp_status: :no).count,
-      maybe: @participants.where(rsvp_status: :maybe).count,
-      pending: @participants.where(rsvp_status: :pending).count
+      yes: @participants.joins(:user).where(users: { rsvp_status: User.rsvp_statuses[:yes] }).count,
+      no: @participants.joins(:user).where(users: { rsvp_status: User.rsvp_statuses[:no] }).count,
+      maybe: @participants.joins(:user).where(users: { rsvp_status: User.rsvp_statuses[:maybe] }).count,
+      pending: @participants.joins(:user).where(users: { rsvp_status: User.rsvp_statuses[:pending] }).count
     }
     
     # Provide users for the dropdown (exclude existing participants)
@@ -111,8 +107,7 @@ class Admin::EventsController < Admin::BaseController
         participant.invited_at = Time.current
         if participant.save
           success_count += 1
-          # FIXED: Actually send invitation email (will implement with Sidekiq)
-          InvitationMailer.event_invitation(participant).deliver_later
+          # TODO: Send invitation email
         end
       end
     end
@@ -127,16 +122,15 @@ class Admin::EventsController < Admin::BaseController
     respond_to do |format|
       format.csv do
         csv_data = CSV.generate(headers: true) do |csv|
-          # FIXED: Use participant.rsvp_status instead of user.rsvp_status
           csv << ['Name', 'Email', 'Company', 'Phone', 'RSVP Status', 'Role', 'Checked In', 'Check-in Time']
           
           @participants.each do |participant|
             csv << [
-              participant.user.full_name,
+              "#{participant.user.first_name} #{participant.user.last_name}",
               participant.user.email,
               participant.user.company,
               participant.user.phone,
-              participant.rsvp_status.humanize,  # From event_participant, not user
+              participant.user.rsvp_status.humanize,
               participant.role.humanize,
               participant.checked_in? ? 'Yes' : 'No',
               participant.checked_in_at&.strftime('%m/%d/%Y %I:%M %p')
