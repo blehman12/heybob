@@ -18,7 +18,7 @@ require "action_cable/engine"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module Ev1
+module Evm1
   class Application < Rails::Application
     # Background job processing
     config.active_job.queue_adapter = :sidekiq
