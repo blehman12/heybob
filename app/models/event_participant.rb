@@ -1,6 +1,6 @@
 class EventParticipant < ApplicationRecord
   # Associations
-  belongs_to :user
+  belongs_to :user, optional: true  # Made optional for guest RSVPs
   belongs_to :event
   belongs_to :checked_in_by, class_name: 'User', optional: true
 
@@ -10,8 +10,13 @@ class EventParticipant < ApplicationRecord
   enum check_in_method: { qr_code: 0, manual: 1, bulk: 2 }
 
   # Validations
-  validates :user_id, uniqueness: { scope: :event_id }
+  validates :user_id, uniqueness: { scope: :event_id }, allow_nil: true
   validates :qr_code_token, uniqueness: true, allow_nil: true
+  
+  # Guest validations
+  validates :guest_name, presence: true, if: :is_guest?
+  validates :guest_email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
+  validate :must_have_user_or_guest_info
 
   # Serialization for custom RSVP answers (fixed deprecation)
   serialize :rsvp_answers, coder: JSON
@@ -27,6 +32,8 @@ class EventParticipant < ApplicationRecord
   scope :confirmed, -> { where(rsvp_status: :yes) }
   scope :checked_in, -> { where.not(checked_in_at: nil) }
   scope :not_checked_in, -> { where(checked_in_at: nil) }
+  scope :guests, -> { where(is_guest: true) }
+  scope :registered_users, -> { where(is_guest: false) }
 
   # Check-in related methods
   def checked_in?
@@ -82,17 +89,31 @@ class EventParticipant < ApplicationRecord
     "http://#{host}/checkin/verify?token=#{qr_code_token}&event=#{event_id}&participant=#{id}"
   end
 
-  # For production deployment, you'd want:
-  # def qr_code_data
-  #   return nil unless qr_code_token.present?
-  #   
-  #   host = Rails.application.config.action_mailer.default_url_options[:host]
-  #   protocol = Rails.application.config.force_ssl? ? 'https' : 'http'
-  #   
-  #   "#{protocol}://#{host}/checkin/verify?token=#{qr_code_token}&event=#{event_id}&participant=#{id}"
-  # end
-
   # Display methods
+  def display_name
+    if is_guest?
+      guest_name
+    else
+      user&.full_name || 'Unknown'
+    end
+  end
+
+  def display_email
+    if is_guest?
+      guest_email
+    else
+      user&.email
+    end
+  end
+
+  def display_phone
+    if is_guest?
+      guest_phone
+    else
+      user&.phone
+    end
+  end
+
   def rsvp_status_display
     rsvp_status&.humanize || 'Pending'
   end
@@ -141,5 +162,11 @@ class EventParticipant < ApplicationRecord
 
   def ensure_rsvp_answers_hash
     self.rsvp_answers = {} if rsvp_answers.blank?
+  end
+
+  def must_have_user_or_guest_info
+    if user_id.blank? && guest_name.blank?
+      errors.add(:base, "Must have either a user account or guest information")
+    end
   end
 end

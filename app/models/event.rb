@@ -12,17 +12,20 @@ class Event < ApplicationRecord
   # Validations
   validates :name, :event_date, :rsvp_deadline, presence: true
   validates :max_attendees, presence: true, numericality: { greater_than: 0 }
+  validates :slug, uniqueness: true, allow_nil: true
   validate :rsvp_deadline_before_event_date
 
   # Scopes
   scope :upcoming, -> { where('event_date > ?', Time.current) }
   scope :past, -> { where('event_date < ?', Time.current) }
+  scope :public_rsvp, -> { where(public_rsvp_enabled: true) }
 
   # Serialization for custom questions
   serialize :custom_questions, coder: JSON
 
   # Callbacks
   before_save :ensure_custom_questions_array
+  before_validation :generate_slug, on: :create
 
   # Public methods
   def attendees_count
@@ -36,7 +39,6 @@ class Event < ApplicationRecord
   def rsvp_open?
     rsvp_deadline.present? && Time.current <= rsvp_deadline
   end
-
 
   def spots_remaining
     max_attendees - attendees_count
@@ -54,6 +56,18 @@ class Event < ApplicationRecord
     end
   end
 
+  def public_url
+    return nil unless slug.present?
+    # For development
+    "http://localhost:3000/e/#{slug}"
+    # For production, use:
+    # Rails.application.routes.url_helpers.public_event_url(slug)
+  end
+
+  def to_param
+    slug || id
+  end
+
   private
 
   def rsvp_deadline_before_event_date
@@ -66,5 +80,26 @@ class Event < ApplicationRecord
 
   def ensure_custom_questions_array
     self.custom_questions = [] if custom_questions.blank?
+  end
+
+  def generate_slug
+    return if slug.present?
+    
+    # Generate slug from event name and date
+    base_slug = name.parameterize
+    date_slug = event_date.strftime('%Y') if event_date.present?
+    candidate_slug = date_slug ? "#{base_slug}-#{date_slug}" : base_slug
+    
+    # Ensure uniqueness
+    if Event.where(slug: candidate_slug).exists?
+      counter = 2
+      loop do
+        new_slug = "#{candidate_slug}-#{counter}"
+        break self.slug = new_slug unless Event.where(slug: new_slug).exists?
+        counter += 1
+      end
+    else
+      self.slug = candidate_slug
+    end
   end
 end

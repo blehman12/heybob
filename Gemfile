@@ -29,6 +29,9 @@ gem "kaminari"
 gem "bootstrap", "~> 5.3"
 gem 'simple_form'
 
+# Calendar functionality
+gem 'icalendar', '~> 2.10'
+
 
 # Add to your Gemfile:
 group :development, :test do

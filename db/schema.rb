@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_13_190651) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_15_000001) do
   create_table "event_participants", force: :cascade do |t|
-    t.integer "user_id", null: false
+    t.integer "user_id"
     t.integer "event_id", null: false
     t.integer "role", default: 0
     t.integer "rsvp_status", default: 0, null: false
@@ -26,9 +26,14 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_13_190651) do
     t.string "check_in_method"
     t.string "qr_code_token"
     t.integer "checked_in_by_id"
+    t.string "guest_name"
+    t.string "guest_email"
+    t.string "guest_phone"
+    t.boolean "is_guest", default: false
     t.index ["checked_in_at"], name: "index_event_participants_on_checked_in_at"
     t.index ["checked_in_by_id"], name: "index_event_participants_on_checked_in_by_id"
     t.index ["event_id"], name: "index_event_participants_on_event_id"
+    t.index ["guest_email"], name: "index_event_participants_on_guest_email"
     t.index ["qr_code_token"], name: "index_event_participants_on_qr_code_token", unique: true
     t.index ["role"], name: "index_event_participants_on_role"
     t.index ["rsvp_status"], name: "index_event_participants_on_rsvp_status"
@@ -49,6 +54,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_13_190651) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "custom_questions"
+    t.string "slug"
+    t.boolean "public_rsvp_enabled", default: false
+    t.index ["slug"], name: "index_events_on_slug", unique: true
   end
 
   create_table "users", force: :cascade do |t|

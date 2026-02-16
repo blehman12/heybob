@@ -14,6 +14,12 @@ Rails.application.routes.draw do
   # Public dashboard
   get 'dashboard', to: 'dashboard#index'
 
+  # Public event pages (no authentication required)
+  get '/e/:slug', to: 'public_events#show', as: 'public_event'
+  post '/e/:slug/rsvp', to: 'public_events#rsvp', as: 'public_event_rsvp'
+  get '/e/:slug/confirmation', to: 'public_events#confirmation', as: 'public_event_confirmation'
+  get '/e/:slug/calendar', to: 'public_events#calendar', as: 'public_event_calendar'
+
   # User profile and settings
   get 'profile', to: 'users#show'
   get 'profile/edit', to: 'users#edit'
