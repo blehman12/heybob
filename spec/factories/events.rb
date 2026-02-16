@@ -8,6 +8,7 @@ FactoryBot.define do
     end_time { '17:00' }
     max_attendees { rand(20..200) }
     custom_questions { [] }
+    public_rsvp_enabled { false }
     
     association :venue
     association :creator, factory: :user
@@ -23,6 +24,11 @@ FactoryBot.define do
 
     trait :with_questions do
       custom_questions { ['Any dietary restrictions?', 'T-shirt size?', 'Will you need parking?'] }
+    end
+
+    trait :public do
+      public_rsvp_enabled { true }
+      slug { "#{name.parameterize}-#{event_date.year}" }
     end
   end
 end
