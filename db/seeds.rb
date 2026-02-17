@@ -12,7 +12,7 @@ admin = User.create!(
   email: 'admin@nwtg.com',
   password: 'password123',
   phone: '503-555-0100',
-  company: 'PTC'
+  company: 'NWTG'
 )
 
 # Create sample venues
@@ -103,10 +103,10 @@ organizers = []
   organizer = User.create!(
     first_name: ['Sarah', 'Michael', 'Jennifer'][i],
     last_name: ['Johnson', 'Chen', 'Rodriguez'][i],
-    email: "organizer#{i+1}@ptc.com",
+    email: "organizer#{i+1}@nwtg.com",
     password: 'password123',
     phone: "503-555-02#{10+i}",
-    company: 'PTC',
+    company: 'NWTG',
     invited_at: 3.weeks.ago,
     rsvp_status: 'yes',
     registered_at: 2.weeks.ago,
@@ -227,7 +227,7 @@ puts "\n" + "="*60
 puts "DATABASE SEEDING COMPLETED!"
 puts "="*60
 puts "Login Credentials:"
-puts "  Admin: admin@ptc.com / password123"
+puts "  Admin: admin@nwtg.com / password123"
 puts "  Test Users: user1@boeing.com / password123 (and others)"
 puts ""
 puts "Statistics:"
