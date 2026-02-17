@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>PTC Windchill Event</title>
+    <title>Event Manager</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -19,7 +19,7 @@
   <body <%= yield :body_data %>>
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
-      <%= link_to "PTC Windchill Event", root_path, class: "navbar-brand" %>
+      <%= link_to "Event Manager Event", root_path, class: "navbar-brand" %>
       
       <div class="navbar-nav ms-auto d-flex align-items-center">
         <% if user_signed_in? %>
@@ -47,7 +47,7 @@
   </nav>
 	
       <div class="container">
-        <%= link_to "PTC Windchill Event", root_path, class: "navbar-brand" %>
+        <%= link_to "Event Manager Event", root_path, class: "navbar-brand" %>
         
         <div class="navbar-nav ms-auto d-flex align-items-center">
           <% if user_signed_in? %>
