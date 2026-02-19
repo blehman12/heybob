@@ -105,7 +105,6 @@ organizers = []
     password: 'password123',
     phone: "503-555-02#{10+i}",
     company: 'NWTG',
-    registered_at: 2.weeks.ago,
     text_capable: true
   )
   organizers << organizer
@@ -131,7 +130,6 @@ vendors = []
     password: 'password123',
     phone: "503-555-03#{10+i}",
     company: ['CoreTech Solutions', 'Enterprise Solutions Inc', 'PLM Consulting Group', 'Tech Systems LLC'][i],
-    registered_at: 2.weeks.ago,
     text_capable: [true, false, true, true][i]
   )
   vendors << vendor
@@ -163,7 +161,6 @@ end
     password: 'password123',
     phone: "503-555-#{sprintf('%04d', 4000 + i)}",
     company: companies.sample,
-    registered_at: user_rsvp_status != 'pending' ? rand(3.weeks.ago..3.days.ago) : nil,
     text_capable: [true, false].sample
   )
   
