@@ -9,22 +9,27 @@ class FixRsvpDataModel < ActiveRecord::Migration[7.1]
     # belongs on the join table (event_participants), not the user table.
     
     say_with_time "Migrating RSVP data from users to event_participants" do
-      # Safety check: Ensure we don't lose any data
-      users_with_rsvp = User.where.not(rsvp_status: [nil, 0]).count
-      
-      if users_with_rsvp > 0
-        say "WARNING: Found #{users_with_rsvp} users with non-default rsvp_status"
-        say "These values will be removed since RSVP status is event-specific"
-        say "All event-specific RSVP data should already be in event_participants table"
+      # Only remove columns if they actually exist (safe for fresh databases)
+      if column_exists?(:users, :rsvp_status)
+        remove_column :users, :rsvp_status, :integer
+        say "Removed rsvp_status from users table"
+      else
+        say "rsvp_status column not present on users table, skipping"
       end
-      
-      # Remove columns that don't belong on users table
-      # These are event-specific and should only exist on event_participants
-      remove_column :users, :rsvp_status, :integer
-      remove_column :users, :invited_at, :datetime
-      remove_column :users, :calendar_exported, :boolean
-      
-      say "Removed event-specific columns from users table"
+
+      if column_exists?(:users, :invited_at)
+        remove_column :users, :invited_at, :datetime
+        say "Removed invited_at from users table"
+      else
+        say "invited_at column not present on users table, skipping"
+      end
+
+      if column_exists?(:users, :calendar_exported)
+        remove_column :users, :calendar_exported, :boolean
+        say "Removed calendar_exported from users table"
+      else
+        say "calendar_exported column not present on users table, skipping"
+      end
     end
     
     say_with_time "Ensuring all event_participants have proper defaults" do
