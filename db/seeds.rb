@@ -12,7 +12,8 @@ admin = User.create!(
   email: 'admin@nwtg.com',
   password: 'password123',
   phone: '503-555-0100',
-  company: 'NWTG'
+  company: 'NWTG',
+  role: :admin
 )
 
 # Create sample venues
@@ -23,24 +24,21 @@ venues << Venue.create!(
   name: 'Portland Tech Center',
   address: '9205 SW Gemini Dr, Beaverton, OR 97008',
   description: 'Modern conference facility with state-of-the-art AV equipment',
-  capacity: 150,
-  contact_info: 'Events Team: events@portlandtech.com, (503) 555-0200'
+  capacity: 150
 )
 
 venues << Venue.create!(
   name: 'Pearl District Conference Room',
   address: '1120 NW Couch St, Portland, OR 97209',
   description: 'Intimate meeting space in the heart of Portland',
-  capacity: 40,
-  contact_info: 'Pearl Events: contact@pearlevents.com, (503) 555-0201'
+  capacity: 40
 )
 
 venues << Venue.create!(
   name: 'OHSU Collaborative Life Sciences Building',
   address: '2730 SW Moody Ave, Portland, OR 97201',
   description: 'University venue with flexible meeting spaces',
-  capacity: 80,
-  contact_info: 'OHSU Events: bookings@ohsu.edu, (503) 555-0202'
+  capacity: 80
 )
 
 # Create events
@@ -107,8 +105,6 @@ organizers = []
     password: 'password123',
     phone: "503-555-02#{10+i}",
     company: 'NWTG',
-    invited_at: 3.weeks.ago,
-    rsvp_status: 'yes',
     registered_at: 2.weeks.ago,
     text_capable: true
   )
@@ -120,6 +116,7 @@ organizers = []
     user: organizer,
     role: 'organizer',
     rsvp_status: 'yes',
+    invited_at: 3.weeks.ago,
     responded_at: 2.weeks.ago
   )
 end
@@ -134,8 +131,6 @@ vendors = []
     password: 'password123',
     phone: "503-555-03#{10+i}",
     company: ['CoreTech Solutions', 'Enterprise Solutions Inc', 'PLM Consulting Group', 'Tech Systems LLC'][i],
-    invited_at: 3.weeks.ago,
-    rsvp_status: ['yes', 'yes', 'maybe', 'yes'][i],
     registered_at: 2.weeks.ago,
     text_capable: [true, false, true, true][i]
   )
@@ -147,6 +142,7 @@ vendors = []
     user: vendor,
     role: 'vendor',
     rsvp_status: ['yes', 'yes', 'maybe', 'yes'][i],
+    invited_at: 3.weeks.ago,
     responded_at: rand(2.weeks.ago..1.day.ago)
   )
 end
@@ -167,15 +163,13 @@ end
     password: 'password123',
     phone: "503-555-#{sprintf('%04d', 4000 + i)}",
     company: companies.sample,
-    invited_at: rand(4.weeks.ago..1.week.ago),
-    rsvp_status: user_rsvp_status,
     registered_at: user_rsvp_status != 'pending' ? rand(3.weeks.ago..3.days.ago) : nil,
     text_capable: [true, false].sample
   )
   
   # Add some to current event
   if rand < 0.7  # 70% chance
-    rsvp_status = user.rsvp_status
+    rsvp_status = user_rsvp_status
     responded_at = rsvp_status == 'pending' ? nil : rand(2.weeks.ago..1.day.ago)
     
     EventParticipant.create!(
@@ -183,6 +177,7 @@ end
       user: user,
       role: 'attendee',
       rsvp_status: rsvp_status,
+      invited_at: rand(4.weeks.ago..1.week.ago),
       responded_at: responded_at
     )
   end
