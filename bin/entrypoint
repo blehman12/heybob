@@ -4,5 +4,16 @@ set -e
 echo "Running migrations..."
 bundle exec rails db:migrate
 
+echo "Checking if seed data needed..."
+bundle exec rails runner "
+  if Event.count == 0
+    puts 'Database empty - running seeds...'
+    load Rails.root.join('db/seeds.rb')
+    puts 'Seeding complete!'
+  else
+    puts 'Data exists, skipping seeds.'
+  end
+"
+
 echo "Starting server..."
 exec bundle exec rails server -b 0.0.0.0 -p ${PORT:-8000}
