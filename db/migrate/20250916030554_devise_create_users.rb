@@ -14,9 +14,8 @@ class DeviseCreateUsers < ActiveRecord::Migration[7.1]
       t.string :last_name
       t.string :phone
       t.string :company
-      t.string :role, default: 'attendee'
+      t.integer :role, default: 0
       t.boolean :text_capable, default: true
-      t.datetime :invited_at
 
       t.timestamps null: false
     end
