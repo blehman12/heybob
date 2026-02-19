@@ -13,7 +13,7 @@ admin = User.create!(
   password: 'password123',
   phone: '503-555-0100',
   company: 'NWTG',
-  role: :admin
+  role: 1
 )
 
 # Create sample venues

@@ -4,16 +4,8 @@ set -e
 echo "Running migrations..."
 bundle exec rails db:migrate
 
-echo "Checking if seed data needed..."
-EVENT_COUNT=$(bundle exec rails runner "puts Event.count" 2>/dev/null | tail -1)
-
-if [ "$EVENT_COUNT" = "0" ]; then
-  echo "Database empty - running seeds..."
-  bundle exec rails db:seed
-  echo "Seeding complete!"
-else
-  echo "Data exists ($EVENT_COUNT events), skipping seeds."
-fi
+echo "Seeding database..."
+bundle exec rails db:seed
 
 echo "Starting server..."
 exec bundle exec rails server -b 0.0.0.0 -p ${PORT:-8000}
