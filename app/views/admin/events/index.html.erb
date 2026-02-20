@@ -30,7 +30,9 @@
                 <td><%= event.event_date&.strftime("%b %d, %Y") %></td>
                 <td><%= event.venue&.name %></td>
                 <td>
-                  <span class="badge bg-primary"><%= event.attendees_count %> / <%= event.max_attendees %></span>
+                  <%= link_to participants_admin_event_path(event), class: "text-decoration-none" do %>
+                    <span class="badge bg-primary"><%= event.attendees_count %> / <%= event.max_attendees %></span>
+                  <% end %>
                 </td>
                 <td>
                   <% if event.rsvp_open? %>
