@@ -8,7 +8,7 @@
     <div class="card text-center">
       <div class="card-body">
         <h6>Total Users</h6>
-        <h3 class="text-primary"><%= User.count %></h3>
+        <h3 class="text-primary"><%= link_to User.count, admin_users_path, class: "text-primary text-decoration-none" %></h3>
       </div>
     </div>
   </div>
@@ -16,7 +16,7 @@
     <div class="card text-center">
       <div class="card-body">
         <h6>Total Events</h6>
-        <h3 class="text-info"><%= Event.count %></h3>
+        <h3 class="text-info"><%= link_to Event.count, admin_events_path, class: "text-info text-decoration-none" %></h3>
       </div>
     </div>
   </div>
@@ -24,7 +24,7 @@
     <div class="card text-center">
       <div class="card-body">
         <h6>Total Venues</h6>
-        <h3 class="text-warning"><%= Venue.count %></h3>
+        <h3 class="text-warning"><%= link_to Venue.count, admin_venues_path, class: "text-warning text-decoration-none" %></h3>
       </div>
     </div>
   </div>
@@ -32,7 +32,7 @@
     <div class="card text-center">
       <div class="card-body">
         <h6>Participants</h6>
-        <h3 class="text-success"><%= EventParticipant.count %></h3>
+        <h3 class="text-success"><%= link_to EventParticipant.count, admin_events_path, class: "text-success text-decoration-none" %></h3>
       </div>
     </div>
   </div>
@@ -40,7 +40,7 @@
     <div class="card text-center">
       <div class="card-body">
         <h6>Vendors</h6>
-        <h3 class="text-danger"><%= EventParticipant.vendor.count %></h3>
+        <h3 class="text-danger"><%= link_to EventParticipant.vendor.count, admin_events_path, class: "text-danger text-decoration-none" %></h3>
       </div>
     </div>
   </div>
@@ -48,7 +48,7 @@
     <div class="card text-center">
       <div class="card-body">
         <h6>Confirmed</h6>
-        <h3 class="text-secondary"><%= EventParticipant.yes.count %></h3>
+        <h3 class="text-secondary"><%= link_to EventParticipant.yes.count, admin_events_path, class: "text-secondary text-decoration-none" %></h3>
       </div>
     </div>
   </div>
