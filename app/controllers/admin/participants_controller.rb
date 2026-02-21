@@ -2,27 +2,22 @@ class Admin::ParticipantsController < Admin::BaseController
   def index
     @participants = EventParticipant.includes(:user, :event)
 
-    # Filter by event
     if params[:event_id].present?
       @participants = @participants.where(event_id: params[:event_id])
     end
 
-    # Filter by role
     if params[:role].present? && EventParticipant.roles.key?(params[:role])
       @participants = @participants.where(role: params[:role])
     end
 
-    # Filter by RSVP status
     if params[:rsvp_status].present? && EventParticipant.rsvp_statuses.key?(params[:rsvp_status])
       @participants = @participants.where(rsvp_status: params[:rsvp_status])
     end
 
-    # Filter by check-in status
     if params[:checked_in].present?
       @participants = params[:checked_in] == 'true' ? @participants.checked_in : @participants.not_checked_in
     end
 
-    # Search by name or email
     if params[:search].present?
       search = "%#{params[:search].downcase}%"
       @participants = @participants.where(
@@ -31,10 +26,10 @@ class Admin::ParticipantsController < Admin::BaseController
       ).references(:user)
     end
 
-    @total_count    = @participants.count
-    @confirmed      = @participants.confirmed.count
-    @checked_in     = @participants.checked_in.count
-    @vendors        = @participants.vendors.count
+    @total_count = @participants.count
+    @confirmed   = @participants.confirmed.count
+    @checked_in  = @participants.checked_in.count
+    @vendors     = @participants.vendors.count
 
     @participants = @participants.order('events.event_date DESC, users.last_name ASC')
                                  .page(params[:page]).per(50)
@@ -44,8 +39,8 @@ class Admin::ParticipantsController < Admin::BaseController
     respond_to do |format|
       format.html
       format.csv do
-        @all = @participants.except(:limit, :offset)
-        send_data generate_csv(@all), filename: "participants-#{Date.today}.csv", type: 'text/csv'
+        all = @participants.except(:limit, :offset)
+        send_data generate_csv(all), filename: "participants-#{Date.today}.csv", type: 'text/csv'
       end
     end
   end
@@ -71,6 +66,5 @@ class Admin::ParticipantsController < Admin::BaseController
         ]
       end
     end
-  end
   end
 end
