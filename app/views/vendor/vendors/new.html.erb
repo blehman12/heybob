@@ -1,0 +1,12 @@
+<% content_for :title, 'Create Vendor Profile' %>
+
+<div style="padding: 20px 0 24px;">
+  <h1 style="font-family:'Syne',sans-serif; font-size:24px; font-weight:800; letter-spacing:-0.02em;">
+    Create your<br>vendor profile
+  </h1>
+  <p style="font-size:14px; color:rgba(255,255,255,0.45); margin-top:8px; line-height:1.5;">
+    This is what attendees see when they scan your QR code.
+  </p>
+</div>
+
+<%= render 'form', vendor: @vendor %>

@@ -1,0 +1,65 @@
+<% content_for :title, @vendor.name %>
+
+<%# Vendor header %>
+<div class="vd-vendor-header">
+  <% if @vendor.hero_image.attached? %>
+    <%= image_tag @vendor.hero_image, class: 'vd-vendor-header__image', alt: @vendor.name %>
+  <% else %>
+    <div class="vd-vendor-header__initial"><%= @vendor.name.first.upcase %></div>
+  <% end %>
+  <div>
+    <div class="vd-vendor-header__name"><%= @vendor.name %></div>
+    <% if @vendor.hook_line.present? %>
+      <div class="vd-vendor-header__hook"><%= @vendor.hook_line %></div>
+    <% end %>
+  </div>
+</div>
+
+<%# Edit button %>
+<div style="display: flex; gap: 8px; margin-bottom: 28px;">
+  <%= link_to edit_vendor_vendor_path(@vendor), class: 'vd-btn vd-btn--ghost vd-btn--sm' do %>
+    Edit Profile
+  <% end %>
+</div>
+
+<%# Events %>
+<p class="vd-section-label">Events</p>
+
+<% if @vendor_events.any? %>
+  <div class="vd-card">
+    <% @vendor_events.each do |ve| %>
+      <%= link_to vendor_vendor_event_path(ve), class: 'vd-event-row' do %>
+        <div class="vd-event-row__info">
+          <div class="vd-event-row__name"><%= ve.event.name %></div>
+          <div class="vd-event-row__meta">
+            <%= ve.event.event_date.strftime('%b %-d, %Y') %>
+            <% booth = ve.metadata&.dig('booth_number') %>
+            <%= " · Booth #{booth}" if booth.present? %>
+          </div>
+        </div>
+        <div class="vd-event-row__stat">
+          <div class="vd-event-row__stat-num"><%= ve.opt_in_count %></div>
+          <div class="vd-event-row__stat-label">opt-ins</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="rgba(255,255,255,0.25)" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      <% end %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="vd-card">
+    <div class="vd-empty" style="padding: 32px 20px;">
+      <div class="vd-empty__icon">📅</div>
+      <p class="vd-empty__text">Not registered for any events yet.</p>
+    </div>
+  </div>
+<% end %>
+
+<div style="margin-top: 16px;">
+  <%= link_to new_vendor_vendor_vendor_event_path(@vendor), class: 'vd-btn vd-btn--full' do %>
+    + Join an Event
+  <% end %>
+</div>

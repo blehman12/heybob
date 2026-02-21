@@ -1,0 +1,162 @@
+<% content_for :title, @vendor_event.event.name %>
+<% content_for :back_link do %>
+  <%= link_to vendor_vendor_path(@vendor), class: 'vd-back' do %>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  <% end %>
+<% end %>
+
+<%# ── Stats strip ── %>
+<div style="padding-top: 16px; margin-bottom: 24px;">
+  <p style="font-size:13px; color:rgba(255,255,255,0.4); margin-bottom:12px;">
+    <%= @vendor_event.event.event_date.strftime('%B %-d, %Y') %>
+    <% booth = @vendor_event.metadata&.dig('booth_number') %>
+    <% hall  = @vendor_event.metadata&.dig('hall') %>
+    <%= " · Booth #{booth}" if booth.present? %>
+    <%= ", #{hall}"         if hall.present? %>
+  </p>
+
+  <div class="vd-stats">
+    <div class="vd-stat">
+      <div class="vd-stat__num"><%= @vendor_event.opt_in_count %></div>
+      <div class="vd-stat__label">Opt-ins</div>
+    </div>
+    <div class="vd-stat">
+      <div class="vd-stat__num"><%= @vendor_event.broadcasts.sent.count %></div>
+      <div class="vd-stat__label">Sent</div>
+    </div>
+    <div class="vd-stat">
+      <div class="vd-stat__num">
+        <%= @vendor_event.event.con_opt_ins.count %>
+      </div>
+      <div class="vd-stat__label">Con total</div>
+    </div>
+  </div>
+</div>
+
+<%# ── Broadcast form ── %>
+<p class="vd-section-label">Send a Broadcast</p>
+<div class="vd-card" style="margin-bottom: 24px;">
+  <div class="vd-card__body">
+    <%= form_with model: @new_broadcast,
+                  url: broadcast_vendor_vendor_event_path(@vendor_event),
+                  class: 'vd-broadcast-form',
+                  data: { controller: 'broadcast-form' } do |f| %>
+
+      <%# Scope toggle — who receives this? %>
+      <div class="vd-field">
+        <span class="vd-label">Send to</span>
+        <div class="vd-scope-toggle">
+          <div class="vd-scope-option">
+            <%= f.radio_button :scope, 'booth_visitors', checked: true %>
+            <label class="vd-scope-label" for="broadcast_scope_booth_visitors">
+              <span class="vd-scope-label__icon">🎯</span>
+              <span class="vd-scope-label__text">My visitors</span>
+              <span class="vd-scope-label__sub">
+                <%= @vendor_event.opt_in_count %> people
+              </span>
+            </label>
+          </div>
+          <div class="vd-scope-option">
+            <%= f.radio_button :scope, 'entire_con' %>
+            <label class="vd-scope-label" for="broadcast_scope_entire_con">
+              <span class="vd-scope-label__icon">📡</span>
+              <span class="vd-scope-label__text">Whole con</span>
+              <span class="vd-scope-label__sub">
+                <%= @vendor_event.event.con_opt_ins.count %> people
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <%= f.hidden_field :channel, value: 'sms' %>
+
+      <div class="vd-field">
+        <span class="vd-label">Message</span>
+        <%= f.text_area :message,
+                        placeholder: "Drawing at our booth in 15 min! Booth #{@vendor_event.metadata&.dig('booth_number') || '—'}",
+                        class: "vd-textarea #{'is-invalid' if @new_broadcast.errors[:message].any?}",
+                        rows: 3,
+                        maxlength: 160,
+                        data: { action: 'input->broadcast-form#countChars' } %>
+        <% if @new_broadcast.errors[:message].any? %>
+          <span class="vd-field-error"><%= @new_broadcast.errors[:message].first %></span>
+        <% end %>
+        <div class="vd-char-counter" data-broadcast-form-target="counter">
+          0 / 160
+        </div>
+      </div>
+
+      <%= f.submit 'Send Now',
+                   class: 'vd-btn vd-btn--full',
+                   data: { disable_with: 'Sending...' } %>
+
+    <% end %>
+  </div>
+</div>
+
+<%# ── QR Code ── %>
+<p class="vd-section-label">Your QR Code</p>
+<div class="vd-card" style="margin-bottom: 24px;">
+  <div class="vd-card__body">
+    <div class="vd-qr-block">
+      <%# QR code image — generated via RQRCode gem or inline JS %>
+      <%
+        optin_url = vendor_optin_url(@vendor_event.qr_token, host: request.base_url)
+      %>
+      <img class="vd-qr-block__image"
+           src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=<%= CGI.escape(optin_url) %>"
+           alt="QR Code for <%= @vendor.name %>">
+      <div class="vd-qr-block__url"><%= optin_url %></div>
+    </div>
+    <div style="margin-top: 14px; display: flex; gap: 8px;">
+      <%= link_to qr_code_vendor_vendor_event_path(@vendor_event),
+                  class: 'vd-btn vd-btn--ghost vd-btn--sm vd-btn--full',
+                  target: '_blank' do %>
+        Open full-size QR
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<%# ── Recent broadcasts ── %>
+<% if @recent_broadcasts.any? %>
+  <p class="vd-section-label">Recent Broadcasts</p>
+  <div class="vd-card">
+    <% @recent_broadcasts.each do |broadcast| %>
+      <div class="vd-broadcast-item">
+        <div class="vd-broadcast-item__message"><%= broadcast.message %></div>
+        <div class="vd-broadcast-item__meta">
+          <span><%= broadcast.sent_at.strftime('%-I:%M %p') %></span>
+          <span><%= broadcast.recipient_count %> recipients</span>
+          <span class="vd-broadcast-item__scope">
+            <%= broadcast.entire_con? ? 'Whole con' : 'My visitors' %>
+          </span>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<%# ── Minimal Stimulus controller for char count ── %>
+<script>
+  // Simple inline char counter — no Stimulus needed
+  document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.querySelector('[maxlength="160"]');
+    const counter  = document.querySelector('.vd-char-counter');
+    if (!textarea || !counter) return;
+
+    function update() {
+      const len = textarea.value.length;
+      counter.textContent = len + ' / 160';
+      counter.classList.toggle('warning', len > 120);
+      counter.classList.toggle('danger',  len > 150);
+    }
+
+    textarea.addEventListener('input', update);
+    update();
+  });
+</script>

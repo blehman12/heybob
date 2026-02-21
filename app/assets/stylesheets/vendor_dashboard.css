@@ -1,0 +1,586 @@
+/* ============================================================
+   EVM1 — Vendor Dashboard Stylesheet
+   Extends visitor.css variables. Vendor-facing UI.
+   ============================================================ */
+
+/* ---- Layout ---- */
+.vendor-body {
+  min-height: 100dvh;
+  background: #0d0d0d;
+  color: #ffffff;
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Top bar ---- */
+.vd-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: 56px;
+  background: rgba(13,13,13,0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid #1e1e1e;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+.vd-topbar__left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.vd-topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.vd-topbar__title {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.vd-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #1c1c1c;
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.vd-back:hover { background: #2a2a2a; color: white; }
+
+.vd-user {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.45);
+}
+
+.vd-signout {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.35);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.vd-signout:hover { color: white; background: #1e1e1e; }
+
+/* ---- Main content ---- */
+.vd-main {
+  padding: 20px 16px 48px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ---- Flash messages ---- */
+.vd-flash {
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+.vd-flash--success {
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  color: #4ade80;
+}
+.vd-flash--error {
+  background: rgba(255, 59, 92, 0.12);
+  border: 1px solid rgba(255, 59, 92, 0.25);
+  color: #ff7a92;
+}
+
+/* ============================================================
+   SHARED COMPONENTS
+   ============================================================ */
+
+/* Section heading */
+.vd-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 10px;
+}
+
+/* Card */
+.vd-card {
+  background: #111111;
+  border: 1px solid #1e1e1e;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.vd-card + .vd-card { margin-top: 10px; }
+
+.vd-card__body {
+  padding: 18px;
+}
+
+.vd-card__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid #1a1a1a;
+  gap: 12px;
+}
+.vd-card__row:last-child { border-bottom: none; }
+
+/* Primary button */
+.vd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #ff3b5c;
+  color: white;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 13px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+.vd-btn:hover { background: #e82e4f; color: white; text-decoration: none; }
+.vd-btn:active { transform: scale(0.97); }
+.vd-btn--full { width: 100%; }
+
+/* Secondary/ghost button */
+.vd-btn--ghost {
+  background: transparent;
+  border: 1.5px solid #2e2e2e;
+  color: rgba(255,255,255,0.7);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+}
+.vd-btn--ghost:hover {
+  background: #1c1c1c;
+  border-color: #3e3e3e;
+  color: white;
+}
+
+/* Small button */
+.vd-btn--sm {
+  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+
+/* Danger */
+.vd-btn--danger {
+  background: transparent;
+  border: 1.5px solid rgba(255,59,92,0.3);
+  color: #ff7a92;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+}
+.vd-btn--danger:hover { background: rgba(255,59,92,0.1); border-color: #ff3b5c; }
+
+/* Form fields — vendor style */
+.vd-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.vd-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+}
+.vd-input, .vd-textarea {
+  width: 100%;
+  background: #1a1a1a;
+  border: 1.5px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 13px 15px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: white;
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.vd-input:focus, .vd-textarea:focus { border-color: #ff3b5c; }
+.vd-input::placeholder, .vd-textarea::placeholder { color: rgba(255,255,255,0.2); }
+.vd-input.is-invalid, .vd-textarea.is-invalid { border-color: #ff3b5c; }
+.vd-textarea { resize: vertical; min-height: 90px; }
+.vd-hint { font-size: 12px; color: rgba(255,255,255,0.3); line-height: 1.4; }
+.vd-field-error { font-size: 12px; color: #ff7a92; font-weight: 500; }
+
+/* Form errors summary */
+.vd-errors {
+  background: rgba(255,59,92,0.1);
+  border: 1px solid rgba(255,59,92,0.25);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+.vd-errors p { font-size: 13px; color: #ff7a92; line-height: 1.5; }
+
+/* ============================================================
+   DASHBOARD — index
+   ============================================================ */
+
+.vd-hero {
+  padding: 24px 0 20px;
+  margin-bottom: 24px;
+}
+.vd-hero__greeting {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 4px;
+}
+.vd-hero__name {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* Vendor list card row */
+.vd-vendor-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  text-decoration: none;
+  color: white;
+  border-bottom: 1px solid #1a1a1a;
+  transition: background 0.15s;
+}
+.vd-vendor-row:last-child { border-bottom: none; }
+.vd-vendor-row:hover { background: #161616; color: white; text-decoration: none; }
+
+.vd-vendor-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #1e1e1e;
+  flex-shrink: 0;
+}
+.vd-vendor-avatar--initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: #ff3b5c;
+  background: rgba(255,59,92,0.1);
+  border: 1px solid rgba(255,59,92,0.15);
+}
+
+.vd-vendor-info { flex: 1; min-width: 0; }
+.vd-vendor-info__name { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vd-vendor-info__sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+.vd-vendor-row__chevron { color: rgba(255,255,255,0.25); flex-shrink: 0; }
+
+/* Empty state */
+.vd-empty {
+  text-align: center;
+  padding: 48px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.vd-empty__icon { font-size: 48px; opacity: 0.3; }
+.vd-empty__text { font-size: 15px; color: rgba(255,255,255,0.4); line-height: 1.5; }
+
+/* ============================================================
+   VENDOR SHOW
+   ============================================================ */
+
+.vd-vendor-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 0;
+  margin-bottom: 24px;
+}
+
+.vd-vendor-header__image {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  object-fit: cover;
+  background: #1e1e1e;
+  flex-shrink: 0;
+}
+.vd-vendor-header__initial {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  background: rgba(255,59,92,0.1);
+  border: 1px solid rgba(255,59,92,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: #ff3b5c;
+  flex-shrink: 0;
+}
+
+.vd-vendor-header__name {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.vd-vendor-header__hook {
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+/* Event participation row */
+.vd-event-row {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  gap: 14px;
+  text-decoration: none;
+  color: white;
+  border-bottom: 1px solid #1a1a1a;
+  transition: background 0.15s;
+}
+.vd-event-row:last-child { border-bottom: none; }
+.vd-event-row:hover { background: #161616; color: white; text-decoration: none; }
+
+.vd-event-row__info { flex: 1; min-width: 0; }
+.vd-event-row__name { font-weight: 600; font-size: 15px; }
+.vd-event-row__meta { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+.vd-event-row__stat {
+  text-align: right;
+  flex-shrink: 0;
+}
+.vd-event-row__stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: #ff3b5c;
+}
+.vd-event-row__stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+}
+
+/* ============================================================
+   VENDOR EVENT SHOW — main working screen
+   ============================================================ */
+
+/* Stat strip */
+.vd-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.vd-stat {
+  background: #111111;
+  border: 1px solid #1e1e1e;
+  border-radius: 12px;
+  padding: 14px 12px;
+  text-align: center;
+}
+.vd-stat__num {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: #ff3b5c;
+  line-height: 1;
+}
+.vd-stat__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-top: 4px;
+}
+
+/* QR code display */
+.vd-qr-block {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.vd-qr-block__image { width: 200px; height: 200px; }
+.vd-qr-block__url {
+  font-size: 11px;
+  color: #666;
+  word-break: break-all;
+  text-align: center;
+  font-family: monospace;
+}
+
+/* Broadcast form */
+.vd-broadcast-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vd-char-counter {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+  color: rgba(255,255,255,0.3);
+  transition: color 0.2s;
+}
+.vd-char-counter.warning { color: #f59e0b; }
+.vd-char-counter.danger  { color: #ff3b5c; }
+
+/* Broadcast scope toggle */
+.vd-scope-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.vd-scope-option {
+  position: relative;
+}
+
+.vd-scope-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.vd-scope-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  background: #1a1a1a;
+  border: 1.5px solid #2a2a2a;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.vd-scope-option input:checked + .vd-scope-label {
+  border-color: #ff3b5c;
+  background: rgba(255,59,92,0.08);
+}
+
+.vd-scope-label__icon { font-size: 20px; margin-bottom: 4px; }
+.vd-scope-label__text { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.7); }
+.vd-scope-label__sub  { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+
+/* Recent broadcasts list */
+.vd-broadcast-item {
+  padding: 14px 18px;
+  border-bottom: 1px solid #1a1a1a;
+}
+.vd-broadcast-item:last-child { border-bottom: none; }
+.vd-broadcast-item__message {
+  font-size: 14px;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+.vd-broadcast-item__meta {
+  display: flex;
+  gap: 10px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 500;
+}
+.vd-broadcast-item__scope {
+  color: rgba(255,255,255,0.5);
+  font-weight: 600;
+}
+
+/* ============================================================
+   VENDOR / VENDOR EVENT FORMS
+   ============================================================ */
+
+.vd-form-section {
+  margin-bottom: 28px;
+}
+.vd-form-section__title {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: rgba(255,255,255,0.6);
+}
+
+/* Image upload zone */
+.vd-image-upload {
+  position: relative;
+  border: 2px dashed #2a2a2a;
+  border-radius: 14px;
+  padding: 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  background: #111;
+}
+.vd-image-upload:hover { border-color: #ff3b5c; background: rgba(255,59,92,0.03); }
+.vd-image-upload input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+}
+.vd-image-upload__icon { font-size: 32px; margin-bottom: 8px; opacity: 0.5; }
+.vd-image-upload__text { font-size: 14px; color: rgba(255,255,255,0.45); }
+.vd-image-upload__hint { font-size: 11px; color: rgba(255,255,255,0.2); margin-top: 4px; }
+.vd-image-preview {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}

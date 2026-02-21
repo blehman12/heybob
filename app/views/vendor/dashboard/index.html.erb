@@ -1,0 +1,54 @@
+<% content_for :title, 'My Vendors' %>
+
+<div class="vd-hero">
+  <p class="vd-hero__greeting">Welcome back</p>
+  <h1 class="vd-hero__name"><%= current_user.first_name %></h1>
+</div>
+
+<% if @vendors.any? %>
+  <p class="vd-section-label">Your Vendors</p>
+  <div class="vd-card">
+    <% @vendors.each do |vendor| %>
+      <%= link_to vendor_vendor_path(vendor), class: 'vd-vendor-row' do %>
+
+        <% if vendor.hero_image.attached? %>
+          <%= image_tag vendor.hero_image, class: 'vd-vendor-avatar', alt: vendor.name %>
+        <% else %>
+          <div class="vd-vendor-avatar vd-vendor-avatar--initial">
+            <%= vendor.name.first.upcase %>
+          </div>
+        <% end %>
+
+        <div class="vd-vendor-info">
+          <div class="vd-vendor-info__name"><%= vendor.name %></div>
+          <div class="vd-vendor-info__sub">
+            <%= vendor.vendor_events.count %> event<%= vendor.vendor_events.count == 1 ? '' : 's' %>
+          </div>
+        </div>
+
+        <svg class="vd-vendor-row__chevron" width="18" height="18" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+
+      <% end %>
+    <% end %>
+  </div>
+
+  <div style="margin-top: 16px;">
+    <%= link_to new_vendor_vendor_path, class: 'vd-btn vd-btn--ghost vd-btn--full' do %>
+      + Add another vendor
+    <% end %>
+  </div>
+
+<% else %>
+  <div class="vd-empty">
+    <div class="vd-empty__icon">🏪</div>
+    <p class="vd-empty__text">
+      You don't have a vendor profile yet.<br>
+      Set one up to start connecting with attendees.
+    </p>
+  </div>
+  <%= link_to 'Create your vendor profile', new_vendor_vendor_path, class: 'vd-btn vd-btn--full' %>
+<% end %>

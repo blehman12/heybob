@@ -1,0 +1,69 @@
+<% if vendor.errors.any? %>
+  <div class="vd-errors">
+    <% vendor.errors.full_messages.each do |msg| %>
+      <p><%= msg %></p>
+    <% end %>
+  </div>
+<% end %>
+
+<%= form_with model: [:vendor, vendor], class: 'vd-form' do |f| %>
+
+  <div class="vd-form-section">
+    <div class="vd-form-section__title">Your Brand</div>
+
+    <%# Hero image upload %>
+    <div class="vd-field">
+      <%= f.label :hero_image, 'Banner Image', class: 'vd-label' %>
+      <div class="vd-image-upload">
+        <% if vendor.hero_image.attached? %>
+          <%= image_tag vendor.hero_image, class: 'vd-image-preview', alt: 'Current image' %>
+        <% end %>
+        <div class="vd-image-upload__icon">🖼️</div>
+        <div class="vd-image-upload__text">Tap to upload image</div>
+        <div class="vd-image-upload__hint">JPG or PNG · Shown as hero on your opt-in page</div>
+        <%= f.file_field :hero_image, accept: 'image/*', class: 'sr-only' %>
+      </div>
+    </div>
+
+    <div class="vd-field">
+      <%= f.label :name, 'Vendor Name', class: 'vd-label' %>
+      <%= f.text_field :name,
+                       placeholder: 'Portland KPOP CO',
+                       class: "vd-input #{'is-invalid' if vendor.errors[:name].any?}",
+                       autocomplete: 'organization' %>
+      <% if vendor.errors[:name].any? %>
+        <span class="vd-field-error"><%= vendor.errors[:name].first %></span>
+      <% end %>
+    </div>
+
+    <div class="vd-field">
+      <%= f.label :hook_line, 'Hook Line', class: 'vd-label' %>
+      <%= f.text_field :hook_line,
+                       placeholder: 'Free sticker with signup + enter our drawing!',
+                       class: 'vd-input' %>
+      <span class="vd-hint">
+        The one line attendees see on the opt-in screen. Make it irresistible.
+      </span>
+    </div>
+
+    <div class="vd-field">
+      <%= f.label :description, 'Description', class: 'vd-label' %>
+      <%= f.text_area :description,
+                      placeholder: 'Tell people what you sell or do...',
+                      class: 'vd-textarea',
+                      rows: 3 %>
+    </div>
+
+    <div class="vd-field">
+      <%= f.label :website, 'Website', class: 'vd-label' %>
+      <%= f.url_field :website,
+                      placeholder: 'https://portlandkpopco.com',
+                      class: 'vd-input',
+                      autocomplete: 'url' %>
+    </div>
+  </div>
+
+  <%= f.submit vendor.new_record? ? 'Create Profile' : 'Save Changes',
+               class: 'vd-btn vd-btn--full' %>
+
+<% end %>
