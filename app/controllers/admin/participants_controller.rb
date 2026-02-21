@@ -72,3 +72,5 @@ class Admin::ParticipantsController < Admin::BaseController
       end
     end
   end
+  end
+end
