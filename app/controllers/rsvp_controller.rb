@@ -59,12 +59,12 @@ class RsvpController < ApplicationController
     # Update RSVP status
     @participant.rsvp_status = params[:status]
     
-    # Update RSVP answers if provided
-    if params[:rsvp_answers].present?
-      # Clean up the answers hash
+    # Update RSVP answers through strong params (not raw params)
+    safe = rsvp_params
+    if safe[:rsvp_answers].present?
       cleaned_answers = {}
-      params[:rsvp_answers].each do |key, value|
-        cleaned_answers[key] = value.strip if value.present?
+      safe[:rsvp_answers].each do |key, value|
+        cleaned_answers[key.to_s.gsub(/[^a-zA-Z0-9_ ]/, '')] = value.to_s.strip if value.present?
       end
       @participant.rsvp_answers = cleaned_answers
     end
