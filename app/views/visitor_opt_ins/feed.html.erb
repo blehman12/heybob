@@ -1,0 +1,66 @@
+<% content_for :title, "#{@event.name} — Live Feed" %>
+
+<div class="feed-screen">
+
+  <header class="feed-header">
+    <div>
+      <div class="feed-header__title"><%= @event.name %></div>
+      <div class="feed-header__event">Live vendor updates</div>
+    </div>
+    <div class="live-badge">
+      <span class="live-dot"></span>
+      Live
+    </div>
+  </header>
+
+  <% if @broadcasts.any? %>
+    <div class="feed-list">
+      <% @broadcasts.each_with_index do |broadcast, i| %>
+        <article class="broadcast-card"
+                 style="animation-delay: <%= i * 0.06 %>s">
+
+          <div class="broadcast-card__vendor">
+            <% vendor = broadcast.vendor_event.vendor %>
+
+            <%# Vendor avatar — image or initial %>
+            <% if vendor.hero_image.attached? %>
+              <%= image_tag vendor.hero_image,
+                            class: 'vendor-avatar',
+                            alt: vendor.name %>
+            <% else %>
+              <div class="vendor-avatar vendor-avatar--initial">
+                <%= vendor.name.first.upcase %>
+              </div>
+            <% end %>
+
+            <span class="broadcast-card__vendor-name"><%= vendor.name %></span>
+
+            <% booth = broadcast.vendor_event.metadata&.dig('booth_number') %>
+            <% if booth.present? %>
+              <span class="broadcast-card__booth">Booth <%= booth %></span>
+            <% end %>
+          </div>
+
+          <p class="broadcast-card__message"><%= broadcast.message %></p>
+
+          <time class="broadcast-card__time"
+                datetime="<%= broadcast.sent_at.iso8601 %>">
+            <%= time_ago_in_words(broadcast.sent_at) %> ago
+          </time>
+
+        </article>
+      <% end %>
+    </div>
+
+  <% else %>
+    <div class="feed-empty">
+      <div class="feed-empty__icon">📡</div>
+      <p class="feed-empty__text">
+        No updates yet.<br>
+        Check back once the event starts —<br>
+        vendors will post specials and announcements here.
+      </p>
+    </div>
+  <% end %>
+
+</div>

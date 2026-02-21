@@ -1,0 +1,65 @@
+<% content_for :title, "You're In!" %>
+
+<div class="welcome-screen">
+
+  <%# Animated checkmark %>
+  <div class="welcome-checkmark">
+    <svg viewBox="0 0 24 24">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+
+  <h1 class="welcome-headline">
+    You're<br>
+    <span class="welcome-vendor">In!</span>
+  </h1>
+
+  <p class="welcome-body">
+    You're now connected with
+    <strong style="color: white;"><%= @vendor_event.vendor.name %></strong>
+    and all vendors at <%= @vendor_event.event.name %>.
+  </p>
+
+  <div class="welcome-cards">
+
+    <% if @vendor_event.vendor.hook_line.present? %>
+      <div class="welcome-card">
+        <span class="welcome-card__icon">🎁</span>
+        <div class="welcome-card__text">
+          <strong>Your reward</strong>
+          <%= @vendor_event.vendor.hook_line %>
+        </div>
+      </div>
+    <% end %>
+
+    <% booth = @vendor_event.metadata&.dig('booth_number') %>
+    <% hall  = @vendor_event.metadata&.dig('hall') %>
+    <% if booth.present? %>
+      <div class="welcome-card">
+        <span class="welcome-card__icon">📍</span>
+        <div class="welcome-card__text">
+          <strong>Find us</strong>
+          <%= @vendor_event.vendor.name %>
+          — Booth <%= booth %><%= hall.present? ? ", #{hall}" : '' %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="welcome-card">
+      <span class="welcome-card__icon">📲</span>
+      <div class="welcome-card__text">
+        <strong>Stay tuned</strong>
+        You'll get text updates about specials,
+        drawings, and events happening right now on the floor.
+      </div>
+    </div>
+
+  </div>
+
+  <%# Link to public con feed %>
+  <%= link_to event_feed_path(@vendor_event.event.slug),
+              class: 'btn-feed' do %>
+    See what's happening now →
+  <% end %>
+
+</div>

@@ -14,6 +14,33 @@ Rails.application.routes.draw do
   # Public dashboard
   get 'dashboard', to: 'dashboard#index'
 
+  # ─── Vendor opt-in flow (public — no auth required) ──────────────────────────
+  # QR code lands here: /v/:token
+  # Old vendor optin routes — superseded by /join/:qr_token below
+
+  # Public live feed for a con event (no auth required)
+  get '/feed/:event_id',  to: 'con_feed#show',        as: 'con_feed'
+
+  # Vendor dashboard (authenticated)
+  namespace :vendor do
+    root 'dashboard#index'
+    resources :vendors, only: [:new, :create, :show, :edit, :update] do
+      resources :vendor_events, only: [:new, :create, :show], shallow: true do
+        member do
+          get  :qr_code
+          post :broadcast
+        end
+      end
+    end
+  end
+  # ──────────────────────────────────────────────────────────────────────────────
+
+  # ── Visitor opt-in flow (QR code → opt-in → welcome → feed) ──
+  get  '/join/:qr_token',         to: 'visitor_opt_ins#show',    as: 'vendor_optin'
+  post '/join/:qr_token',         to: 'visitor_opt_ins#create'
+  get  '/join/:qr_token/welcome', to: 'visitor_opt_ins#welcome', as: 'vendor_optin_welcome'
+  get  '/feed/:event_slug',       to: 'visitor_opt_ins#feed',    as: 'event_feed'
+
   # Public event pages (no authentication required)
   get '/e/:slug', to: 'public_events#show', as: 'public_event'
   post '/e/:slug/rsvp', to: 'public_events#rsvp', as: 'public_event_rsvp'

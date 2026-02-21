@@ -1,0 +1,86 @@
+<% content_for :title, @vendor_event.vendor.name %>
+
+<div class="optin-screen">
+
+  <%# ── Hero image ── %>
+  <div class="optin-hero <%= @vendor_event.vendor.hero_image.attached? ? '' : 'optin-hero--placeholder' %>">
+    <% if @vendor_event.vendor.hero_image.attached? %>
+      <%= image_tag @vendor_event.vendor.hero_image,
+                    class: 'optin-hero__image',
+                    alt: @vendor_event.vendor.name %>
+    <% else %>
+      <div class="placeholder-icon">🎉</div>
+    <% end %>
+    <div class="con-badge"><%= @vendor_event.event.name %></div>
+  </div>
+
+  <%# ── Card slides up over hero ── %>
+  <div class="optin-card">
+
+    <div>
+      <h1 class="vendor-name"><%= @vendor_event.vendor.name %></h1>
+      <% if @vendor_event.vendor.hook_line.present? %>
+        <p class="hook-line"><%= @vendor_event.vendor.hook_line %></p>
+      <% end %>
+    </div>
+
+    <%# ── Errors ── %>
+    <% if @con_opt_in.errors.any? %>
+      <div class="form-errors">
+        <% @con_opt_in.errors.full_messages.each do |msg| %>
+          <p><%= msg %></p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%# ── Form ── %>
+    <%= form_with model: @con_opt_in,
+                  url: vendor_optin_path(@vendor_event.qr_token),
+                  class: 'optin-form',
+                  data: { controller: 'optin-form' } do |f| %>
+
+      <div class="field-group">
+        <%= f.label :name, 'Your Name', class: 'field-label' %>
+        <%= f.text_field :name,
+                         placeholder: 'First name is fine',
+                         class: "field-input #{'is-invalid' if @con_opt_in.errors[:name].any?}",
+                         autocomplete: 'name',
+                         autocapitalize: 'words',
+                         required: true %>
+      </div>
+
+      <div class="field-group">
+        <%= f.label :phone, 'Phone or Email', class: 'field-label' %>
+        <%= f.tel_field :phone,
+                        placeholder: '(503) 555-0100',
+                        class: "field-input #{'is-invalid' if @con_opt_in.errors[:phone].any?}",
+                        autocomplete: 'tel',
+                        inputmode: 'tel' %>
+        <small class="fine-print" style="text-align:left; margin-top: 2px;">
+          Or use email below if you prefer
+        </small>
+      </div>
+
+      <div class="field-group">
+        <%= f.label :email, 'Email (optional if phone provided)', class: 'field-label' %>
+        <%= f.email_field :email,
+                          placeholder: 'you@example.com',
+                          class: "field-input #{'is-invalid' if @con_opt_in.errors[:email].any?}",
+                          autocomplete: 'email',
+                          inputmode: 'email' %>
+      </div>
+
+      <%= f.submit 'Count Me In',
+                   class: 'btn-cta',
+                   data: { disable_with: 'Joining...' } %>
+
+    <% end %>
+
+    <p class="fine-print">
+      By joining you'll receive live updates from
+      <%= @vendor_event.event.name %> vendors during the event.
+      No spam. Unsubscribe anytime.
+    </p>
+
+  </div>
+</div>
