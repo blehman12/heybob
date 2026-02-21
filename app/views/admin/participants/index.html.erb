@@ -1,0 +1,174 @@
+<% content_for :title, "All Participants" %>
+
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 mb-0">All Participants</h1>
+      <p class="text-muted mb-0">Across all events</p>
+    </div>
+    <%= link_to admin_participants_path(params.permit(:event_id, :role, :rsvp_status, :checked_in, :search).merge(format: :csv)), class: "btn btn-outline-secondary btn-sm" do %>
+      <i class="bi bi-download me-1"></i> Export CSV
+    <% end %>
+  </div>
+
+  <!-- Summary Stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card text-center border-0 bg-light">
+        <div class="card-body py-3">
+          <div class="h4 mb-0 text-primary fw-bold"><%= @total_count %></div>
+          <div class="small text-muted">Total</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card text-center border-0 bg-light">
+        <div class="card-body py-3">
+          <div class="h4 mb-0 text-success fw-bold"><%= @confirmed %></div>
+          <div class="small text-muted">Confirmed</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card text-center border-0 bg-light">
+        <div class="card-body py-3">
+          <div class="h4 mb-0 text-info fw-bold"><%= @checked_in %></div>
+          <div class="small text-muted">Checked In</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card text-center border-0 bg-light">
+        <div class="card-body py-3">
+          <div class="h4 mb-0 text-warning fw-bold"><%= @vendors %></div>
+          <div class="small text-muted">Vendors</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <%= form_with url: admin_participants_path, method: :get, local: true, class: "row g-2 align-items-end" do |f| %>
+        <div class="col-12 col-md-3">
+          <%= f.text_field :search, value: params[:search], placeholder: "Search name or email...",
+              class: "form-control form-control-sm" %>
+        </div>
+        <div class="col-6 col-md-2">
+          <%= f.select :event_id,
+              options_for_select(@events.map { |e| [e.name, e.id] }, params[:event_id]),
+              { include_blank: "All Events" },
+              class: "form-select form-select-sm" %>
+        </div>
+        <div class="col-6 col-md-2">
+          <%= f.select :role,
+              options_for_select([["Attendee","attendee"],["Vendor","vendor"],["Organizer","organizer"]], params[:role]),
+              { include_blank: "All Roles" },
+              class: "form-select form-select-sm" %>
+        </div>
+        <div class="col-6 col-md-2">
+          <%= f.select :rsvp_status,
+              options_for_select([["Confirmed","yes"],["Pending","pending"],["Declined","no"],["Maybe","maybe"]], params[:rsvp_status]),
+              { include_blank: "All Statuses" },
+              class: "form-select form-select-sm" %>
+        </div>
+        <div class="col-6 col-md-2">
+          <%= f.select :checked_in,
+              options_for_select([["Checked In","true"],["Not Checked In","false"]], params[:checked_in]),
+              { include_blank: "Check-in: Any" },
+              class: "form-select form-select-sm" %>
+        </div>
+        <div class="col-12 col-md-1 d-flex gap-1">
+          <%= f.submit "Filter", class: "btn btn-primary btn-sm" %>
+          <%= link_to "Clear", admin_participants_path, class: "btn btn-outline-secondary btn-sm" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Event</th>
+            <th>Role</th>
+            <th>RSVP</th>
+            <th>Checked In</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if @participants.any? %>
+            <% @participants.each do |p| %>
+              <tr>
+                <td>
+                  <div class="fw-medium"><%= p.display_name %></div>
+                  <% if p.is_guest? %>
+                    <span class="badge bg-secondary bg-opacity-25 text-secondary" style="font-size:0.7rem;">Guest</span>
+                  <% end %>
+                </td>
+                <td class="text-muted small"><%= p.display_email || "—" %></td>
+                <td>
+                  <%= link_to p.event.name, admin_event_path(p.event), class: "text-decoration-none small" %>
+                  <div class="text-muted" style="font-size:0.75rem;">
+                    <%= p.event.event_date&.strftime("%b %-d, %Y") %>
+                  </div>
+                </td>
+                <td>
+                  <% role_colors = { "organizer" => "primary", "vendor" => "warning", "attendee" => "secondary" } %>
+                  <span class="badge bg-<%= role_colors[p.role] || 'secondary' %>">
+                    <%= p.role&.humanize %>
+                  </span>
+                </td>
+                <td>
+                  <% status_colors = { "yes" => "success", "no" => "danger", "maybe" => "warning", "pending" => "secondary" } %>
+                  <span class="badge bg-<%= status_colors[p.rsvp_status] || 'secondary' %> bg-opacity-75">
+                    <%= p.rsvp_status_text %>
+                  </span>
+                </td>
+                <td>
+                  <% if p.checked_in? %>
+                    <span class="text-success small">
+                      <i class="bi bi-check-circle-fill me-1"></i>
+                      <%= p.checked_in_at.strftime("%-I:%M %p") %>
+                    </span>
+                  <% else %>
+                    <span class="text-muted small">—</span>
+                  <% end %>
+                </td>
+                <td>
+                  <%= link_to admin_event_path(p.event, anchor: "participant-#{p.id}"),
+                      class: "btn btn-outline-secondary btn-sm py-0" do %>
+                    <i class="bi bi-arrow-right"></i>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="7" class="text-center text-muted py-5">
+                No participants found matching your filters.
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if @participants.respond_to?(:total_pages) && @participants.total_pages > 1 %>
+      <div class="card-footer d-flex justify-content-between align-items-center">
+        <small class="text-muted">
+          Showing <%= @participants.offset_value + 1 %>–<%= [@participants.offset_value + @participants.length, @total_count].min %> of <%= @total_count %>
+        </small>
+        <%== pagy_bootstrap_nav(@pagy) if defined?(@pagy) %>
+        <%== pagy_bootstrap_nav(@pagy) if defined?(@pagy) %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -21,9 +21,8 @@ Rails.application.routes.draw do
   get '/e/:slug/calendar', to: 'public_events#calendar', as: 'public_event_calendar'
 
   # User profile and settings
-  get 'profile', to: 'users#show'
-  get 'profile/edit', to: 'users#edit'
-  patch 'profile', to: 'users#update'
+  get 'profile/edit', to: 'users#edit', as: 'edit_profile'
+  patch 'profile', to: 'users#update', as: 'update_profile'
 
   # RSVP routes
   get 'rsvp/:event_id', to: 'rsvp#show', as: 'event_rsvp'
@@ -54,6 +53,9 @@ namespace :admin do
   # Admin dashboard
   get 'dashboard', to: 'dashboard#index'
   root 'dashboard#index'
+
+  # Global participants view
+  resources :participants, only: [:index]
   
   # User management
   resources :users do

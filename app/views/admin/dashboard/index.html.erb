@@ -32,7 +32,7 @@
     <div class="card text-center">
       <div class="card-body">
         <h6>Participants</h6>
-        <h3 class="text-success"><%= link_to EventParticipant.count, admin_events_path, class: "text-success text-decoration-none" %></h3>
+        <h3 class="text-success"><%= link_to EventParticipant.count, admin_participants_path, class: "text-success text-decoration-none" %></h3>
       </div>
     </div>
   </div>
@@ -40,7 +40,7 @@
     <div class="card text-center">
       <div class="card-body">
         <h6>Vendors</h6>
-        <h3 class="text-danger"><%= link_to EventParticipant.vendor.count, admin_events_path, class: "text-danger text-decoration-none" %></h3>
+        <h3 class="text-danger"><%= link_to EventParticipant.vendor.count, admin_participants_path(role: 'vendor'), class: "text-danger text-decoration-none" %></h3>
       </div>
     </div>
   </div>
@@ -48,7 +48,7 @@
     <div class="card text-center">
       <div class="card-body">
         <h6>Confirmed</h6>
-        <h3 class="text-secondary"><%= link_to EventParticipant.yes.count, admin_events_path, class: "text-secondary text-decoration-none" %></h3>
+        <h3 class="text-secondary"><%= link_to EventParticipant.yes.count, admin_participants_path(rsvp_status: 'yes'), class: "text-secondary text-decoration-none" %></h3>
       </div>
     </div>
   </div>
