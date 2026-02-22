@@ -243,3 +243,7 @@ puts "  Pending: #{current_participants.where(rsvp_status: 'pending').count}"
 puts ""
 puts "Ready to test at: http://localhost:3000"
 puts "Admin panel at: http://localhost:3000/admin"
+
+# ── Taxonomy ──────────────────────────────────────────────────────────────────
+load Rails.root.join('db/seeds/categories.rb')
+load Rails.root.join('db/seeds/categorizations.rb')
