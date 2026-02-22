@@ -55,8 +55,8 @@ class Vendor::VendorEventsController < Vendor::BaseController
         )
       end
 
-      # Enqueue SMS job (implemented in next session)
-      # BroadcastSmsJob.perform_later(@broadcast.id)
+      # Enqueue SMS job
+      BroadcastSmsJob.perform_later(@broadcast.id)
 
       redirect_to vendor_vendor_event_path(@vendor_event),
                   notice: "Broadcast sent to #{@broadcast.recipient_count} people!"
