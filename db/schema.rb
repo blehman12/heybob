@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_22_000003) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_22_000004) do
   create_table "broadcast_receipts", force: :cascade do |t|
     t.integer "broadcast_id", null: false
     t.integer "con_opt_in_id", null: false
@@ -36,6 +36,32 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_22_000003) do
     t.index ["sent_at"], name: "index_broadcasts_on_sent_at"
     t.index ["vendor_event_id", "sent_at"], name: "index_broadcasts_on_vendor_event_id_and_sent_at"
     t.index ["vendor_event_id"], name: "index_broadcasts_on_vendor_event_id"
+  end
+
+  create_table "categories", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.integer "facet", default: 0, null: false
+    t.integer "parent_id"
+    t.string "description"
+    t.integer "position", default: 0
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["facet"], name: "index_categories_on_facet"
+    t.index ["parent_id"], name: "index_categories_on_parent_id"
+    t.index ["slug"], name: "index_categories_on_slug", unique: true
+  end
+
+  create_table "categorizations", force: :cascade do |t|
+    t.integer "category_id", null: false
+    t.string "categorizable_type", null: false
+    t.integer "categorizable_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["categorizable_type", "categorizable_id"], name: "index_categorizations_on_categorizable"
+    t.index ["category_id", "categorizable_type", "categorizable_id"], name: "idx_categorizations_unique", unique: true
+    t.index ["category_id"], name: "index_categorizations_on_category_id"
   end
 
   create_table "con_opt_ins", force: :cascade do |t|
@@ -195,6 +221,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_22_000003) do
   add_foreign_key "broadcast_receipts", "broadcasts"
   add_foreign_key "broadcast_receipts", "con_opt_ins"
   add_foreign_key "broadcasts", "vendor_events"
+  add_foreign_key "categorizations", "categories"
   add_foreign_key "con_opt_ins", "events"
   add_foreign_key "con_opt_ins", "users"
   add_foreign_key "con_opt_ins", "vendor_events"

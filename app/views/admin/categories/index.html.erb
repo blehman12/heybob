@@ -1,0 +1,70 @@
+<% content_for :title, 'Categories' %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Taxonomy Categories</h1>
+  <%= link_to '+ New Category', new_admin_category_path, class: 'btn btn-primary' %>
+</div>
+
+<% Category.facets.keys.each do |facet| %>
+  <% cats = @categories_by_facet[facet] %>
+  <% next if cats.blank? %>
+
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <strong><%= facet.humanize %></strong>
+      <%= link_to "+ Add #{facet.humanize}", new_admin_category_path(facet: facet),
+                  class: 'btn btn-sm btn-outline-primary' %>
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-sm mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Name</th>
+            <th>Slug</th>
+            <th>Parent</th>
+            <th>In Use</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% cats.sort_by { |c| [c.parent_id.to_i, c.position, c.name] }.each do |cat| %>
+            <tr class="<%= 'table-secondary opacity-50' unless cat.active? %>">
+              <td>
+                <% if cat.parent %>
+                  <span class="text-muted ms-3">↳</span>
+                <% end %>
+                <%= cat.name %>
+              </td>
+              <td><code><%= cat.slug %></code></td>
+              <td><%= cat.parent&.name || '—' %></td>
+              <td>
+                <% count = cat.categorizations.count %>
+                <%= count > 0 ? count : '—' %>
+              </td>
+              <td>
+                <% if cat.active? %>
+                  <span class="badge bg-success">Active</span>
+                <% else %>
+                  <span class="badge bg-secondary">Inactive</span>
+                <% end %>
+              </td>
+              <td>
+                <%= link_to 'Edit', edit_admin_category_path(cat), class: 'btn btn-sm btn-outline-secondary me-1' %>
+                <%= button_to 'Delete', admin_category_path(cat), method: :delete,
+                              class: 'btn btn-sm btn-outline-danger',
+                              data: { confirm: "Delete #{cat.name}?" } %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>
+
+<% if @categories_by_facet.empty? %>
+  <div class="alert alert-info">
+    No categories yet. <%= link_to 'Create your first one', new_admin_category_path %>.
+  </div>
+<% end %>

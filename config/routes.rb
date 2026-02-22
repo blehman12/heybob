@@ -143,6 +143,9 @@ end
       end
     end
 
+    # Category / taxonomy management (super_admin only)
+    resources :categories
+
     # Venue management
     resources :venues do
       collection do

@@ -1,0 +1,6 @@
+<% content_for :title, "Edit #{@category.full_name}" %>
+<div class="mb-3">
+  <h1>Edit: <%= @category.full_name %></h1>
+  <%= link_to '← Back', admin_categories_path, class: 'text-muted small' %>
+</div>
+<%= render 'form', category: @category %>

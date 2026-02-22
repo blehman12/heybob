@@ -1,5 +1,7 @@
 # Clear existing data
 puts "Clearing existing data..."
+Categorization.destroy_all
+Category.destroy_all
 EventParticipant.destroy_all
 Event.destroy_all
 Venue.destroy_all

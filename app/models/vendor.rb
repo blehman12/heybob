@@ -5,6 +5,8 @@ class Vendor < ApplicationRecord
   has_many :vendor_events, dependent: :destroy
   has_many :events, through: :vendor_events
   has_one_attached :hero_image
+  has_many :categorizations, as: :categorizable, dependent: :destroy
+  has_many :categories, through: :categorizations
 
   enum participant_type: {
     business: 0,   # Dealer's room — company/commercial vendor

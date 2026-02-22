@@ -10,6 +10,8 @@ class Event < ApplicationRecord
            through: :event_participants, source: :user
   has_many :organizers, -> { where(event_participants: { role: :organizer }) },
            through: :event_participants, source: :user
+  has_many :categorizations, as: :categorizable, dependent: :destroy
+  has_many :categories, through: :categorizations
 
   enum event_type: {
     hosted:       0,  # We run it — full RSVP, check-in, vendor capability

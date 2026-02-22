@@ -1,0 +1,80 @@
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <% if category.errors.any? %>
+          <div class="alert alert-danger">
+            <% category.errors.full_messages.each do |msg| %>
+              <p class="mb-0"><%= msg %></p>
+            <% end %>
+          </div>
+        <% end %>
+
+        <%= form_with model: [:admin, category] do |f| %>
+
+          <div class="mb-3">
+            <%= f.label :facet, class: 'form-label fw-bold' %>
+            <%= f.select :facet,
+                         Category.facets.keys.map { |k| [k.humanize, k] },
+                         { prompt: 'Select facet...' },
+                         class: 'form-select', id: 'category_facet' %>
+            <small class="text-muted">Facet cannot be changed after creation.</small>
+          </div>
+
+          <div class="mb-3" id="parent-field" style="<%= 'display:none;' if @parents.blank? %>">
+            <%= f.label :parent_id, 'Parent (optional)', class: 'form-label' %>
+            <%= f.select :parent_id,
+                         @parents.map { |p| [p.name, p.id] },
+                         { include_blank: '— None (root category) —' },
+                         class: 'form-select' %>
+            <small class="text-muted">Leave blank to create a top-level category.</small>
+          </div>
+
+          <div class="mb-3">
+            <%= f.label :name, class: 'form-label fw-bold' %>
+            <%= f.text_field :name, class: 'form-control', autofocus: true %>
+          </div>
+
+          <div class="mb-3">
+            <%= f.label :description, class: 'form-label' %>
+            <%= f.text_area :description, class: 'form-control', rows: 2 %>
+          </div>
+
+          <div class="mb-3">
+            <%= f.label :position, 'Sort Order', class: 'form-label' %>
+            <%= f.number_field :position, class: 'form-control', min: 0, value: category.position || 0 %>
+            <small class="text-muted">Lower numbers appear first within the facet.</small>
+          </div>
+
+          <% if category.persisted? %>
+            <div class="mb-3 form-check">
+              <%= f.check_box :active, class: 'form-check-input' %>
+              <%= f.label :active, 'Active', class: 'form-check-label' %>
+            </div>
+          <% end %>
+
+          <div class="d-flex gap-2">
+            <%= f.submit category.new_record? ? 'Create Category' : 'Save Changes',
+                         class: 'btn btn-primary' %>
+            <%= link_to 'Cancel', admin_categories_path, class: 'btn btn-outline-secondary' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const facetSelect  = document.getElementById('category_facet');
+  const parentField  = document.getElementById('parent-field');
+  if (!facetSelect) return;
+
+  facetSelect.addEventListener('change', function() {
+    // When facet changes, reload page with facet param so parent options update
+    const url = new URL(window.location.href);
+    url.searchParams.set('facet', this.value);
+    window.location.href = url.toString();
+  });
+});
+</script>
