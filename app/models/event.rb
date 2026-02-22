@@ -75,10 +75,9 @@ class Event < ApplicationRecord
 
   def public_url
     return nil unless slug.present?
-    # For development
-    "http://localhost:3000/e/#{slug}"
-    # For production, use:
-    # Rails.application.routes.url_helpers.public_event_url(slug)
+    host = ENV.fetch('APP_HOST', 'localhost:3000')
+    protocol = host.include?('localhost') ? 'http' : 'https'
+    "#{protocol}://#{host}/e/#{slug}"
   end
 
   def to_param
@@ -111,6 +110,7 @@ class Event < ApplicationRecord
     if Event.where(slug: candidate_slug).exists?
       counter = 2
       loop do
+        raise "Could not generate unique slug for '#{name}' after 100 attempts" if counter > 100
         new_slug = "#{candidate_slug}-#{counter}"
         break self.slug = new_slug unless Event.where(slug: new_slug).exists?
         counter += 1

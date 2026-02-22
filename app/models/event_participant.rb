@@ -72,21 +72,9 @@ class EventParticipant < ApplicationRecord
 
   def qr_code_data
     return nil unless qr_code_token.present?
-    
-    # For development, use your actual IP address or ngrok URL
-    # For production, this should be your domain name
-    
-    # Option 1: Use your local network IP (find with `ipconfig` or `ifconfig`)
-    # host = '192.168.1.100:3000'  # Replace with your actual IP
-    
-    # Option 2: For now, use localhost:3000 but note it only works on same machine
-    host = 'localhost:3000'
-    
-    # Option 3: For testing with phones, use ngrok (recommended)
-    # host = 'your-ngrok-url.ngrok.io'
-    
-    # Generate the check-in URL for QR codes
-    "http://#{host}/checkin/verify?token=#{qr_code_token}&event=#{event_id}&participant=#{id}"
+    host = ENV.fetch('APP_HOST', 'localhost:3000')
+    protocol = host.include?('localhost') ? 'http' : 'https'
+    "#{protocol}://#{host}/checkin/verify?token=#{qr_code_token}&event=#{event_id}&participant=#{id}"
   end
 
   # Display methods

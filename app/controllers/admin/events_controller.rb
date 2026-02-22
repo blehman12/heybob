@@ -166,7 +166,7 @@ class Admin::EventsController < Admin::BaseController
   end
 
   def load_users
-    @users = User.where(role: 'attendee').order(:first_name, :last_name)
+    @users = User.order(:first_name, :last_name)
   end
 
   def participant_params
