@@ -3,15 +3,13 @@
 # Add this at the top if not already there
 require 'csv'
 
-class Admin::BulkUsersController < ApplicationController
-  before_action :authenticate_user!
-  before_action :ensure_admin!
+class Admin::BulkUsersController < Admin::BaseController
 
   def index
     @users = User.includes(:events).order(:last_name, :first_name)
     @total_users = @users.count
     @recent_users = @users.where('created_at > ?', 7.days.ago).count
-    @admin_count = User.where(role: 'admin').count
+    @admin_count = User.where(role: :super_admin).count
   end
 
   def import_form
@@ -144,7 +142,7 @@ class Admin::BulkUsersController < ApplicationController
         end
         
         # Validate role
-        if user_attrs[:role].present? && !['admin', 'attendee'].include?(user_attrs[:role].downcase)
+        if user_attrs[:role].present? && !['super_admin', 'attendee'].include?(user_attrs[:role].downcase)
           user_attrs[:role] = 'attendee'
         end
         
@@ -172,7 +170,7 @@ class Admin::BulkUsersController < ApplicationController
     users_to_delete = users.reject { |u| u == current_user }
     
     # Check if we're deleting all admins
-    remaining_admins = User.where(role: 'admin').where.not(id: users_to_delete.map(&:id)).count
+    remaining_admins = User.where(role: :super_admin).where.not(id: users_to_delete.map(&:id)).count
     
     if remaining_admins == 0
       redirect_to admin_bulk_users_path, alert: 'Cannot delete all admin users.'
@@ -205,8 +203,8 @@ class Admin::BulkUsersController < ApplicationController
     users_to_demote = users.reject { |u| u == current_user }
     
     # Ensure we don't demote all admins
-    current_admin_count = User.where(role: 'admin').count
-    admin_users_to_demote = users_to_demote.select { |u| u.role == 'admin' }
+    current_admin_count = User.where(role: :super_admin).count
+    admin_users_to_demote = users_to_demote.select { |u| u.role == 'super_admin' }
     
     if admin_users_to_demote.count >= current_admin_count
       redirect_to admin_bulk_users_path, alert: 'Cannot demote all admin users.'
@@ -215,7 +213,7 @@ class Admin::BulkUsersController < ApplicationController
     
     count = 0
     users_to_demote.each do |user|
-      if user.role == 'admin'
+      if user.role == 'super_admin'
         user.update!(role: 'attendee')
         count += 1
       end
@@ -243,6 +241,6 @@ class Admin::BulkUsersController < ApplicationController
   end
 
   def ensure_admin!
-    redirect_to root_path unless current_user&.role == 'admin'
+    redirect_to root_path unless current_user&.admin?
   end
 end
