@@ -8,6 +8,7 @@ module HasExternalId
   private
 
   def assign_external_id
+    return unless self.class.column_names.include?('external_id')
     self.external_id ||= SecureRandom.uuid
   end
 end
