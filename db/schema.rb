@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_22_000004) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_22_000006) do
   create_table "broadcast_receipts", force: :cascade do |t|
     t.integer "broadcast_id", null: false
     t.integer "con_opt_in_id", null: false
@@ -48,6 +48,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_22_000004) do
     t.boolean "active", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "external_id"
+    t.index ["external_id"], name: "index_categories_on_external_id", unique: true
     t.index ["facet"], name: "index_categories_on_facet"
     t.index ["parent_id"], name: "index_categories_on_parent_id"
     t.index ["slug"], name: "index_categories_on_slug", unique: true
@@ -129,7 +131,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_22_000004) do
     t.boolean "public_rsvp_enabled", default: false
     t.integer "event_type", default: 0, null: false
     t.string "external_url"
+    t.string "external_id"
     t.index ["event_type"], name: "index_events_on_event_type"
+    t.index ["external_id"], name: "index_events_on_external_id", unique: true
     t.index ["slug"], name: "index_events_on_slug", unique: true
   end
 
@@ -149,7 +153,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_22_000004) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "source"
+    t.string "external_id"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["external_id"], name: "index_users_on_external_id", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
@@ -204,6 +210,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_22_000004) do
     t.string "instagram_handle"
     t.string "twitter_handle"
     t.string "tiktok_handle"
+    t.string "external_id"
+    t.index ["external_id"], name: "index_vendors_on_external_id", unique: true
     t.index ["participant_type"], name: "index_vendors_on_participant_type"
     t.index ["user_id"], name: "index_vendors_on_user_id"
   end

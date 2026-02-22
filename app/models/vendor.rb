@@ -1,4 +1,5 @@
 class Vendor < ApplicationRecord
+  include HasExternalId
   belongs_to :user  # owner
   has_many :vendor_users, dependent: :destroy
   has_many :users, through: :vendor_users

@@ -1,4 +1,5 @@
 class Event < ApplicationRecord
+  include HasExternalId
   # Associations
   belongs_to :venue, optional: true
   belongs_to :creator, class_name: 'User'

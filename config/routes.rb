@@ -143,6 +143,9 @@ end
       end
     end
 
+    # Data export (super_admin only)
+    resource :export, only: [:show], controller: 'export'
+
     # Category / taxonomy management (super_admin only)
     resources :categories
 
