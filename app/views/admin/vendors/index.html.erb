@@ -1,0 +1,52 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Vendors</h1>
+  <div class="btn-group">
+    <%= link_to 'New Vendor', new_admin_vendor_path, class: 'btn btn-primary' %>
+    <%= link_to 'Import CSV', import_form_admin_vendors_path, class: 'btn btn-outline-success' %>
+    <%= link_to 'Export CSV', export_admin_vendors_path, class: 'btn btn-outline-secondary' %>
+  </div>
+</div>
+
+<% if @vendors.empty? %>
+  <div class="alert alert-info">
+    No vendors yet. <%= link_to 'Import from CSV', import_form_admin_vendors_path %> or <%= link_to 'create one manually', new_admin_vendor_path %>.
+  </div>
+<% else %>
+  <div class="card">
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Name</th>
+            <th>Hook Line</th>
+            <th>Website</th>
+            <th>Owner</th>
+            <th>Events</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @vendors.each do |vendor| %>
+            <tr>
+              <td><strong><%= link_to vendor.name, admin_vendor_path(vendor) %></strong></td>
+              <td><small class="text-muted"><%= vendor.hook_line %></small></td>
+              <td>
+                <% if vendor.website.present? %>
+                  <%= link_to vendor.website.gsub(%r{^https?://}, ''), vendor.website, target: '_blank', class: 'text-truncate d-inline-block', style: 'max-width:150px' %>
+                <% end %>
+              </td>
+              <td><%= vendor.user&.email %></td>
+              <td><span class="badge bg-secondary"><%= vendor.events.count %></span></td>
+              <td class="text-end">
+                <%= link_to 'Edit', edit_admin_vendor_path(vendor), class: 'btn btn-sm btn-outline-primary' %>
+                <%= link_to 'Delete', admin_vendor_path(vendor), method: :delete,
+                    data: { confirm: "Delete #{vendor.name}?" }, class: 'btn btn-sm btn-outline-danger' %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="text-muted mt-2"><%= pluralize(@vendors.count, 'vendor') %></p>
+<% end %>

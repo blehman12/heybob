@@ -1,0 +1,82 @@
+<%# Vendor opt-in landing page — mobile-first, no chrome %>
+<% content_for :page_class, 'optin-page' %>
+
+<div class="optin-wrapper">
+
+  <%# Hero image — vendor brand %>
+  <div class="optin-hero">
+    <% if @vendor_event.vendor.hero_image.attached? %>
+      <%= image_tag @vendor_event.vendor.hero_image, class: 'hero-img', alt: @vendor_event.vendor.name %>
+    <% else %>
+      <div class="hero-placeholder">
+        <span class="hero-name-large"><%= @vendor_event.vendor.name %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Vendor identity %>
+  <div class="optin-identity">
+    <h1 class="vendor-name"><%= @vendor_event.vendor.name %></h1>
+    <p class="event-context">
+      <%= @vendor_event.event.name %>
+      <% if @vendor_event.booth_number.present? %>
+        &middot; Booth <%= @vendor_event.booth_number %>
+      <% end %>
+    </p>
+  </div>
+
+  <%# Hook line — vendor writes this %>
+  <% if @vendor_event.vendor.hook_line.present? %>
+    <div class="optin-hook">
+      <p><%= @vendor_event.vendor.hook_line %></p>
+    </div>
+  <% end %>
+
+  <%# The form %>
+  <%= form_with model: @con_opt_in, url: vendor_optin_submit_path(@vendor_event.qr_token),
+                method: :post, class: 'optin-form', local: true do |f| %>
+
+    <% if @con_opt_in.errors.any? %>
+      <div class="optin-errors">
+        <% @con_opt_in.errors.full_messages.each do |msg| %>
+          <p><%= msg %></p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="field-group">
+      <%= f.text_field :name,
+            placeholder: 'Your name',
+            autocomplete: 'name',
+            required: true,
+            class: 'optin-input' %>
+    </div>
+
+    <div class="field-group">
+      <%= f.tel_field :phone,
+            placeholder: 'Phone number (for text updates)',
+            autocomplete: 'tel',
+            class: 'optin-input',
+            inputmode: 'tel' %>
+    </div>
+
+    <div class="field-group">
+      <%= f.email_field :email,
+            placeholder: 'Or email address',
+            autocomplete: 'email',
+            class: 'optin-input',
+            inputmode: 'email' %>
+    </div>
+
+    <%= f.submit 'Count Me In!', class: 'optin-submit' %>
+
+  <% end %>
+
+  <p class="optin-fine-print">
+    By signing up you'll receive live updates from
+    <%= @vendor_event.vendor.name %> and all participating
+    <%= @vendor_event.event.name %> vendors.
+    No spam — just what's happening right now at the con.
+  </p>
+
+</div>

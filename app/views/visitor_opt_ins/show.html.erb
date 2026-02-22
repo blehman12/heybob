@@ -19,8 +19,11 @@
 
     <div>
       <h1 class="vendor-name"><%= @vendor_event.vendor.name %></h1>
+      <p class="optin-headline"><%= @vendor_event.optin_headline %></p>
       <% if @vendor_event.vendor.hook_line.present? %>
         <p class="hook-line"><%= @vendor_event.vendor.hook_line %></p>
+      <% else %>
+        <p class="hook-line"><%= @vendor_event.optin_subtext %></p>
       <% end %>
     </div>
 
@@ -78,7 +81,7 @@
 
     <p class="fine-print">
       By joining you'll receive live updates from
-      <%= @vendor_event.event.name %> vendors during the event.
+      <%= @vendor_event.vendor.name %> during <%= @vendor_event.event.name %>.
       No spam. Unsubscribe anytime.
     </p>
 

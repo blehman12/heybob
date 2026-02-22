@@ -36,6 +36,9 @@ class Vendor::VendorsController < Vendor::BaseController
   private
 
   def vendor_params
-    params.require(:vendor).permit(:name, :description, :hook_line, :website, :hero_image)
+    params.require(:vendor).permit(
+      :name, :description, :hook_line, :website, :hero_image,
+      :participant_type, :instagram_handle, :twitter_handle, :tiktok_handle
+    )
   end
 end

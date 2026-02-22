@@ -9,6 +9,30 @@
 <%= form_with model: [:vendor, vendor], class: 'vd-form' do |f| %>
 
   <div class="vd-form-section">
+    <div class="vd-form-section__title">Type</div>
+
+    <div class="vd-field">
+      <%= f.label :participant_type, 'I am a...', class: 'vd-label' %>
+      <div class="vd-type-toggle" id="participant-type-toggle">
+        <label class="vd-type-option <%= 'vd-type-option--active' if vendor.business? || vendor.participant_type.blank? %>">
+          <%= f.radio_button :participant_type, :business, id: 'type_business',
+                             data: { toggle_target: 'business' } %>
+          <span class="vd-type-icon">🏪</span>
+          <span class="vd-type-label">Business / Dealer</span>
+          <span class="vd-type-hint">Commercial vendor, Dealer's Room</span>
+        </label>
+        <label class="vd-type-option <%= 'vd-type-option--active' if vendor.artist? %>">
+          <%= f.radio_button :participant_type, :artist, id: 'type_artist',
+                             data: { toggle_target: 'artist' } %>
+          <span class="vd-type-icon">🎨</span>
+          <span class="vd-type-label">Artist</span>
+          <span class="vd-type-hint">Artist Alley, individual creator</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="vd-form-section">
     <div class="vd-form-section__title">Your Brand</div>
 
     <%# Hero image upload %>
@@ -26,11 +50,18 @@
     </div>
 
     <div class="vd-field">
-      <%= f.label :name, 'Vendor Name', class: 'vd-label' %>
+      <%= f.label :name, 'Name', class: 'vd-label' %>
+      <span class="vd-hint" id="name-hint-business" style="<%= 'display:none;' if vendor.artist? %>">
+        Your business or brand name
+      </span>
+      <span class="vd-hint" id="name-hint-artist" style="<%= 'display:none;' unless vendor.artist? %>">
+        Your name or artist alias (this is your brand)
+      </span>
       <%= f.text_field :name,
-                       placeholder: 'Portland KPOP CO',
+                       placeholder: vendor.artist? ? 'e.g. Sakura Studio Art' : 'e.g. Portland KPOP Co',
                        class: "vd-input #{'is-invalid' if vendor.errors[:name].any?}",
-                       autocomplete: 'organization' %>
+                       autocomplete: 'organization',
+                       id: 'vendor_name' %>
       <% if vendor.errors[:name].any? %>
         <span class="vd-field-error"><%= vendor.errors[:name].first %></span>
       <% end %>
@@ -39,8 +70,9 @@
     <div class="vd-field">
       <%= f.label :hook_line, 'Hook Line', class: 'vd-label' %>
       <%= f.text_field :hook_line,
-                       placeholder: 'Free sticker with signup + enter our drawing!',
-                       class: 'vd-input' %>
+                       placeholder: vendor.artist? ? 'Free mini print with every signup!' : 'Free sticker with signup + enter our drawing!',
+                       class: 'vd-input',
+                       id: 'vendor_hook_line' %>
       <span class="vd-hint">
         The one line attendees see on the opt-in screen. Make it irresistible.
       </span>
@@ -49,21 +81,110 @@
     <div class="vd-field">
       <%= f.label :description, 'Description', class: 'vd-label' %>
       <%= f.text_area :description,
-                      placeholder: 'Tell people what you sell or do...',
+                      placeholder: vendor.artist? ? 'Tell people about your art, style, and what you\'ll have at the table...' : 'Tell people what you sell or do...',
                       class: 'vd-textarea',
-                      rows: 3 %>
+                      rows: 3,
+                      id: 'vendor_description' %>
     </div>
 
+    <%# Website — always visible %>
     <div class="vd-field">
       <%= f.label :website, 'Website', class: 'vd-label' %>
       <%= f.url_field :website,
-                      placeholder: 'https://portlandkpopco.com',
+                      placeholder: 'https://yoursite.com',
                       class: 'vd-input',
                       autocomplete: 'url' %>
     </div>
+
+    <%# Social handles — shown for artists, hidden for businesses %>
+    <div id="social-handles-section" style="<%= 'display:none;' unless vendor.artist? %>">
+      <div class="vd-form-section__title" style="margin-top: 16px;">Social Handles</div>
+      <span class="vd-hint" style="margin-bottom: 12px; display:block;">
+        Your social presence is your brand — add whichever you use.
+      </span>
+
+      <div class="vd-field">
+        <%= f.label :instagram_handle, class: 'vd-label' do %>
+          <span style="margin-right: 6px;">📸</span> Instagram
+        <% end %>
+        <div class="vd-input-prefix-wrap">
+          <span class="vd-input-prefix">@</span>
+          <%= f.text_field :instagram_handle,
+                           placeholder: 'yourhandle',
+                           class: 'vd-input vd-input--prefixed',
+                           autocomplete: 'off',
+                           autocorrect: 'off',
+                           autocapitalize: 'off' %>
+        </div>
+      </div>
+
+      <div class="vd-field">
+        <%= f.label :twitter_handle, class: 'vd-label' do %>
+          <span style="margin-right: 6px;">🐦</span> Twitter / X
+        <% end %>
+        <div class="vd-input-prefix-wrap">
+          <span class="vd-input-prefix">@</span>
+          <%= f.text_field :twitter_handle,
+                           placeholder: 'yourhandle',
+                           class: 'vd-input vd-input--prefixed',
+                           autocomplete: 'off',
+                           autocorrect: 'off',
+                           autocapitalize: 'off' %>
+        </div>
+      </div>
+
+      <div class="vd-field">
+        <%= f.label :tiktok_handle, class: 'vd-label' do %>
+          <span style="margin-right: 6px;">🎵</span> TikTok
+        <% end %>
+        <div class="vd-input-prefix-wrap">
+          <span class="vd-input-prefix">@</span>
+          <%= f.text_field :tiktok_handle,
+                           placeholder: 'yourhandle',
+                           class: 'vd-input vd-input--prefixed',
+                           autocomplete: 'off',
+                           autocorrect: 'off',
+                           autocapitalize: 'off' %>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <%= f.submit vendor.new_record? ? 'Create Profile' : 'Save Changes',
                class: 'vd-btn vd-btn--full' %>
 
 <% end %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const businessRadio = document.getElementById('type_business');
+    const artistRadio   = document.getElementById('type_artist');
+    const socialSection = document.getElementById('social-handles-section');
+    const nameHintBiz   = document.getElementById('name-hint-business');
+    const nameHintArt   = document.getElementById('name-hint-artist');
+    const typeOptions   = document.querySelectorAll('.vd-type-option');
+
+    function updateUI(type) {
+      // Toggle social section
+      socialSection.style.display = type === 'artist' ? 'block' : 'none';
+
+      // Toggle name hints
+      nameHintBiz.style.display = type === 'artist' ? 'none'  : 'block';
+      nameHintArt.style.display = type === 'artist' ? 'block' : 'none';
+
+      // Toggle active class on type cards
+      typeOptions.forEach(function(opt) {
+        const radio = opt.querySelector('input[type=radio]');
+        opt.classList.toggle('vd-type-option--active', radio.checked);
+      });
+    }
+
+    businessRadio.addEventListener('change', function() { updateUI('business'); });
+    artistRadio.addEventListener('change',   function() { updateUI('artist');   });
+
+    // Set initial state
+    const current = artistRadio.checked ? 'artist' : 'business';
+    updateUI(current);
+  });
+</script>

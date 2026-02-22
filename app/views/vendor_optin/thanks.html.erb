@@ -1,0 +1,46 @@
+<%# Thanks / confirmation screen %>
+<% content_for :page_class, 'optin-page' %>
+
+<div class="optin-wrapper thanks-wrapper">
+
+  <div class="thanks-hero">
+    <% if @vendor_event.vendor.hero_image.attached? %>
+      <%= image_tag @vendor_event.vendor.hero_image, class: 'hero-img', alt: @vendor_event.vendor.name %>
+    <% else %>
+      <div class="hero-placeholder">
+        <span class="hero-name-large"><%= @vendor_event.vendor.name %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="thanks-content">
+    <div class="thanks-check">✓</div>
+    <h1 class="thanks-headline">You're in!</h1>
+
+    <p class="thanks-message">
+      Welcome to the <%= @vendor_event.event.name %> feed.
+      You'll get live updates from <%= @vendor_event.vendor.name %>
+      and all participating vendors — drawings, specials, appearances, and more.
+    </p>
+
+    <div class="thanks-stat">
+      <span class="stat-number"><%= @opt_in_count %></span>
+      <span class="stat-label">people connected at this booth</span>
+    </div>
+
+    <%# Link to the public feed %>
+    <div class="thanks-feed-link">
+      <%= link_to con_feed_path(@vendor_event.event_id), class: 'feed-btn' do %>
+        See what's happening now →
+      <% end %>
+    </div>
+
+    <p class="thanks-fine-print">
+      <%= @vendor_event.event.name %>
+      <% if @vendor_event.booth_number.present? %>
+        &middot; Find us at Booth <%= @vendor_event.booth_number %>
+      <% end %>
+    </p>
+  </div>
+
+</div>

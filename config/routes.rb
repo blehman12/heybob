@@ -133,6 +133,16 @@ resources :events do
   end
 end
 
+    # Vendor management
+    resources :vendors do
+      collection do
+        get  'import_form'
+        post 'import'
+        get  'export'
+        get  'template'
+      end
+    end
+
     # Venue management
     resources :venues do
       collection do

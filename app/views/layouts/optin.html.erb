@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title><%= content_for?(:title) ? yield(:title) : 'Welcome' %></title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", media: "all" %>
+  </head>
+  <body class="<%= content_for?(:page_class) ? yield(:page_class) : '' %>">
+
+    <% if notice %>
+      <div class="optin-notice"><%= notice %></div>
+    <% end %>
+
+    <%= yield %>
+
+  </body>
+</html>

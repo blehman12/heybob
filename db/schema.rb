@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_22_000001) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_22_000002) do
   create_table "broadcast_receipts", force: :cascade do |t|
     t.integer "broadcast_id", null: false
     t.integer "con_opt_in_id", null: false
@@ -133,6 +133,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_22_000001) do
     t.integer "display_order", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "category", default: 0, null: false
+    t.index ["category"], name: "index_vendor_events_on_category"
     t.index ["event_id"], name: "index_vendor_events_on_event_id"
     t.index ["qr_token"], name: "index_vendor_events_on_qr_token", unique: true
     t.index ["vendor_id", "event_id"], name: "index_vendor_events_on_vendor_id_and_event_id", unique: true
@@ -169,6 +171,11 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_22_000001) do
     t.string "website"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "participant_type", default: 0, null: false
+    t.string "instagram_handle"
+    t.string "twitter_handle"
+    t.string "tiktok_handle"
+    t.index ["participant_type"], name: "index_vendors_on_participant_type"
     t.index ["user_id"], name: "index_vendors_on_user_id"
   end
 

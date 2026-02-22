@@ -14,6 +14,7 @@ gem "stimulus-rails"
 gem "jbuilder"
 gem "redis", ">= 4.0.1"
 gem 'sidekiq', '~> 7.2'
+gem 'twilio-ruby', '~> 7.0'
 gem "bootsnap", require: false
 gem "sassc-rails"
 gem "image_processing", "~> 1.2"

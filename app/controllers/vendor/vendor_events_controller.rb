@@ -4,6 +4,8 @@ class Vendor::VendorEventsController < Vendor::BaseController
 
   def new
     @vendor_event = VendorEvent.new
+    # Default category based on vendor's participant type
+    @vendor_event.category = @vendor.artist? ? :artist_alley : :dealer
     @available_events = Event.upcoming.order(:event_date)
   end
 
@@ -29,7 +31,6 @@ class Vendor::VendorEventsController < Vendor::BaseController
   end
 
   def qr_code
-    # Returns QR code data for display / download
     @optin_url = vendor_optin_url(@vendor_event.qr_token,
                                   host: request.base_url)
   end
@@ -46,7 +47,6 @@ class Vendor::VendorEventsController < Vendor::BaseController
     @broadcast.recipient_count = recipients.count
 
     if @broadcast.save
-      # Create receipts and enqueue SMS delivery
       recipients.each do |opt_in|
         BroadcastReceipt.create!(
           broadcast:   @broadcast,
@@ -55,7 +55,6 @@ class Vendor::VendorEventsController < Vendor::BaseController
         )
       end
 
-      # Enqueue SMS job
       BroadcastSmsJob.perform_later(@broadcast.id)
 
       redirect_to vendor_vendor_event_path(@vendor_event),
@@ -70,8 +69,7 @@ class Vendor::VendorEventsController < Vendor::BaseController
   private
 
   def vendor_event_params
-    params.require(:vendor_event).permit(:event_id).tap do |p|
-      # Merge booth metadata from separate params
+    params.require(:vendor_event).permit(:event_id, :category).tap do |p|
       metadata = {}
       metadata['booth_number'] = params[:booth_number].strip  if params[:booth_number].present?
       metadata['hall']         = params[:hall].strip          if params[:hall].present?

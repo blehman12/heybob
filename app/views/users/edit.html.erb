@@ -1,0 +1,68 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Edit Your Profile</h4>
+        </div>
+        <div class="card-body">
+          <%= simple_form_for @user, url: update_profile_path, method: :patch do |f| %>
+            <%= f.error_notification %>
+
+            <div class="row">
+              <div class="col-md-6">
+                <%= f.input :first_name, 
+                            required: true,
+                            input_html: { class: 'form-control' } %>
+              </div>
+              <div class="col-md-6">
+                <%= f.input :last_name,
+                            required: true,
+                            input_html: { class: 'form-control' } %>
+              </div>
+            </div>
+
+            <%= f.input :email,
+                        disabled: true,
+                        hint: 'To change your email, use Account Settings',
+                        input_html: { class: 'form-control' } %>
+
+            <div class="row">
+              <div class="col-md-6">
+                <%= f.input :phone,
+                            required: true,
+                            input_html: { class: 'form-control' } %>
+              </div>
+              <div class="col-md-6">
+                <%= f.input :company,
+                            required: true,
+                            input_html: { class: 'form-control' } %>
+              </div>
+            </div>
+
+            <div class="form-check mb-3">
+              <%= f.input :text_capable,
+                          as: :boolean,
+                          label: 'I can receive text messages at this phone number',
+                          input_html: { class: 'form-check-input' } %>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-4">
+              <%= f.button :submit, 'Update Profile', class: 'btn btn-primary' %>
+              <%= link_to 'Cancel', root_path, class: 'btn btn-outline-secondary' %>
+              <%= link_to 'Account Settings', edit_user_registration_path, class: 'btn btn-outline-info' %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="card mt-3">
+        <div class="card-body">
+          <h5 class="card-title">Account Settings</h5>
+          <p class="text-muted">Need to change your email or password?</p>
+          <%= link_to 'Go to Account Settings', edit_user_registration_path, class: 'btn btn-sm btn-outline-secondary' %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,6 +1,9 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+  # Allow access from local network for mobile testing
+  config.hosts << "10.0.0.170"
+  config.hosts << /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/ # Allow any IP
 
   # Asset configuration for development - prevent caching issues
   config.assets.digest = false

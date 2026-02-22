@@ -5,7 +5,7 @@
     Join an Event
   </h1>
   <p style="font-size:14px; color:rgba(255,255,255,0.45); margin-top:8px; line-height:1.5;">
-    Register <%= @vendor.name %> as a vendor for an upcoming event.
+    Register <%= @vendor.name %> as a participant in an upcoming event.
   </p>
 </div>
 
@@ -20,7 +20,22 @@
 <%= form_with model: [:vendor, @vendor, @vendor_event] do |f| %>
 
   <div class="vd-form-section">
-    <div class="vd-form-section__title">Event</div>
+    <div class="vd-form-section__title">Participation</div>
+
+    <div class="vd-field">
+      <%= f.label :category, 'Participation Type', class: 'vd-label' %>
+      <%= f.select :category,
+                   [
+                     ["Dealer's Room",  'dealer'],
+                     ['Artist Alley',   'artist_alley'],
+                     ['Sponsor',        'sponsor'],
+                     ['Exhibitor',      'exhibitor'],
+                     ['Panelist',       'panelist']
+                   ],
+                   { selected: @vendor_event.category.presence || default_category },
+                   class: 'vd-input' %>
+      <span class="vd-hint">How you're participating at this event</span>
+    </div>
 
     <div class="vd-field">
       <%= f.label :event_id, 'Select Event', class: 'vd-label' %>
@@ -61,7 +76,7 @@
           <input type="text"
                  id="hall"
                  name="hall"
-                 placeholder="Main Hall"
+                 placeholder="Main Hall A"
                  class="vd-input"
                  value="<%= params[:hall] %>">
         </div>

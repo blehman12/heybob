@@ -4,6 +4,8 @@ class Event < ApplicationRecord
   belongs_to :creator, class_name: 'User'
   has_many :event_participants, dependent: :destroy
   has_many :users, through: :event_participants
+  has_many :vendor_events, dependent: :destroy
+  has_many :con_opt_ins, dependent: :destroy
   has_many :vendors, -> { where(event_participants: { role: :vendor }) },
            through: :event_participants, source: :user
   has_many :organizers, -> { where(event_participants: { role: :organizer }) },
