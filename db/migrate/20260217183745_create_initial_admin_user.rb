@@ -11,7 +11,7 @@ class CreateInitialAdminUser < ActiveRecord::Migration[7.1]
       last_name: "User",
       phone: "503-555-0100",
       company: "NWTG",
-      role: :admin
+      role: 1  # 1 = super_admin (was 'admin' before role expansion)
     )
   end
 
