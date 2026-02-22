@@ -5,7 +5,14 @@
       <!-- Event Header -->
       <div class="card shadow-sm mb-4">
         <div class="card-body">
-          <h1 class="display-4 mb-3"><%= @event.name %></h1>
+          <h1 class="display-4 mb-3">
+            <%= @event.name %>
+            <% if @event.reference? %>
+              <span class="badge bg-secondary fs-6 ms-2">External Event</span>
+            <% elsif @event.participating? %>
+              <span class="badge bg-info fs-6 ms-2">We're Participating</span>
+            <% end %>
+          </h1>
           
           <!-- Event Details -->
           <div class="row mb-3">
@@ -48,22 +55,24 @@
             </div>
           <% end %>
 
-          <!-- Capacity Info -->
-          <div class="mt-4">
-            <div class="progress" style="height: 25px;">
-              <% percentage = (@event.attendees_count.to_f / @event.max_attendees * 100).round %>
-              <div class="progress-bar" role="progressbar" 
-                   style="width: <%= percentage %>%" 
-                   aria-valuenow="<%= @event.attendees_count %>" 
-                   aria-valuemin="0" 
-                   aria-valuemax="<%= @event.max_attendees %>">
-                <%= @event.attendees_count %> / <%= @event.max_attendees %> attending
+          <!-- Capacity Info — hosted only -->
+          <% if @event.hosted? && @event.max_attendees.present? %>
+            <div class="mt-4">
+              <div class="progress" style="height: 25px;">
+                <% percentage = (@event.attendees_count.to_f / @event.max_attendees * 100).round %>
+                <div class="progress-bar" role="progressbar"
+                     style="width: <%= percentage %>%"
+                     aria-valuenow="<%= @event.attendees_count %>"
+                     aria-valuemin="0"
+                     aria-valuemax="<%= @event.max_attendees %>">
+                  <%= @event.attendees_count %> / <%= @event.max_attendees %> attending
+                </div>
               </div>
             </div>
-          </div>
+          <% end %>
 
-          <!-- RSVP Deadline -->
-          <% if @event.rsvp_deadline.present? %>
+          <!-- RSVP Deadline — hosted only -->
+          <% if @event.hosted? && @event.rsvp_deadline.present? %>
             <div class="alert <%= @event.rsvp_open? ? 'alert-info' : 'alert-warning' %> mt-3">
               <i class="bi bi-clock"></i>
               <% if @event.rsvp_open? %>
@@ -73,11 +82,23 @@
               <% end %>
             </div>
           <% end %>
+
+          <!-- External link — reference/participating -->
+          <% if (@event.reference? || @event.participating?) && @event.external_url.present? %>
+            <div class="mt-4">
+              <%= link_to @event.external_url, target: '_blank', rel: 'noopener',
+                          class: 'btn btn-outline-primary btn-lg' do %>
+                <i class="bi bi-box-arrow-up-right"></i>
+                View Official Event Page &rarr;
+              <% end %>
+            </div>
+          <% end %>
         </div>
       </div>
 
-      <!-- RSVP Form -->
-      <% if @event.rsvp_open? %>
+      <!-- RSVP Form — hosted events only -->
+      <% if @event.hosted? %>
+        <% if @event.rsvp_open? %>
         <div class="card shadow-sm">
           <div class="card-header bg-primary text-white">
             <h4 class="mb-0">
@@ -171,6 +192,7 @@
           RSVPs are no longer being accepted for this event.
         </div>
       <% end %>
+      <% end %> <%# end hosted? %>
 
       <!-- Existing RSVP Display -->
       <% if @existing_rsvp && !@event.rsvp_open? %>

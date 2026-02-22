@@ -19,44 +19,76 @@
             <%= form.text_field :name, class: "form-control", required: true %>
           </div>
 
+          <%# ── Event Type ── %>
+          <div class="mb-3">
+            <%= form.label :event_type, "Event Type", class: "form-label fw-bold" %>
+            <div class="btn-group w-100" role="group" id="event-type-group">
+              <% [['hosted', '🏠 Hosted', 'We run this event'], ['participating', '🤝 Participating', "We have a presence (booth/speaker)"], ['reference', '🔗 Reference', 'External event, awareness only']].each do |val, label, hint| %>
+                <%= form.radio_button :event_type, val, class: 'btn-check', id: "event_type_#{val}" %>
+                <label class="btn btn-outline-primary" for="event_type_<%= val %>" title="<%= hint %>">
+                  <%= label %>
+                </label>
+              <% end %>
+            </div>
+            <small class="text-muted mt-1 d-block" id="event-type-hint"></small>
+          </div>
+
+          <%# ── External URL — shown for participating/reference ── %>
+          <div class="mb-3" id="external-url-section" style="display:none;">
+            <%= form.label :external_url, "External Event URL", class: "form-label" %>
+            <%= form.url_field :external_url, class: "form-control", placeholder: "https://ptc.com/user-group-2026" %>
+            <small class="text-muted">Link to the official event page</small>
+          </div>
+
           <div class="mb-3">
             <%= form.label :description, class: "form-label" %>
             <%= form.text_area :description, class: "form-control", rows: 3 %>
           </div>
 
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <%= form.label :venue_id, "Venue", class: "form-label" %>
-              <%= form.select :venue_id, options_from_collection_for_select(@venues, :id, :name, @event.venue_id), 
-                              { prompt: "Select a venue" }, { class: "form-select", required: true } %>
+          <%# ── Hosted-only fields (venue, capacity, dates, RSVP) ── %>
+          <div id="hosted-fields">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <%= form.label :venue_id, "Venue", class: "form-label" %>
+                <%= form.select :venue_id, options_from_collection_for_select(@venues, :id, :name, @event.venue_id),
+                                { prompt: "Select a venue" }, { class: "form-select" } %>
+              </div>
+              <div class="col-md-6 mb-3">
+                <%= form.label :max_attendees, class: "form-label" %>
+                <%= form.number_field :max_attendees, class: "form-control", min: 1 %>
+              </div>
             </div>
-            <div class="col-md-6 mb-3">
-              <%= form.label :max_attendees, class: "form-label" %>
-              <%= form.number_field :max_attendees, class: "form-control", required: true, min: 1 %>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <%= form.label :event_date, "Event Date", class: "form-label" %>
+                <%= form.datetime_local_field :event_date, class: "form-control", required: true %>
+              </div>
+              <div class="col-md-6 mb-3">
+                <%= form.label :rsvp_deadline, "RSVP Deadline", class: "form-label" %>
+                <%= form.datetime_local_field :rsvp_deadline, class: "form-control" %>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <%= form.label :start_time, class: "form-label" %>
+                <%= form.time_field :start_time, class: "form-control",
+                    value: @event.start_time&.strftime("%H:%M") %>
+              </div>
+              <div class="col-md-6 mb-3">
+                <%= form.label :end_time, class: "form-label" %>
+                <%= form.time_field :end_time, class: "form-control",
+                    value: @event.end_time&.strftime("%H:%M") %>
+              </div>
             </div>
           </div>
 
-          <div class="row">
-            <div class="col-md-6 mb-3">
+          <%# ── Reference/participating: just need the date ── %>
+          <div id="reference-date-field" style="display:none;">
+            <div class="mb-3">
               <%= form.label :event_date, "Event Date", class: "form-label" %>
               <%= form.datetime_local_field :event_date, class: "form-control", required: true %>
-            </div>
-            <div class="col-md-6 mb-3">
-              <%= form.label :rsvp_deadline, "RSVP Deadline", class: "form-label" %>
-              <%= form.datetime_local_field :rsvp_deadline, class: "form-control", required: true %>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <%= form.label :start_time, class: "form-label" %>
-              <%= form.time_field :start_time, class: "form-control", 
-                  value: @event.start_time&.strftime("%H:%M") %>
-            </div>
-            <div class="col-md-6 mb-3">
-              <%= form.label :end_time, class: "form-label" %>
-              <%= form.time_field :end_time, class: "form-control", 
-                  value: @event.end_time&.strftime("%H:%M") %>
             </div>
           </div>
 
@@ -102,36 +134,60 @@
 </div>
 
 <script>
-// Listen for both initial page load AND Turbo page loads
-document.addEventListener('DOMContentLoaded', initCustomQuestions);
-document.addEventListener('turbo:load', initCustomQuestions);
+document.addEventListener('DOMContentLoaded', initEventForm);
+document.addEventListener('turbo:load', initEventForm);
 
-function initCustomQuestions() {
-  const container = document.getElementById('custom-questions-container');
-  const addButton = document.getElementById('add-question');
+function initEventForm() {
+  const typeRadios    = document.querySelectorAll('input[name="event[event_type]"]');
+  const hostedFields  = document.getElementById('hosted-fields');
+  const refDateField  = document.getElementById('reference-date-field');
+  const extUrlSection = document.getElementById('external-url-section');
+  const typeHint      = document.getElementById('event-type-hint');
+  const container     = document.getElementById('custom-questions-container');
+  const addButton     = document.getElementById('add-question');
 
+  const hints = {
+    hosted:        'Full capabilities: RSVP, check-in, vendors, broadcasts.',
+    participating: 'Show our involvement + link to the external event page.',
+    reference:     'Awareness only — just a date, description, and a link out.'
+  };
+
+  function updateTypeUI(type) {
+    const isHosted    = type === 'hosted';
+    const isExternal  = type === 'participating' || type === 'reference';
+
+    hostedFields.style.display   = isHosted   ? 'block' : 'none';
+    refDateField.style.display   = isExternal ? 'block' : 'none';
+    extUrlSection.style.display  = isExternal ? 'block' : 'none';
+    if (typeHint) typeHint.textContent = hints[type] || '';
+  }
+
+  typeRadios.forEach(function(radio) {
+    radio.addEventListener('change', function() { updateTypeUI(this.value); });
+  });
+
+  // Set initial state
+  const checked = document.querySelector('input[name="event[event_type]"]:checked');
+  if (checked) updateTypeUI(checked.value);
+
+  // ── Custom questions ──
   if (addButton && container) {
-    // Remove any existing listeners to prevent duplicates
-    const newAddButton = addButton.cloneNode(true);
-    addButton.parentNode.replaceChild(newAddButton, addButton);
-    
-    // Add new question
-    newAddButton.addEventListener('click', function(e) {
+    const newBtn = addButton.cloneNode(true);
+    addButton.parentNode.replaceChild(newBtn, addButton);
+
+    newBtn.addEventListener('click', function(e) {
       e.preventDefault();
-      
-      const questionRow = document.createElement('div');
-      questionRow.className = 'custom-question-row mb-2';
-      questionRow.innerHTML = 
+      const row = document.createElement('div');
+      row.className = 'custom-question-row mb-2';
+      row.innerHTML =
         '<div class="input-group">' +
           '<input type="text" name="event[custom_questions][]" class="form-control" ' +
                  'placeholder="Enter question (e.g., \'Any dietary restrictions?\')">' +
           '<button type="button" class="btn btn-outline-danger remove-question">Remove</button>' +
         '</div>';
-      
-      container.appendChild(questionRow);
+      container.appendChild(row);
     });
 
-    // Remove question (using event delegation)
     container.addEventListener('click', function(e) {
       if (e.target.classList.contains('remove-question')) {
         e.target.closest('.custom-question-row').remove();

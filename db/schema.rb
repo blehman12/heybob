@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_22_000002) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_22_000003) do
   create_table "broadcast_receipts", force: :cascade do |t|
     t.integer "broadcast_id", null: false
     t.integer "con_opt_in_id", null: false
@@ -101,6 +101,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_22_000002) do
     t.text "custom_questions"
     t.string "slug"
     t.boolean "public_rsvp_enabled", default: false
+    t.integer "event_type", default: 0, null: false
+    t.string "external_url"
+    t.index ["event_type"], name: "index_events_on_event_type"
     t.index ["slug"], name: "index_events_on_slug", unique: true
   end
 

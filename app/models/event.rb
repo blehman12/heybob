@@ -1,6 +1,6 @@
 class Event < ApplicationRecord
   # Associations
-  belongs_to :venue
+  belongs_to :venue, optional: true
   belongs_to :creator, class_name: 'User'
   has_many :event_participants, dependent: :destroy
   has_many :users, through: :event_participants
@@ -11,9 +11,17 @@ class Event < ApplicationRecord
   has_many :organizers, -> { where(event_participants: { role: :organizer }) },
            through: :event_participants, source: :user
 
+  enum event_type: {
+    hosted:       0,  # We run it — full RSVP, check-in, vendor capability
+    participating: 1, # We have a presence (booth, sponsor, speaker) — show external link + our involvement
+    reference:    2   # External event, awareness only — link out, no RSVP
+  }
+
   # Validations
-  validates :name, :event_date, :rsvp_deadline, presence: true
-  validates :max_attendees, presence: true, numericality: { greater_than: 0 }
+  validates :name, :event_date, presence: true
+  validates :rsvp_deadline, presence: true, unless: :reference?
+  validates :max_attendees, presence: true, numericality: { greater_than: 0 }, unless: :reference?
+  validates :external_url, presence: true, if: -> { participating? || reference? }
   validates :slug, uniqueness: true, allow_nil: true
   validate :rsvp_deadline_before_event_date
 
@@ -30,6 +38,10 @@ class Event < ApplicationRecord
   before_validation :generate_slug, on: :create
 
   # Public methods
+  def rsvp_available?
+    hosted? && rsvp_open?
+  end
+
   def attendees_count
     event_participants.where(rsvp_status: ['yes', '1']).count
   end

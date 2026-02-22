@@ -177,6 +177,8 @@ class Admin::EventsController < Admin::BaseController
     params.require(:event).permit(
       :name,
       :description,
+      :event_type,
+      :external_url,
       :venue_id,
       :event_date,
       :start_time,
