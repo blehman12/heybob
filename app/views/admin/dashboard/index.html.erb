@@ -80,6 +80,20 @@
             <%= link_to "New Venue", new_admin_venue_path, class: "btn btn-outline-info w-100" %>
           </div>
         </div>
+        <% if current_user.super_admin? %>
+          <hr>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <%= link_to "Manage Categories", admin_categories_path, class: "btn btn-outline-secondary w-100" %>
+            </div>
+            <div class="col-md-4 mb-3">
+              <%= link_to "Bulk Import Users", admin_bulk_users_path, class: "btn btn-outline-secondary w-100" %>
+            </div>
+            <div class="col-md-4 mb-3">
+              <%= link_to "⬇ Export Data (JSON)", admin_export_path, class: "btn btn-outline-dark w-100" %>
+            </div>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>
