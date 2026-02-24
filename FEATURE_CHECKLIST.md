@@ -165,7 +165,8 @@
 
 ### Backlog
 9. 📋 Event lifecycle status (draft / published / archived / cancelled)
-10. 📋 Vendor analytics — opt-in count, scan trends (post-Sakuracon)
+10. 📋 Quick-add venue modal on event form (AJAX, injects into dropdown, no page reload)
+11. 📋 Vendor analytics — opt-in count, scan trends (post-Sakuracon)
 11. 📋 Vendor follower model (vendor-scoped, survives across events)
 12. 📋 Public vendor profiles
 
