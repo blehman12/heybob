@@ -160,9 +160,9 @@
                             @event.category_ids.include?(cat.id),
                             id: "category_#{cat.id}",
                             class: "form-check-input" %>
-                      <label class="form-check-label badge rounded-pill border fw-normal fs-6 px-3 py-1"
+                      <label class="form-check-label rounded-pill border fw-normal px-3 py-1"
                              for="category_<%= cat.id %>"
-                             style="cursor:pointer;">
+                             style="cursor:pointer; font-size:.875rem; color:#495057; background:#f8f9fa;">
                         <%= cat.name %>
                       </label>
                     </div>
