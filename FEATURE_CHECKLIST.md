@@ -152,22 +152,28 @@
 ## UPCOMING WORK (prioritized)
 
 ### Sprint: Categorization UI (NOW)
-1. 📋 Category checkboxes on admin event edit form — grouped by facet
+1. ✅ Category checkboxes on admin event edit form — grouped by facet
 2. 📋 Category tags displayed on public event page
 3. 📋 Public /events index with category filter links
 4. 📋 Clean URL filtering: `/events?tag=windchill` → Columbia River PLM embed
 
-### Backlog
-5. 📋 Event lifecycle status (draft / published / archived / cancelled)
-6. 📋 Vendor follower model (vendor-scoped, survives across events)
-7. 📋 Public vendor profiles
+### Next: Vendor Operations Layer (post-categorization)
+5. 📋 Vendor dashboard — add booth number, load-in info, event logistics
+6. 📋 Vendor onboarding checklist (booth confirmed, social links, QR message set)
+7. 📋 Event-day admin cockpit — unified view: live check-in, vendor status, SMS blast
 8. 📋 Admin vendor show/edit pages (complete the incomplete stub)
 
+### Backlog
+9. 📋 Event lifecycle status (draft / published / archived / cancelled)
+10. 📋 Vendor analytics — opt-in count, scan trends (post-Sakuracon)
+11. 📋 Vendor follower model (vendor-scoped, survives across events)
+12. 📋 Public vendor profiles
+
 ### Future Considerations
-9. 💡 User interest self-selection from taxonomy (Phase 3)
-10. 💡 AI-assisted interest inference (Phase 4)
-11. 💡 Multi-tenant / organization model
-12. 💡 Mobile app / API layer
+13. 💡 User interest self-selection from taxonomy (Phase 3)
+14. 💡 AI-assisted interest inference (Phase 4)
+15. 💡 Multi-tenant / organization model
+16. 💡 Mobile app / API layer
 
 ---
 
