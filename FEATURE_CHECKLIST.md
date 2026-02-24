@@ -167,6 +167,10 @@
 9. 📋 Event lifecycle status (draft / published / archived / cancelled)
 10. 📋 Quick-add venue modal on event form (AJAX, injects into dropdown, no page reload)
 11. 📋 Vendor analytics — opt-in count, scan trends (post-Sakuracon)
+12. 📋 **Rethink event date/time fields** — current model has redundancy (`event_date` is datetime-local AND separate `start_time`/`end_time` fields). Proposed: store `start_date` + `end_date` (date only) + `start_time` + `end_time` (daily operating hours). Single-day events have same start/end date. Schema change — touches event form, public page, calendar download, seeds.
+
+### Eventually / Needs Design Discussion
+- **Multi-day scheduling complexity**: Sakuracon runs Thu–Sun with different hours per day, plus sub-areas (Vendor Hall, Artist Alley, Main Events) with their own schedules. Before building: decide how far into event scheduling we go. Full per-day/per-area scheduling exists in tools like Sched, Eventeny, Growtix — we don't want to replicate that. The sweet spot is probably: date range on the Event, load-in details on VendorEvent (not Event), and daily hours as a simple structured field if needed. Avoid scope creep into a full scheduling engine.
 11. 📋 Vendor follower model (vendor-scoped, survives across events)
 12. 📋 Public vendor profiles
 
