@@ -126,7 +126,27 @@
           <%# ── Categories ── %>
           <div class="mb-4">
             <label class="form-label fw-bold">Categories</label>
-            <small class="text-muted d-block mb-3">Tag this event to help people find it.</small>
+            <small class="text-muted d-block mb-2">Tag this event to help people find it.</small>
+
+            <%# Inline hint -%>
+            <div class="mb-3">
+              <a class="text-muted small" data-bs-toggle="collapse" href="#category-hint" role="button">
+                ℹ️ How do categories work?
+              </a>
+              <div class="collapse mt-2" id="category-hint">
+                <div class="card card-body bg-light border-0 py-3 px-3" style="font-size:.875rem;">
+                  <p class="mb-2">Categories are organized into five <strong>facets</strong> — each answers a different question about the event. Pick whichever facets are meaningful; you don't need all five.</p>
+                  <div class="row g-2 mb-2">
+                    <div class="col-sm-6"><span class="fw-semibold" style="color:#1565c0;">Domain</span> — <em>What is it about?</em><br><span class="text-muted">Windchill, Creo, SAP, General PLM</span></div>
+                    <div class="col-sm-6"><span class="fw-semibold" style="color:#2e7d32;">Format</span> — <em>What kind of event?</em><br><span class="text-muted">Conference, Meetup, Training, Convention</span></div>
+                    <div class="col-sm-6"><span class="fw-semibold" style="color:#e65100;">Geography</span> — <em>Where?</em><br><span class="text-muted">Pacific Northwest, Virtual, International</span></div>
+                    <div class="col-sm-6"><span class="fw-semibold" style="color:#880e4f;">Fandom</span> — <em>What community?</em><br><span class="text-muted">Anime, Gaming, Comic, Tabletop</span></div>
+                    <div class="col-sm-6"><span class="fw-semibold" style="color:#4527a0;">Audience</span> — <em>Who is it for?</em><br><span class="text-muted">Engineers, Managers, IT, Executives</span></div>
+                  </div>
+                  <p class="mb-1 text-muted"><strong>Tip:</strong> Tag at the most specific level that fits. For a Windchill event, pick <em>Windchill</em> — not <em>PLM Tools</em>. For an event covering all PTC tools, pick <em>PLM Tools</em>.</p>
+                </div>
+              </div>
+            </div>
             <% Category.active.ordered.group_by(&:facet).each do |facet, cats| %>
               <div class="mb-3">
                 <div class="text-uppercase fw-semibold small text-muted mb-2" style="letter-spacing:.05em;">
