@@ -174,7 +174,7 @@ class Admin::EventsController < Admin::BaseController
   end
 
   def event_params
-    params.require(:event).permit(
+    p = params.require(:event).permit(
       :name,
       :description,
       :event_type,
@@ -185,7 +185,10 @@ class Admin::EventsController < Admin::BaseController
       :end_time,
       :max_attendees,
       :rsvp_deadline,
-      custom_questions: []
+      custom_questions: [],
+      category_ids: []
     )
+    p[:category_ids]&.reject!(&:blank?)
+    p
   end
 end
