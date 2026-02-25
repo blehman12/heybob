@@ -151,6 +151,25 @@ class Admin::EventsController < Admin::BaseController
     end
   end
 
+  def cockpit
+    @vendor_events = @event.vendor_events
+                           .includes(:vendor, :broadcasts)
+                           .order(:category, 'vendors.name')
+
+    @checked_in_count  = @event.event_participants.checked_in.count
+    @total_rsvped      = @event.event_participants.where(rsvp_status: [:yes, :maybe]).count
+    @recent_checkins   = @event.event_participants.checked_in
+                               .includes(:user)
+                               .order(checked_in_at: :desc)
+                               .limit(8)
+
+    @recent_broadcasts = Broadcast.joins(:vendor_event)
+                                  .where(vendor_events: { event_id: @event.id })
+                                  .where.not(sent_at: nil)
+                                  .order(sent_at: :desc)
+                                  .limit(10)
+  end
+
   private
 
   def set_event

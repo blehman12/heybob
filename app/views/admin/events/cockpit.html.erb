@@ -1,0 +1,143 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="mb-0">Event-Day Cockpit</h2>
+    <small class="text-muted"><%= @event.name %> &middot; <%= @event.event_date.strftime('%B %-d, %Y') %></small>
+  </div>
+  <div class="d-flex gap-2">
+    <%= link_to "Check-in Dashboard", event_checkin_dashboard_admin_path(@event.id), class: "btn btn-outline-success btn-sm" %>
+    <%= link_to "Event", admin_event_path(@event), class: "btn btn-outline-secondary btn-sm" %>
+  </div>
+</div>
+
+<%# ── Stats strip ── %>
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card text-center border-success">
+      <div class="card-body py-3">
+        <h2 class="text-success mb-0"><%= @checked_in_count %></h2>
+        <small class="text-muted">Checked In</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center border-primary">
+      <div class="card-body py-3">
+        <h2 class="text-primary mb-0"><%= @total_rsvped %></h2>
+        <small class="text-muted">Total RSVP'd</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center border-danger">
+      <div class="card-body py-3">
+        <h2 class="text-danger mb-0"><%= @vendor_events.count %></h2>
+        <small class="text-muted">Vendors</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center border-warning">
+      <div class="card-body py-3">
+        <h2 class="text-warning mb-0"><%= @recent_broadcasts.count %></h2>
+        <small class="text-muted">Broadcasts Sent</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <%# ── Vendor status ── %>
+  <div class="col-md-5">
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">Vendor Status</h6>
+        <%= link_to "All Vendors", admin_vendors_path, class: "btn btn-outline-secondary btn-sm" %>
+      </div>
+      <% if @vendor_events.any? %>
+        <div class="table-responsive">
+          <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Vendor</th>
+                <th>Booth</th>
+                <th class="text-center">Opt-ins</th>
+                <th class="text-center">Broadcasts</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @vendor_events.each do |ve| %>
+                <tr>
+                  <td>
+                    <div class="fw-semibold"><%= ve.vendor.name %></div>
+                    <small class="text-muted"><%= ve.category_label %></small>
+                  </td>
+                  <td>
+                    <% if ve.booth_number.present? %>
+                      <span class="badge bg-light text-dark"><%= ve.booth_number %></span>
+                      <% if ve.hall.present? %><small class="text-muted"> <%= ve.hall %></small><% end %>
+                    <% else %>
+                      <small class="text-muted">—</small>
+                    <% end %>
+                  </td>
+                  <td class="text-center"><%= ve.opt_in_count %></td>
+                  <td class="text-center"><%= ve.broadcasts.sent.count %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="card-body text-center text-muted py-4">No vendors registered for this event.</div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── Recent check-ins ── %>
+  <div class="col-md-4">
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">Recent Check-ins</h6>
+        <%= link_to "Full Dashboard", event_checkin_dashboard_admin_path(@event.id), class: "btn btn-outline-success btn-sm" %>
+      </div>
+      <% if @recent_checkins.any? %>
+        <ul class="list-group list-group-flush">
+          <% @recent_checkins.each do |p| %>
+            <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+              <div>
+                <div class="fw-semibold small"><%= p.display_name %></div>
+              </div>
+              <small class="text-muted"><%= p.checked_in_at.strftime('%-I:%M %p') %></small>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <div class="card-body text-center text-muted py-4">No check-ins yet.</div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── Broadcast log ── %>
+  <div class="col-md-3">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h6 class="mb-0">Broadcast Log</h6>
+      </div>
+      <% if @recent_broadcasts.any? %>
+        <ul class="list-group list-group-flush">
+          <% @recent_broadcasts.each do |b| %>
+            <li class="list-group-item py-2">
+              <div class="d-flex justify-content-between mb-1">
+                <small class="fw-semibold"><%= b.vendor_event.vendor.name %></small>
+                <small class="text-muted"><%= b.sent_at.strftime('%-I:%M %p') %></small>
+              </div>
+              <div class="small text-truncate text-muted" title="<%= b.message %>"><%= b.message %></div>
+              <small class="text-muted"><%= b.recipient_count %> recipients &middot; <%= b.entire_con? ? 'Whole con' : 'Booth visitors' %></small>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <div class="card-body text-center text-muted py-4">No broadcasts yet.</div>
+      <% end %>
+    </div>
+  </div>
+</div>

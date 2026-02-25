@@ -124,6 +124,7 @@ resources :events do
     delete :remove_participant
     get :export_participants
     post :bulk_invite_participants
+    get :cockpit
   end
   collection do
     get :bulk_actions

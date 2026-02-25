@@ -401,7 +401,11 @@
             <%= link_to participants_admin_event_path(@event), class: "btn btn-outline-success" do %>
               <i class="bi bi-person-plus"></i> Manage Participants
             <% end %>
-            
+
+            <%= link_to cockpit_admin_event_path(@event), class: "btn btn-outline-warning" do %>
+              <i class="bi bi-speedometer2"></i> Event-Day Cockpit
+            <% end %>
+
             <%= link_to export_participants_admin_event_path(@event, format: :csv), class: "btn btn-outline-secondary" do %>
               <i class="bi bi-download"></i> Export Participants
             <% end %>
