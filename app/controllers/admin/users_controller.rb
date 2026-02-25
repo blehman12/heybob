@@ -29,8 +29,8 @@ def update
   user_update_params = user_params
   
   # Prevent self-demotion at controller level
-  if @user == current_user && user_update_params[:role] != 'admin'
-    redirect_to edit_admin_user_path(@user), 
+  if @user == current_user && user_update_params[:role] == 'attendee'
+    redirect_to edit_admin_user_path(@user),
                 alert: 'You cannot remove your own admin privileges.'
     return
   end
@@ -51,8 +51,8 @@ end
   def destroy
     if @user == current_user
       redirect_to admin_users_path, alert: 'You cannot delete your own account.'
-    elsif @user.role == 'admin' && User.where(role: 'admin').count == 1
-      redirect_to admin_user_path(@user), alert: 'Cannot delete the last admin user.'
+    elsif @user.super_admin? && User.super_admin.count == 1
+      redirect_to admin_user_path(@user), alert: 'Cannot delete the last super admin user.'
     else
       @user.destroy
       redirect_to admin_users_path, notice: 'User was successfully deleted.'

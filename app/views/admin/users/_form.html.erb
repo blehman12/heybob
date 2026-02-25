@@ -62,17 +62,23 @@
               </div>
               <div class="card-body">
                 <%= form.label :role, "User Role", class: "form-label fw-bold" %>
-                <%= form.select :role, 
+                <%= form.select :role,
                     options_for_select([
                       ['Attendee - Can RSVP to events', 'attendee'],
-                      ['Admin - Full system access', 'admin']
+                      ['Super Admin - Full system access', 'super_admin'],
+                      ['Event Admin - Manage events & categories', 'event_admin'],
+                      ['Venue Admin - Manage venues', 'venue_admin'],
+                      ['Vendor Admin - Manage vendors', 'vendor_admin']
                     ], @user.role),
-                    {}, 
-                    { class: "form-select form-select-lg", 
+                    {},
+                    { class: "form-select form-select-lg",
                       style: "border: 2px solid #ffc107;" } %>
                 <div class="form-text">
                   <strong>Attendee:</strong> Can view and RSVP to events<br>
-                  <strong>Admin:</strong> Can manage users, events, venues, and all system settings
+                  <strong>Super Admin:</strong> Full system access<br>
+                  <strong>Event Admin:</strong> Can manage events and assign categories<br>
+                  <strong>Venue Admin:</strong> Can manage venues<br>
+                  <strong>Vendor Admin:</strong> Can manage vendors
                 </div>
                 
                 <% if @user.persisted? && @user == current_user %>
