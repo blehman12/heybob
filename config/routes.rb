@@ -25,7 +25,7 @@ Rails.application.routes.draw do
   namespace :vendor do
     root 'dashboard#index'
     resources :vendors, only: [:new, :create, :show, :edit, :update] do
-      resources :vendor_events, only: [:new, :create, :show], shallow: true do
+      resources :vendor_events, only: [:new, :create, :show, :edit, :update], shallow: true do
         member do
           get  :qr_code
           post :broadcast

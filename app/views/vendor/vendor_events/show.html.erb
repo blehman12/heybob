@@ -36,6 +36,86 @@
   </div>
 </div>
 
+<%# ── Onboarding checklist ── %>
+<% booth_set      = @vendor_event.booth_number.present?
+   load_in_set    = @vendor_event.metadata&.dig('load_in_date').present? ||
+                    @vendor_event.metadata&.dig('load_in_notes').present?
+   profile_set    = @vendor_event.vendor.hook_line.present? && @vendor_event.vendor.description.present?
+   social_set     = @vendor_event.vendor.social_handles.any? || @vendor_event.vendor.website.present?
+   all_done       = booth_set && load_in_set && profile_set && social_set
+%>
+<% unless all_done %>
+<p class="vd-section-label">Setup Checklist</p>
+<div class="vd-card" style="margin-bottom: 24px;">
+  <div class="vd-card__body" style="padding: 0;">
+    <% checklist = [
+         { done: booth_set,   label: 'Booth location confirmed',   sub: 'Add booth # and hall',       url: edit_vendor_vendor_event_path(@vendor_event) },
+         { done: load_in_set, label: 'Load-in info set',           sub: 'Date, time window, notes',   url: edit_vendor_vendor_event_path(@vendor_event) },
+         { done: profile_set, label: 'Vendor profile complete',    sub: 'Hook line + description',    url: edit_vendor_vendor_path(@vendor_event.vendor) },
+         { done: social_set,  label: 'Website or social link set', sub: 'Helps attendees find you',   url: edit_vendor_vendor_path(@vendor_event.vendor) },
+       ] %>
+    <% checklist.each_with_index do |item, i| %>
+      <div style="display:flex; align-items:center; gap:12px; padding:14px 16px;
+                  <%= i < checklist.length - 1 ? 'border-bottom:1px solid rgba(255,255,255,0.07);' : '' %>">
+        <span style="font-size:18px; flex-shrink:0;"><%= item[:done] ? '✅' : '⬜' %></span>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:14px; font-weight:600; <%= item[:done] ? 'opacity:0.45;' : '' %>">
+            <%= item[:label] %>
+          </div>
+          <% unless item[:done] %>
+            <div style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:2px;"><%= item[:sub] %></div>
+          <% end %>
+        </div>
+        <% unless item[:done] %>
+          <%= link_to 'Fix →', item[:url],
+                      style: 'font-size:12px; color:#a78bfa; text-decoration:none; flex-shrink:0;' %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+<% end %>
+
+<%# ── Logistics card ── %>
+<p class="vd-section-label">
+  Logistics
+  <%= link_to 'Edit', edit_vendor_vendor_event_path(@vendor_event),
+              style: 'font-size:12px; color:#a78bfa; text-decoration:none; margin-left:8px;' %>
+</p>
+<div class="vd-card" style="margin-bottom: 24px;">
+  <div class="vd-card__body">
+    <% booth  = @vendor_event.booth_number
+       hall   = @vendor_event.hall
+       li_date  = @vendor_event.metadata&.dig('load_in_date')
+       li_time  = @vendor_event.metadata&.dig('load_in_time')
+       li_notes = @vendor_event.metadata&.dig('load_in_notes')
+    %>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom: <%= (li_date || li_time || li_notes) ? '16px' : '0' %>;">
+      <div>
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:rgba(255,255,255,0.35); margin-bottom:4px;">Booth</div>
+        <div style="font-size:16px; font-weight:700;"><%= booth.present? ? booth : '—' %></div>
+      </div>
+      <div>
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:rgba(255,255,255,0.35); margin-bottom:4px;">Hall / Section</div>
+        <div style="font-size:16px; font-weight:700;"><%= hall.present? ? hall : '—' %></div>
+      </div>
+    </div>
+    <% if li_date || li_time || li_notes %>
+      <div style="border-top:1px solid rgba(255,255,255,0.07); padding-top:14px;">
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:rgba(255,255,255,0.35); margin-bottom:8px;">Load-in</div>
+        <% if li_date || li_time %>
+          <div style="font-size:14px; font-weight:600; margin-bottom:4px;">
+            <%= [li_date, li_time].compact.join(' · ') %>
+          </div>
+        <% end %>
+        <% if li_notes %>
+          <div style="font-size:13px; color:rgba(255,255,255,0.6); line-height:1.5;"><%= li_notes %></div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
 <%# ── Broadcast form ── %>
 <p class="vd-section-label">Send a Broadcast</p>
 <div class="vd-card" style="margin-bottom: 24px;">

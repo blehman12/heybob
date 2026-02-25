@@ -1,0 +1,107 @@
+<% content_for :title, 'Edit Logistics' %>
+<% content_for :back_link do %>
+  <%= link_to vendor_vendor_event_path(@vendor_event), class: 'vd-back' do %>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  <% end %>
+<% end %>
+
+<div style="padding: 20px 0 24px;">
+  <h1 style="font-family:'Syne',sans-serif; font-size:24px; font-weight:800; letter-spacing:-0.02em;">
+    Event Logistics
+  </h1>
+  <p style="font-size:14px; color:rgba(255,255,255,0.45); margin-top:8px;">
+    <%= @vendor_event.event.name %>
+  </p>
+</div>
+
+<% if @vendor_event.errors.any? %>
+  <div class="vd-errors">
+    <% @vendor_event.errors.full_messages.each do |msg| %>
+      <p><%= msg %></p>
+    <% end %>
+  </div>
+<% end %>
+
+<%= form_with model: [:vendor, @vendor_event], url: vendor_vendor_event_path(@vendor_event),
+              method: :patch do |f| %>
+
+  <div class="vd-form-section">
+    <div class="vd-form-section__title">Participation Type</div>
+    <div class="vd-field">
+      <%= f.select :category,
+                   [
+                     ["Dealer's Room",  'dealer'],
+                     ['Artist Alley',   'artist_alley'],
+                     ['Sponsor',        'sponsor'],
+                     ['Exhibitor',      'exhibitor'],
+                     ['Panelist',       'panelist']
+                   ],
+                   { selected: @vendor_event.category },
+                   class: 'vd-input' %>
+    </div>
+  </div>
+
+  <div class="vd-form-section">
+    <div class="vd-form-section__title">Booth Location</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div class="vd-field">
+        <label class="vd-label" for="vendor_event_booth_number">Booth #</label>
+        <input type="text"
+               id="vendor_event_booth_number"
+               name="vendor_event[booth_number]"
+               placeholder="247"
+               class="vd-input"
+               value="<%= @vendor_event.booth_number %>">
+      </div>
+      <div class="vd-field">
+        <label class="vd-label" for="vendor_event_hall">Hall / Section</label>
+        <input type="text"
+               id="vendor_event_hall"
+               name="vendor_event[hall]"
+               placeholder="Main Hall A"
+               class="vd-input"
+               value="<%= @vendor_event.hall %>">
+      </div>
+    </div>
+    <p class="vd-hint">Shown to attendees so they can find you.</p>
+  </div>
+
+  <div class="vd-form-section">
+    <div class="vd-form-section__title">Load-in</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+      <div class="vd-field">
+        <label class="vd-label" for="vendor_event_load_in_date">Date</label>
+        <input type="text"
+               id="vendor_event_load_in_date"
+               name="vendor_event[load_in_date]"
+               placeholder="e.g. Friday April 4"
+               class="vd-input"
+               value="<%= @vendor_event.metadata&.dig('load_in_date') %>">
+      </div>
+      <div class="vd-field">
+        <label class="vd-label" for="vendor_event_load_in_time">Time window</label>
+        <input type="text"
+               id="vendor_event_load_in_time"
+               name="vendor_event[load_in_time]"
+               placeholder="e.g. 8 AM – 10 AM"
+               class="vd-input"
+               value="<%= @vendor_event.metadata&.dig('load_in_time') %>">
+      </div>
+    </div>
+    <div class="vd-field">
+      <label class="vd-label" for="vendor_event_load_in_notes">Notes</label>
+      <textarea id="vendor_event_load_in_notes"
+                name="vendor_event[load_in_notes]"
+                placeholder="e.g. Use loading dock B, check in with venue staff first"
+                class="vd-input"
+                rows="3"><%= @vendor_event.metadata&.dig('load_in_notes') %></textarea>
+    </div>
+    <p class="vd-hint">Load-in details shared by the event organiser. Update as confirmed.</p>
+  </div>
+
+  <%= f.submit 'Save Logistics', class: 'vd-btn vd-btn--full' %>
+
+<% end %>

@@ -1,6 +1,6 @@
 class Vendor::VendorEventsController < Vendor::BaseController
   before_action :find_vendor,       only: [:new, :create]
-  before_action :find_vendor_event, only: [:show, :qr_code, :broadcast]
+  before_action :find_vendor_event, only: [:show, :edit, :update, :qr_code, :broadcast]
 
   def new
     @vendor_event = VendorEvent.new
@@ -28,6 +28,18 @@ class Vendor::VendorEventsController < Vendor::BaseController
                                       .recent
                                       .limit(10)
     @new_broadcast = Broadcast.new
+  end
+
+  def edit
+    # @vendor_event already loaded by find_vendor_event
+  end
+
+  def update
+    if @vendor_event.update(vendor_event_update_params)
+      redirect_to vendor_vendor_event_path(@vendor_event), notice: 'Logistics updated.'
+    else
+      render :edit, status: :unprocessable_entity
+    end
   end
 
   def qr_code
@@ -69,12 +81,24 @@ class Vendor::VendorEventsController < Vendor::BaseController
   private
 
   def vendor_event_params
-    params.require(:vendor_event).permit(:event_id, :category).tap do |p|
-      metadata = {}
-      metadata['booth_number'] = params[:booth_number].strip  if params[:booth_number].present?
-      metadata['hall']         = params[:hall].strip          if params[:hall].present?
-      p[:metadata] = metadata if metadata.any?
-    end
+    allowed = params.require(:vendor_event).permit(:event_id, :category)
+    allowed.merge(metadata: extract_metadata({}))
+  end
+
+  def vendor_event_update_params
+    allowed = params.require(:vendor_event).permit(:category)
+    allowed.merge(metadata: extract_metadata(@vendor_event.metadata || {}))
+  end
+
+  def extract_metadata(base)
+    ve = params[:vendor_event] || {}
+    base.merge(
+      'booth_number'  => ve[:booth_number].presence,
+      'hall'          => ve[:hall].presence,
+      'load_in_date'  => ve[:load_in_date].presence,
+      'load_in_time'  => ve[:load_in_time].presence,
+      'load_in_notes' => ve[:load_in_notes].presence
+    ).compact
   end
 
   def broadcast_params

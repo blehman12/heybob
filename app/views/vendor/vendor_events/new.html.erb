@@ -63,25 +63,58 @@
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
         <div class="vd-field">
-          <label class="vd-label" for="booth_number">Booth #</label>
+          <label class="vd-label" for="vendor_event_booth_number">Booth #</label>
           <input type="text"
-                 id="booth_number"
-                 name="booth_number"
+                 id="vendor_event_booth_number"
+                 name="vendor_event[booth_number]"
                  placeholder="247"
                  class="vd-input"
-                 value="<%= params[:booth_number] %>">
+                 value="<%= @vendor_event.metadata&.dig('booth_number') %>">
         </div>
         <div class="vd-field">
-          <label class="vd-label" for="hall">Hall / Section</label>
+          <label class="vd-label" for="vendor_event_hall">Hall / Section</label>
           <input type="text"
-                 id="hall"
-                 name="hall"
+                 id="vendor_event_hall"
+                 name="vendor_event[hall]"
                  placeholder="Main Hall A"
                  class="vd-input"
-                 value="<%= params[:hall] %>">
+                 value="<%= @vendor_event.metadata&.dig('hall') %>">
         </div>
       </div>
       <p class="vd-hint">Shown to attendees so they can find you.</p>
+    </div>
+
+    <div class="vd-form-section">
+      <div class="vd-form-section__title">Load-in <span style="font-weight:400; opacity:0.5;">(optional)</span></div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+        <div class="vd-field">
+          <label class="vd-label" for="vendor_event_load_in_date">Date</label>
+          <input type="text"
+                 id="vendor_event_load_in_date"
+                 name="vendor_event[load_in_date]"
+                 placeholder="e.g. Friday April 4"
+                 class="vd-input"
+                 value="<%= @vendor_event.metadata&.dig('load_in_date') %>">
+        </div>
+        <div class="vd-field">
+          <label class="vd-label" for="vendor_event_load_in_time">Time window</label>
+          <input type="text"
+                 id="vendor_event_load_in_time"
+                 name="vendor_event[load_in_time]"
+                 placeholder="e.g. 8 AM – 10 AM"
+                 class="vd-input"
+                 value="<%= @vendor_event.metadata&.dig('load_in_time') %>">
+        </div>
+      </div>
+      <div class="vd-field">
+        <label class="vd-label" for="vendor_event_load_in_notes">Notes</label>
+        <textarea id="vendor_event_load_in_notes"
+                  name="vendor_event[load_in_notes]"
+                  placeholder="e.g. Use loading dock B, check in with venue staff first"
+                  class="vd-input"
+                  rows="2"><%= @vendor_event.metadata&.dig('load_in_notes') %></textarea>
+      </div>
     </div>
 
     <%= f.submit 'Register for Event', class: 'vd-btn vd-btn--full' %>
