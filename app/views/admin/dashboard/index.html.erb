@@ -40,7 +40,7 @@
     <div class="card text-center">
       <div class="card-body">
         <h6>Vendors</h6>
-        <h3 class="text-danger"><%= link_to EventParticipant.vendor.count, admin_participants_path(role: 'vendor'), class: "text-danger text-decoration-none" %></h3>
+        <h3 class="text-danger"><%= link_to Vendor.count, admin_vendors_path, class: "text-danger text-decoration-none" %></h3>
       </div>
     </div>
   </div>
@@ -71,13 +71,19 @@
           <div class="col-md-4 mb-3">
             <%= link_to "Manage Venues", admin_venues_path, class: "btn btn-info w-100" %>
           </div>
+          <div class="col-md-4 mb-3">
+            <%= link_to "Manage Vendors", admin_vendors_path, class: "btn btn-danger w-100" %>
+          </div>
         </div>
         <div class="row">
-          <div class="col-md-6">
+          <div class="col-md-4">
             <%= link_to "New Event", new_admin_event_path, class: "btn btn-outline-success w-100" %>
           </div>
-          <div class="col-md-6">
+          <div class="col-md-4">
             <%= link_to "New Venue", new_admin_venue_path, class: "btn btn-outline-info w-100" %>
+          </div>
+          <div class="col-md-4">
+            <%= link_to "New Vendor", new_admin_vendor_path, class: "btn btn-outline-danger w-100" %>
           </div>
         </div>
         <% if current_user.super_admin? %>
