@@ -15,9 +15,10 @@
             <tr>
               <th>Event Name</th>
               <th>Date</th>
+              <th>Lifecycle Status</th>
               <th>Venue</th>
               <th>Attendees</th>
-              <th>Status</th>
+              <th>RSVP Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -28,6 +29,11 @@
                   <%= link_to event.name, admin_event_path(event), class: "fw-bold text-decoration-none" %>
                 </td>
                 <td><%= event.event_date&.strftime("%b %d, %Y") %></td>
+                <td>
+                  <span class="badge <%= lifecycle_status_badge_class(event) %>">
+                    <%= event.lifecycle_status.humanize %>
+                  </span>
+                </td>
                 <td><%= event.venue&.name %></td>
                 <td>
                   <%= link_to participants_admin_event_path(event), class: "text-decoration-none" do %>

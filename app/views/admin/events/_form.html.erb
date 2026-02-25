@@ -33,6 +33,15 @@
             <small class="text-muted mt-1 d-block" id="event-type-hint"></small>
           </div>
 
+          <div class="mb-3">
+            <%= form.label :lifecycle_status, "Lifecycle Status", class: "form-label" %>
+            <%= form.select :lifecycle_status,
+                Event.lifecycle_statuses.keys.map { |s| [s.humanize, s] },
+                {},
+                class: "form-select" %>
+            <div class="form-text">Draft = not visible publicly. Published = live. Archived/Cancelled = closed.</div>
+          </div>
+
           <%# ── External URL — shown for participating/reference ── %>
           <div class="mb-3" id="external-url-section" style="display:none;">
             <%= form.label :external_url, "External Event URL", class: "form-label" %>

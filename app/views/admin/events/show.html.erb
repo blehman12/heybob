@@ -13,7 +13,23 @@
 
   <div class="row mb-4">
     <div class="col-md-8">
-      <h1><%= @event.name %></h1>
+      <h1>
+        <%= @event.name %>
+        <span class="badge <%= lifecycle_status_badge_class(@event) %> fs-6">
+          <%= @event.lifecycle_status.humanize %>
+        </span>
+      </h1>
+      <div class="mt-2 mb-3">
+        <small class="text-muted me-2">Change status:</small>
+        <% Event.lifecycle_statuses.keys.reject { |s| s == @event.lifecycle_status }.each do |status| %>
+          <%= button_to status.humanize,
+              update_status_admin_event_path(@event),
+              params: { lifecycle_status: status },
+              method: :patch,
+              class: "btn btn-sm btn-outline-secondary me-1",
+              data: { confirm: "Change status to #{status.humanize}?" } %>
+        <% end %>
+      </div>
     </div>
     <div class="col-md-4 text-end">
       <%= link_to "Edit Event", edit_admin_event_path(@event), class: "btn btn-primary" %>
