@@ -4,7 +4,7 @@
     <small class="text-muted"><%= @event.name %> &middot; <%= @event.event_date.strftime('%B %-d, %Y') %></small>
   </div>
   <div class="d-flex gap-2">
-    <%= link_to "Check-in Dashboard", event_checkin_dashboard_admin_path(@event.id), class: "btn btn-outline-success btn-sm" %>
+    <%= link_to "Check-in Dashboard", admin_event_checkin_dashboard_path(@event.id), class: "btn btn-outline-success btn-sm" %>
     <%= link_to "Event", admin_event_path(@event), class: "btn btn-outline-secondary btn-sm" %>
   </div>
 </div>
@@ -97,7 +97,7 @@
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h6 class="mb-0">Recent Check-ins</h6>
-        <%= link_to "Full Dashboard", event_checkin_dashboard_admin_path(@event.id), class: "btn btn-outline-success btn-sm" %>
+        <%= link_to "Full Dashboard", admin_event_checkin_dashboard_path(@event.id), class: "btn btn-outline-success btn-sm" %>
       </div>
       <% if @recent_checkins.any? %>
         <ul class="list-group list-group-flush">
