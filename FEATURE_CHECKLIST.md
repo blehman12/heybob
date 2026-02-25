@@ -1,5 +1,5 @@
 # evm1 Feature Status & Testing Checklist
-**Updated:** February 22, 2026  
+**Updated:** February 24, 2026
 **Target deployment:** Sakuracon 2026  
 **Production URL:** https://heybob-production.up.railway.app
 
@@ -92,7 +92,10 @@
 | Vendor SMS broadcast | ✅ | Send broadcast from vendor dashboard |
 | Broadcast job (background) | ✅ | BroadcastSmsJob runs via Sidekiq |
 | Vendor dashboard | ✅ | /vendor/dashboard |
-| Admin vendor management | 🔨 | /admin/vendors — index exists, show/edit incomplete |
+| Admin vendor management | ✅ | /admin/vendors — index, show, edit, new, import all complete |
+| Vendor event logistics (booth, hall, load-in) | ✅ | Edit from vendor event show page |
+| Vendor onboarding checklist | ✅ | Auto-shown on vendor event show until all 4 items done |
+| Admin dashboard vendor links | ✅ | Vendor stat card + Manage/New Vendors in quick actions |
 
 ---
 
@@ -157,11 +160,11 @@
 3. ✅ Public /events index with category filter links
 4. ✅ Clean URL filtering: `/events?tag=plm-tools-windchill` → Columbia River PLM embed
 
-### Next: Vendor Operations Layer (post-categorization)
-5. 📋 Vendor dashboard — add booth number, load-in info, event logistics
-6. 📋 Vendor onboarding checklist (booth confirmed, social links, QR message set)
-7. 📋 Event-day admin cockpit — unified view: live check-in, vendor status, SMS blast
-8. 📋 Admin vendor show/edit pages (complete the incomplete stub)
+### Sprint: Vendor Operations Layer (COMPLETE)
+5. ✅ Vendor event logistics panel — booth number, hall, load-in date/time/notes (edit form)
+6. ✅ Vendor onboarding checklist — 4-item checklist auto-hides when all done
+7. ✅ Event-day admin cockpit — `/admin/events/:id/cockpit` — check-in stats, vendor table, broadcast log
+8. ✅ Admin vendor show/edit pages — complete with import, all CRUD actions
 
 ### Backlog
 9. 📋 Event lifecycle status (draft / published / archived / cancelled)
@@ -191,6 +194,7 @@
 | Event#public_url had hardcoded localhost | Medium | ✅ Fixed today |
 | load_users scope excluded non-attendee roles | Low | ✅ Fixed today |
 | Pre-push checker false positives on `end` count | Noise | Known false positive — ruby -c passes |
+| `find_or_create_owner` in Admin::VendorsController | Low | Creates User without required phone/company — silent 422 for unknown emails. Workaround: use existing user email when creating vendors. |
 
 ---
 
