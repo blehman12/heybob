@@ -185,6 +185,7 @@ class Admin::EventsController < Admin::BaseController
       :end_time,
       :max_attendees,
       :rsvp_deadline,
+      :public_rsvp_enabled,
       custom_questions: [],
       category_ids: []
     )
