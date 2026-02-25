@@ -1,0 +1,98 @@
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-body">
+        <%= form_with(model: [:admin, @vendor], local: true) do |form| %>
+          <% if @vendor.errors.any? %>
+            <div class="alert alert-danger">
+              <h4><%= pluralize(@vendor.errors.count, "error") %> prohibited this vendor from being saved:</h4>
+              <ul class="mb-0">
+                <% @vendor.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <div class="mb-3">
+            <%= form.label :name, class: "form-label" %>
+            <%= form.text_field :name, class: "form-control", required: true %>
+          </div>
+
+          <%# Participant type %>
+          <div class="mb-3">
+            <%= form.label :participant_type, "Type", class: "form-label fw-bold" %>
+            <div class="d-flex gap-3">
+              <div class="form-check">
+                <%= form.radio_button :participant_type, 'business', class: "form-check-input", id: "type_business" %>
+                <label class="form-check-label" for="type_business">Business / Dealer</label>
+              </div>
+              <div class="form-check">
+                <%= form.radio_button :participant_type, 'artist', class: "form-check-input", id: "type_artist" %>
+                <label class="form-check-label" for="type_artist">Artist / Creator</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :hook_line, "Hook Line", class: "form-label" %>
+            <%= form.text_field :hook_line, class: "form-control", placeholder: "e.g. Free sticker with every purchase!" %>
+            <div class="form-text">Short marketing tagline shown on opt-in pages.</div>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :description, class: "form-label" %>
+            <%= form.text_area :description, class: "form-control", rows: 3 %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :website, class: "form-label" %>
+            <%= form.url_field :website, class: "form-control", placeholder: "https://example.com" %>
+          </div>
+
+          <%# Owner email (new records only) %>
+          <% if @vendor.new_record? %>
+            <div class="mb-3">
+              <%= form.label :owner_email, "Owner Email", class: "form-label" %>
+              <%= form.email_field :owner_email, class: "form-control", placeholder: "owner@example.com" %>
+              <div class="form-text">Will find an existing user or create a new one.</div>
+            </div>
+          <% end %>
+
+          <%# Social handles %>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Social Media</label>
+            <div class="row g-2">
+              <div class="col-md-4">
+                <div class="input-group">
+                  <span class="input-group-text">@</span>
+                  <%= form.text_field :instagram_handle, class: "form-control", placeholder: "instagram" %>
+                </div>
+                <div class="form-text">Instagram</div>
+              </div>
+              <div class="col-md-4">
+                <div class="input-group">
+                  <span class="input-group-text">@</span>
+                  <%= form.text_field :twitter_handle, class: "form-control", placeholder: "twitter/X" %>
+                </div>
+                <div class="form-text">Twitter / X</div>
+              </div>
+              <div class="col-md-4">
+                <div class="input-group">
+                  <span class="input-group-text">@</span>
+                  <%= form.text_field :tiktok_handle, class: "form-control", placeholder: "tiktok" %>
+                </div>
+                <div class="form-text">TikTok</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <%= link_to "Cancel", admin_vendors_path, class: "btn btn-outline-secondary me-md-2" %>
+            <%= form.submit class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

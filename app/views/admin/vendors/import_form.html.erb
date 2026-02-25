@@ -1,0 +1,61 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Import Vendors from CSV</h1>
+  <%= link_to "Back to Vendors", admin_vendors_path, class: "btn btn-outline-secondary" %>
+</div>
+
+<div class="row">
+  <div class="col-md-7">
+    <div class="card">
+      <div class="card-body">
+        <%= form_with url: import_admin_vendors_path, method: :post, multipart: true, local: true do |form| %>
+          <div class="mb-3">
+            <label class="form-label fw-bold">CSV File</label>
+            <input type="file" name="csv_file" class="form-control" accept=".csv" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Link to Event <small class="text-muted">(optional)</small></label>
+            <%= form.select :event_id,
+                options_from_collection_for_select(Event.order(:name), :id, :name),
+                { prompt: "— no event link —" },
+                { class: "form-select" } %>
+            <div class="form-text">If set, vendors without an event_name column will be linked to this event.</div>
+          </div>
+
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <%= link_to "Cancel", admin_vendors_path, class: "btn btn-outline-secondary me-md-2" %>
+            <%= form.submit "Import", class: "btn btn-success" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-5">
+    <div class="card">
+      <div class="card-header"><h6 class="mb-0">CSV Format</h6></div>
+      <div class="card-body">
+        <p class="small text-muted mb-2">Required column: <code>name</code>. All others are optional.</p>
+        <table class="table table-sm small">
+          <thead class="table-light">
+            <tr><th>Column</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>name</code></td><td>Vendor name <span class="text-danger">*</span></td></tr>
+            <tr><td><code>description</code></td><td>Full description</td></tr>
+            <tr><td><code>hook_line</code></td><td>Marketing tagline</td></tr>
+            <tr><td><code>website</code></td><td>https://...</td></tr>
+            <tr><td><code>owner_email</code></td><td>Finds or creates user</td></tr>
+            <tr><td><code>owner_first_name</code></td><td>Used if creating new user</td></tr>
+            <tr><td><code>owner_last_name</code></td><td>Used if creating new user</td></tr>
+            <tr><td><code>owner_phone</code></td><td></td></tr>
+            <tr><td><code>event_name</code></td><td>Partial match to existing event</td></tr>
+            <tr><td><code>booth_number</code></td><td>e.g. A101</td></tr>
+            <tr><td><code>hall</code></td><td>e.g. Main Hall</td></tr>
+          </tbody>
+        </table>
+        <%= link_to "Download Template CSV", template_admin_vendors_path, class: "btn btn-sm btn-outline-secondary w-100" %>
+      </div>
+    </div>
+  </div>
+</div>

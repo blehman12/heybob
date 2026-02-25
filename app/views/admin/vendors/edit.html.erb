@@ -1,0 +1,6 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Edit Vendor: <%= @vendor.name %></h1>
+  <%= link_to "View Vendor", admin_vendor_path(@vendor), class: "btn btn-outline-secondary" %>
+</div>
+
+<%= render 'form' %>

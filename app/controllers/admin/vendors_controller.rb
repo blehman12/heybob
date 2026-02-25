@@ -113,7 +113,8 @@ class Admin::VendorsController < Admin::BaseController
   private
 
   def vendor_params
-    params.require(:vendor).permit(:name, :description, :hook_line, :website, :owner_email)
+    params.require(:vendor).permit(:name, :description, :hook_line, :website, :owner_email,
+                                   :participant_type, :instagram_handle, :twitter_handle, :tiktok_handle)
   end
 
   def find_or_create_owner(email)
