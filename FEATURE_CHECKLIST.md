@@ -104,10 +104,10 @@
 | Category seed data (32 categories) | ✅ | Run: `rails runner db/seeds/categories.rb` |
 | Categorization seed (events tagged) | ✅ (today) | Run: `rails runner db/seeds/categorizations.rb` |
 | Admin category CRUD | ✅ | Create/edit/deactivate categories |
-| Category assignment to events (admin form) | 📋 | **NEXT UP** — checkboxes in event form |
-| Category display on public event page | 📋 | Show tags on /e/:slug |
-| Public events index with tag filtering | 📋 | /events?tag=windchill |
-| Filterable URL scheme (Columbia River PLM) | 📋 | /events?domain=windchill&format=meetup |
+| Category assignment to events (admin form) | ✅ | Checkboxes in event form, grouped by facet |
+| Category display on public event page | ✅ | Tags shown on /e/:slug |
+| Public events index with tag filtering | ✅ | /events and /events?tag=slug both live |
+| Filterable URL scheme (Columbia River PLM) | ✅ | /events?tag=plm-tools-windchill confirmed working |
 | User interest self-selection | 📋 | Phase 3 — after public filtering works |
 
 ---
@@ -151,11 +151,11 @@
 
 ## UPCOMING WORK (prioritized)
 
-### Sprint: Categorization UI (NOW)
+### Sprint: Categorization UI (COMPLETE)
 1. ✅ Category checkboxes on admin event edit form — grouped by facet
-2. 📋 Category tags displayed on public event page
-3. 📋 Public /events index with category filter links
-4. 📋 Clean URL filtering: `/events?tag=windchill` → Columbia River PLM embed
+2. ✅ Category tags displayed on public event page
+3. ✅ Public /events index with category filter links
+4. ✅ Clean URL filtering: `/events?tag=plm-tools-windchill` → Columbia River PLM embed
 
 ### Next: Vendor Operations Layer (post-categorization)
 5. 📋 Vendor dashboard — add booth number, load-in info, event logistics
