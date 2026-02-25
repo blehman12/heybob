@@ -1,8 +1,23 @@
 # Public Events Controller - No authentication required
 class PublicEventsController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:show, :rsvp, :confirmation, :calendar]
+  skip_before_action :authenticate_user!, only: [:index, :show, :rsvp, :confirmation, :calendar]
   before_action :find_event, only: [:show, :rsvp, :confirmation, :calendar]
   before_action :check_public_rsvp_enabled, only: [:show, :rsvp]
+
+  def index
+    @events = Event.includes(:venue, :categories)
+                   .hosted
+                   .where('event_date >= ?', Date.today)
+                   .order(:event_date)
+
+    if params[:tag].present?
+      @active_tag = Category.find_by(slug: params[:tag])
+      if @active_tag
+        @events = @events.joins(:categorizations)
+                         .where(categorizations: { category_id: @active_tag.id })
+      end
+    end
+  end
 
   def show
     @event_participant = EventParticipant.new

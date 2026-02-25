@@ -42,6 +42,7 @@ Rails.application.routes.draw do
   get  '/feed/:event_slug',       to: 'visitor_opt_ins#feed',    as: 'event_feed'
 
   # Public event pages (no authentication required)
+  get '/events', to: 'public_events#index', as: 'public_events'
   get '/e/:slug', to: 'public_events#show', as: 'public_event'
   post '/e/:slug/rsvp', to: 'public_events#rsvp', as: 'public_event_rsvp'
   get '/e/:slug/confirmation', to: 'public_events#confirmation', as: 'public_event_confirmation'
