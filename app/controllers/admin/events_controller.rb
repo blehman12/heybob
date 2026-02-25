@@ -2,7 +2,7 @@
 require 'csv'
 
 class Admin::EventsController < Admin::BaseController
-  before_action :set_event, only: [:show, :edit, :update, :destroy, :participants, :add_participant, :export_participants, :bulk_invite]
+  before_action :set_event, only: [:show, :edit, :update, :destroy, :participants, :add_participant, :export_participants, :bulk_invite, :cockpit]
   before_action :load_venues, only: [:new, :create, :edit, :update]
   before_action :load_users, only: [:new, :create, :edit, :update]
 
