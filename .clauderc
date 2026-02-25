@@ -1,0 +1,29 @@
+# Claude Code Railway Configuration
+# This file is automatically sourced by Claude-friendly scripts
+
+# Railway project info
+export RAILWAY_PROJECT="comfortable-blessing"
+export RAILWAY_ENVIRONMENT="production"
+export RAILWAY_SERVICE="evm1"
+export RAILWAY_DOMAIN="heybob-production.up.railway.app"
+
+# Quick aliases for Claude Code
+alias r-logs='bash railway.sh logs'
+alias r-tail='bash railway.sh tail'
+alias r-status='bash railway.sh status'
+alias r-console='bash railway.sh console'
+alias r-restart='bash railway.sh restart'
+
+# Helper function for Claude to check deployment after push
+check_deploy() {
+    echo "🔍 Checking latest deployment..."
+    railway deployment list --limit 1
+    echo ""
+    echo "📋 Recent logs:"
+    railway logs --lines 50
+}
+
+# Helper function to get deployment URL
+get_url() {
+    echo "https://${RAILWAY_DOMAIN}"
+}
