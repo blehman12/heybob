@@ -92,7 +92,7 @@ class Admin::ExportController < Admin::BaseController
           {
             vendor_external_id: ve.vendor.external_id,
             category:           ve.category,
-            table_number:       ve.table_number
+            booth_number:       ve.booth_number
           }
         end
       }

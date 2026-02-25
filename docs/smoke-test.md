@@ -14,6 +14,10 @@ Runs after each feature sprint. Checks only what was recently built.
 | 1 | `/events` | Page loads, at least one event listed |
 | 2 | `/events?tag=plm-tools-windchill` | "Filtered by: Windchill" badge shown, events listed |
 | 3 | `/events?tag=nonexistent-tag` | No crash — filter silently ignored, all events shown |
+| 4 | `/admin/events/sakuracon-2026-2026/cockpit` | Cockpit loads, shows 4 vendors, stat cards visible |
+| 5 | `/admin/vendors/1` (CoreTech) | Vendor show page loads, no 500 (hero_image + Active Storage ok) |
+| 6 | Vendor event edit | Edit a vendor event's booth/hall/load-in fields and save — metadata persists |
+| 7 | Vendor onboarding checklist | Visit `/vendor/vendors/:id` — checklist visible, auto-hides when 4 items done |
 
 ---
 
@@ -47,6 +51,12 @@ Runs before Sakuracon or after any significant change.
 | 14 | `/admin/users` | Users list loads |
 | 15 | `/admin/venues` | Venues list loads |
 | 16 | `/admin/export` | JSON export returns data |
+| 17 | `/admin/vendors` | Vendors list loads, 4 vendors shown |
+| 18 | `/admin/vendors/1` | CoreTech Solutions show page loads (Active Storage hero_image no 500) |
+| 19 | `/admin/events/sakuracon-2026-2026/cockpit` | Event-Day Cockpit loads — 4 vendors in table, stat cards, check-in + broadcast panels |
+| 20 | Vendor logistics edit | Edit CoreTech vendor event — set booth/hall/load-in date+time+notes, save — values persist on reload |
+| 21 | Vendor onboarding checklist | Visit `/vendor` as vendor_admin user — checklist shows for incomplete vendor; completes and hides after all 4 items done |
+| 22 | Vendor event QR token | Vendor event show page renders QR code (token not blank, /join/:token route resolves) |
 
 ---
 
@@ -57,6 +67,7 @@ When a new feature is built, add it to Quick mode first. After it's been stable 
 
 ## Known limitations
 - Does not test RSVP submission flow (form POST)
-- Does not test vendor dashboard or SMS broadcast
-- Does not test check-in QR flow
+- Does not test SMS broadcast send (Twilio side effects)
+- Does not test check-in QR scan flow end-to-end
+- Vendor onboarding checklist test (#21) requires logging in as a vendor_admin (vendor1@coretech.com / Vendor123!)
 - These require more complex session/state management — manual for now
