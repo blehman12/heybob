@@ -2,7 +2,7 @@
 **Trigger phrases:** `smoke test quick` or `smoke test full`
 
 **Production URL:** https://heybob-production.up.railway.app
-**Test account:** smoketest@heybob.app / password123
+**Test account:** smoketest@heybob.app / Sm0keTest!
 
 ---
 
@@ -26,7 +26,7 @@ Runs before Sakuracon or after any significant change.
 | 1 | `/events` | Events index loads, hosted events listed |
 | 2 | `/events?tag=plm-tools-windchill` | Tag filter works, "Filtered by" shown |
 | 3 | `/events?tag=nonexistent-tag` | No crash — filter silently ignored, all events shown |
-| 4 | `/e/ptc-windchill-community-meetup-2026` | Event detail page loads |
+| 4 | `/e/ptc-windchill-community-meetup-fall-2024-2026` | Event detail page loads (requires public_rsvp_enabled: true) |
 | 5 | `/e/nonexistent-slug` | Redirects to root, not a 500 |
 | 6 | `/` | Root loads (redirects to login or dashboard) |
 

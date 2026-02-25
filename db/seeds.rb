@@ -1,4 +1,10 @@
-# Clear existing data
+if Rails.env.production?
+  puts "SKIPPING destructive wipe — production environment."
+  puts "Run individual seed files with: rails runner db/seeds/<file>.rb"
+  return
+end
+
+# Clear existing data (dev/test only)
 puts "Clearing existing data..."
 Categorization.destroy_all
 Category.destroy_all
@@ -247,3 +253,17 @@ puts "Admin panel at: http://localhost:3000/admin"
 # ── Taxonomy ──────────────────────────────────────────────────────────────────
 load Rails.root.join('db/seeds/categories.rb')
 load Rails.root.join('db/seeds/categorizations.rb')
+
+# ── Vendors ───────────────────────────────────────────────────────────────────
+load Rails.root.join('db/seeds/vendors.rb')
+
+# ── Smoke test account ────────────────────────────────────────────────────────
+smoketest = User.find_or_create_by!(email: 'smoketest@heybob.app') do |u|
+  u.first_name = 'Smoke'
+  u.last_name  = 'Test'
+  u.password   = 'Sm0keTest!'
+  u.phone      = '503-555-9999'
+  u.company    = 'HeyBob QA'
+  u.role       = :super_admin
+end
+puts "Smoke test account: #{smoketest.email} (#{smoketest.persisted? ? 'ready' : 'ERROR'})"
