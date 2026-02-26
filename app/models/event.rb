@@ -20,6 +20,8 @@ class Event < ApplicationRecord
     reference:    2   # External event, awareness only — link out, no RSVP
   }
 
+  enum lifecycle_status: { draft: 0, published: 1, archived: 2, cancelled: 3 }
+
   # Validations
   validates :name, :event_date, presence: true
   validates :rsvp_deadline, presence: true, unless: :reference?
@@ -32,6 +34,7 @@ class Event < ApplicationRecord
   scope :upcoming, -> { where('event_date > ?', Time.current) }
   scope :past, -> { where('event_date < ?', Time.current) }
   scope :public_rsvp, -> { where(public_rsvp_enabled: true) }
+  scope :publicly_visible, -> { where(lifecycle_status: :published) }
 
   # Serialization for custom questions
   serialize :custom_questions, coder: JSON
@@ -42,7 +45,7 @@ class Event < ApplicationRecord
 
   # Public methods
   def rsvp_available?
-    hosted? && rsvp_open?
+    hosted? && rsvp_open? && published?
   end
 
   def attendees_count
