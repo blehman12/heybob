@@ -2,7 +2,7 @@
 require 'csv'
 
 class Admin::EventsController < Admin::BaseController
-  before_action :set_event, only: [:show, :edit, :update, :destroy, :participants, :add_participant, :export_participants, :bulk_invite, :cockpit]
+  before_action :set_event, only: [:show, :edit, :update, :destroy, :update_status, :participants, :add_participant, :export_participants, :bulk_invite, :cockpit]
   before_action :load_venues, only: [:new, :create, :edit, :update]
   before_action :load_users, only: [:new, :create, :edit, :update]
 
@@ -64,6 +64,15 @@ class Admin::EventsController < Admin::BaseController
   def destroy
     @event.destroy
     redirect_to admin_events_path, notice: 'Event deleted successfully.'
+  end
+
+  def update_status
+    @event = Event.find(params[:id])
+    if @event.update(lifecycle_status: params[:lifecycle_status])
+      redirect_to admin_event_path(@event), notice: "Event status updated to #{@event.lifecycle_status.humanize}."
+    else
+      redirect_to admin_event_path(@event), alert: "Could not update status."
+    end
   end
 
   def participants
@@ -205,6 +214,7 @@ class Admin::EventsController < Admin::BaseController
       :max_attendees,
       :rsvp_deadline,
       :public_rsvp_enabled,
+      :lifecycle_status,
       custom_questions: [],
       category_ids: []
     )

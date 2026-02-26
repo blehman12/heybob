@@ -132,8 +132,13 @@ class PublicEventsController < ApplicationController
 
   def find_event
     @event = Event.find_by(slug: params[:slug])
-    
+
     unless @event
+      redirect_to root_path, alert: 'Event not found.'
+      return
+    end
+
+    unless @event.published?
       redirect_to root_path, alert: 'Event not found.'
     end
   end

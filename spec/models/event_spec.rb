@@ -91,4 +91,25 @@ RSpec.describe Event, type: :model do
       expect(event.to_param).to eq(event.id)
     end
   end
+
+  describe 'lifecycle_status' do
+    it 'defaults to published' do
+      event = build(:event)
+      expect(event.lifecycle_status).to eq('published')
+    end
+
+    it 'has the correct statuses' do
+      expect(Event.lifecycle_statuses.keys).to match_array(%w[draft published archived cancelled])
+    end
+
+    it 'rsvp_available? is false when draft' do
+      event = build(:event, event_type: :hosted, rsvp_deadline: 1.day.from_now, lifecycle_status: :draft)
+      expect(event.rsvp_available?).to be false
+    end
+
+    it 'rsvp_available? is true when published and rsvp open' do
+      event = build(:event, event_type: :hosted, rsvp_deadline: 1.day.from_now, lifecycle_status: :published)
+      expect(event.rsvp_available?).to be true
+    end
+  end
 end

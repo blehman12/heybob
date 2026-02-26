@@ -125,6 +125,7 @@ resources :events do
     get :export_participants
     post :bulk_invite_participants
     get :cockpit
+    patch :update_status
   end
   collection do
     get :bulk_actions
