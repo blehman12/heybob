@@ -155,6 +155,7 @@ end
     # Venue management
     resources :venues do
       collection do
+        post :quick_create
         get 'bulk_actions'
         post 'bulk_delete'
         post 'bulk_archive'

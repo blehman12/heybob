@@ -59,8 +59,13 @@
             <div class="row">
               <div class="col-md-6 mb-3">
                 <%= form.label :venue_id, "Venue", class: "form-label" %>
-                <%= form.select :venue_id, options_from_collection_for_select(@venues, :id, :name, @event.venue_id),
-                                { prompt: "Select a venue" }, { class: "form-select" } %>
+                <div class="input-group">
+                  <%= form.select :venue_id, options_from_collection_for_select(@venues, :id, :name, @event.venue_id),
+                                  { prompt: "Select a venue" }, { class: "form-select", id: "event_venue_id" } %>
+                  <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#quickAddVenueModal">
+                    + New
+                  </button>
+                </div>
               </div>
               <div class="col-md-6 mb-3">
                 <%= form.label :max_attendees, class: "form-label" %>
@@ -200,6 +205,37 @@
   </div>
 </div>
 
+<%# ── Quick Add Venue Modal ── %>
+<div class="modal fade" id="quickAddVenueModal" tabindex="-1" aria-labelledby="quickAddVenueModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="quickAddVenueModalLabel">Quick Add Venue</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="venue-modal-error" class="alert alert-danger d-none"></div>
+        <div class="mb-3">
+          <label for="quick-venue-name" class="form-label">Venue Name <span class="text-danger">*</span></label>
+          <input type="text" id="quick-venue-name" class="form-control" placeholder="e.g. Washington State Convention Center">
+        </div>
+        <div class="mb-3">
+          <label for="quick-venue-address" class="form-label">Address <span class="text-danger">*</span></label>
+          <input type="text" id="quick-venue-address" class="form-control" placeholder="e.g. 705 Pike St, Seattle, WA 98101">
+        </div>
+        <div class="mb-3">
+          <label for="quick-venue-capacity" class="form-label">Capacity <span class="text-danger">*</span></label>
+          <input type="number" id="quick-venue-capacity" class="form-control" min="1" placeholder="e.g. 3000">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="quick-venue-submit">Add Venue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', initEventForm);
 document.addEventListener('turbo:load', initEventForm);
@@ -259,6 +295,63 @@ function initEventForm() {
       if (e.target.classList.contains('remove-question')) {
         e.target.closest('.custom-question-row').remove();
       }
+    });
+  }
+
+  // ── Quick Add Venue modal ──
+  const quickVenueSubmit = document.getElementById('quick-venue-submit');
+  if (quickVenueSubmit) {
+    quickVenueSubmit.addEventListener('click', function() {
+      const name     = document.getElementById('quick-venue-name').value.trim();
+      const address  = document.getElementById('quick-venue-address').value.trim();
+      const capacity = document.getElementById('quick-venue-capacity').value.trim();
+      const errorDiv = document.getElementById('venue-modal-error');
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+      if (!name || !address || !capacity) {
+        errorDiv.textContent = 'All fields are required.';
+        errorDiv.classList.remove('d-none');
+        return;
+      }
+
+      quickVenueSubmit.disabled = true;
+      quickVenueSubmit.textContent = 'Saving...';
+
+      fetch('/admin/venues/quick_create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
+        body: JSON.stringify({ venue: { name: name, address: address, capacity: capacity } })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.errors) {
+          errorDiv.textContent = data.errors.join(', ');
+          errorDiv.classList.remove('d-none');
+          quickVenueSubmit.disabled = false;
+          quickVenueSubmit.textContent = 'Add Venue';
+        } else {
+          const select = document.getElementById('event_venue_id');
+          const option = new Option(data.name, data.id, true, true);
+          select.add(option);
+          select.value = data.id;
+          bootstrap.Modal.getInstance(document.getElementById('quickAddVenueModal')).hide();
+          document.getElementById('quick-venue-name').value = '';
+          document.getElementById('quick-venue-address').value = '';
+          document.getElementById('quick-venue-capacity').value = '';
+          errorDiv.classList.add('d-none');
+          quickVenueSubmit.disabled = false;
+          quickVenueSubmit.textContent = 'Add Venue';
+        }
+      })
+      .catch(() => {
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.classList.remove('d-none');
+        quickVenueSubmit.disabled = false;
+        quickVenueSubmit.textContent = 'Add Venue';
+      });
     });
   }
 }

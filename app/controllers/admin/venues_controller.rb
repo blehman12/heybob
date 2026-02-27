@@ -1,5 +1,6 @@
 class Admin::VenuesController < Admin::BaseController
   before_action :set_venue, only: [:show, :edit, :update, :destroy]
+  skip_before_action :verify_authenticity_token, only: [:quick_create]
   
   def index
     @venues = Venue.includes(:events).order(:name)
@@ -42,7 +43,16 @@ class Admin::VenuesController < Admin::BaseController
       redirect_to admin_venue_path(@venue), alert: 'Cannot delete venue with existing events.'
     end
   end
-  
+
+  def quick_create
+    @venue = Venue.new(venue_params)
+    if @venue.save
+      render json: { id: @venue.id, name: @venue.name }, status: :created
+    else
+      render json: { errors: @venue.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
   private
   
   def set_venue
