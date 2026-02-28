@@ -64,14 +64,14 @@
                   <div class="btn-group btn-group-sm">
                     <%= link_to "View", admin_event_path(event), class: "btn btn-outline-primary" %>
                     <%= link_to "Edit", edit_admin_event_path(event), class: "btn btn-outline-secondary" %>
-					<%= link_to "Participants", admin_event_path(event), class: "btn btn-outline-info" %>
-					
-                
-					<%= button_to "Delete", admin_event_path(event), method: :delete, 
-                              confirm: "Are you sure? This will remove all participants.", 
-                              class: "btn btn-outline-danger",
-                               form_class: "d-inline" %>
-			  
+                    <%= link_to "Participants", admin_event_path(event), class: "btn btn-outline-info" %>
+                    <% if event.published? %>
+                      <%= link_to "Public ↗", public_event_path(event.slug), class: "btn btn-outline-success", target: "_blank" %>
+                    <% end %>
+                    <%= button_to "Delete", admin_event_path(event), method: :delete,
+                                  confirm: "Are you sure? This will remove all participants.",
+                                  class: "btn btn-outline-danger",
+                                  form_class: "d-inline" %>
                   </div>
                 </td>
               </tr>
