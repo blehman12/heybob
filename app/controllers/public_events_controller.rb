@@ -7,6 +7,7 @@ class PublicEventsController < ApplicationController
   def index
     @events = Event.includes(:venue, :categories)
                    .hosted
+                   .published
                    .where('event_date >= ?', Date.today)
                    .order(:event_date)
 
