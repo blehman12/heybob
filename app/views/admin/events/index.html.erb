@@ -6,6 +6,19 @@
   </div>
 </div>
 
+<div class="mb-3">
+  <% total = @status_counts.values.sum %>
+  <%= link_to admin_events_path, class: "btn btn-sm #{params[:lifecycle_status].blank? ? 'btn-secondary' : 'btn-outline-secondary'} me-1" do %>
+    All <span class="badge bg-light text-dark ms-1"><%= total %></span>
+  <% end %>
+  <% [['published', 'success'], ['draft', 'dark'], ['archived', 'warning'], ['cancelled', 'danger']].each do |status, color| %>
+    <% count = @status_counts[status] || 0 %>
+    <%= link_to admin_events_path(lifecycle_status: status), class: "btn btn-sm #{params[:lifecycle_status] == status ? "btn-#{color}" : "btn-outline-#{color}"} me-1" do %>
+      <%= status.capitalize %> <span class="badge bg-light text-dark ms-1"><%= count %></span>
+    <% end %>
+  <% end %>
+</div>
+
 <div class="card">
   <div class="card-body">
     <% if @events.any? %>
@@ -69,8 +82,12 @@
     <% else %>
       <div class="text-center py-5">
         <h4 class="text-muted">No events found</h4>
-        <p class="text-muted">Create your first event to get started.</p>
-        <%= link_to "Create Event", new_admin_event_path, class: "btn btn-success" %>
+        <% if params[:lifecycle_status].present? %>
+          <p class="text-muted">No <%= params[:lifecycle_status] %> events. <%= link_to "Show all events", admin_events_path %>.</p>
+        <% else %>
+          <p class="text-muted">Create your first event to get started.</p>
+          <%= link_to "Create Event", new_admin_event_path, class: "btn btn-success" %>
+        <% end %>
       </div>
     <% end %>
   </div>

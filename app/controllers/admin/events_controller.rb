@@ -7,11 +7,11 @@ class Admin::EventsController < Admin::BaseController
   before_action :load_users, only: [:new, :create, :edit, :update]
 
   def index
-    # FIXED: Add eager loading to prevent N+1 queries
+    @status_counts = Event.group(:lifecycle_status).count
     @events = Event.includes(:venue, :creator, event_participants: :user)
                    .order(:event_date)
-                   .page(params[:page])
-                   .per(20)
+    @events = @events.where(lifecycle_status: params[:lifecycle_status]) if params[:lifecycle_status].present?
+    @events = @events.page(params[:page]).per(20)
   end
 
   def show
