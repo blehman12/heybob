@@ -48,7 +48,7 @@ class CheckinController < ApplicationController
     end
   end
   
-  def process
+  def confirm_checkin
     # Process the actual check-in
     token = params[:token]
     event_id = params[:event_id]

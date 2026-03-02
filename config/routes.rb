@@ -68,7 +68,7 @@ Rails.application.routes.draw do
   get  'checkin/scan',        to: 'checkin#scan',    as: 'scan_checkin'
   get  'checkin/manual',      to: 'checkin#manual',  as: 'manual_checkin'
   get  'checkin/verify',      to: 'checkin#verify',  as: 'checkin_verify'
-  post 'checkin/process',     to: 'checkin#process', as: 'checkin_process'
+  post 'checkin/process',     to: 'checkin#confirm_checkin', as: 'checkin_process'
   get  'checkin/success/:id', to: 'checkin#success', as: 'success_checkin'
 
   # Calendar routes
