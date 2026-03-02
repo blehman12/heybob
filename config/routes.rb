@@ -64,11 +64,12 @@ Rails.application.routes.draw do
 
 
   # Check-in routes (public - no authentication required for basic access)
-  get 'checkin', to: 'checkin#index'
-  get 'checkin/scan', to: 'checkin#scan'
-  get 'checkin/manual', to: 'checkin#manual'
-  post 'checkin/verify', to: 'checkin#verify'
-  get 'checkin/success/:id', to: 'checkin#success', as: 'checkin_success'
+  get  'checkin',             to: 'checkin#index',   as: 'checkin'
+  get  'checkin/scan',        to: 'checkin#scan',    as: 'scan_checkin'
+  get  'checkin/manual',      to: 'checkin#manual',  as: 'manual_checkin'
+  get  'checkin/verify',      to: 'checkin#verify',  as: 'checkin_verify'
+  post 'checkin/process',     to: 'checkin#process', as: 'checkin_process'
+  get  'checkin/success/:id', to: 'checkin#success', as: 'success_checkin'
 
   # Calendar routes
   get 'calendar/:event_id', to: 'calendar#show', as: 'event_calendar'
@@ -131,6 +132,15 @@ resources :events do
     post :bulk_invite_participants
     get :cockpit
     patch :update_status
+    # Check-in management (routed to Admin::CheckinController)
+    get  :checkin_dashboard,    controller: 'checkin'
+    get  :generate_qr_codes,    controller: 'checkin'
+    post :create_qr_codes,      controller: 'checkin'
+    get  :print_badges,         controller: 'checkin'
+    get  :bulk_checkin,         controller: 'checkin'
+    post :process_bulk_checkin, controller: 'checkin'
+    get  :export_checkin_data,  controller: 'checkin'
+    get  :dashboard_stats,      controller: 'checkin'
   end
   collection do
     get :bulk_actions
@@ -180,15 +190,6 @@ end
       end
     end
 
-    # Check-in management
-    get 'checkin', to: 'checkin#index'
-    get 'checkin/dashboard', to: 'checkin#dashboard'
-    get 'checkin/dashboard/:event_id', to: 'checkin#event_dashboard', as: 'event_checkin_dashboard'
-    post 'checkin/bulk', to: 'checkin#bulk_checkin'
-    get 'checkin/export/:event_id', to: 'checkin#export', as: 'export_checkin'
-    get 'checkin/qr_codes/:event_id', to: 'checkin#qr_codes', as: 'event_qr_codes'
-    get 'checkin/print_badges/:event_id', to: 'checkin#print_badges', as: 'print_badges'
-    
     # Reports and analytics
     get 'reports', to: 'reports#index'
     get 'reports/events', to: 'reports#events'
@@ -224,7 +225,7 @@ end
 
   # Legacy routes for backwards compatibility (if needed)
   get '/events/:id/rsvp', to: redirect('/rsvp/%{id}')
-  get '/admin/events/:id/checkin', to: redirect('/admin/checkin/dashboard/%{id}')
+  get '/admin/events/:id/checkin', to: redirect('/admin/events/%{id}/checkin_dashboard')
 
   # Error pages
   get '/404', to: 'errors#not_found'
