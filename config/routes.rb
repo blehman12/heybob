@@ -41,6 +41,11 @@ Rails.application.routes.draw do
   get  '/join/:qr_token/welcome', to: 'visitor_opt_ins#welcome', as: 'vendor_optin_welcome'
   get  '/feed/:event_slug',       to: 'visitor_opt_ins#feed',    as: 'event_feed'
 
+  # General interest / waitlist signup (no authentication required)
+  get  '/interest',       to: 'interest_signups#new',       as: 'interest_signup'
+  post '/interest',       to: 'interest_signups#create'
+  get  '/interest/thanks', to: 'interest_signups#thank_you', as: 'interest_signup_thanks'
+
   # Public event pages (no authentication required)
   get '/events', to: 'public_events#index', as: 'public_events'
   get '/e/:slug', to: 'public_events#show', as: 'public_event'
@@ -148,6 +153,9 @@ end
 
     # Data export (super_admin only)
     resource :export, only: [:show], controller: 'export'
+
+    # Interest / waitlist signups
+    resources :interest_signups, only: [:index, :destroy]
 
     # Category / taxonomy management (super_admin only)
     resources :categories

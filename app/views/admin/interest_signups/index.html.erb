@@ -1,0 +1,85 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>Interest Signups</h2>
+  <div>
+    <%= link_to "Back to Dashboard", admin_root_path, class: "btn btn-outline-secondary" %>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <div class="fs-2 fw-bold text-primary"><%= @total %></div>
+        <div class="text-muted small">Total Signups</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <div class="fs-2 fw-bold text-success"><%= @with_email %></div>
+        <div class="text-muted small">With Email</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <div class="fs-2 fw-bold text-info"><%= @with_phone %></div>
+        <div class="text-muted small">With Phone</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <% if @signups.any? %>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Source</th>
+              <th>Notes</th>
+              <th>Signed Up</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @signups.each do |signup| %>
+              <tr>
+                <td class="fw-semibold"><%= signup.name %></td>
+                <td><%= mail_to signup.email if signup.email.present? %></td>
+                <td><%= signup.phone %></td>
+                <td>
+                  <% if signup.source.present? %>
+                    <span class="badge bg-secondary"><%= signup.source %></span>
+                  <% end %>
+                </td>
+                <td class="text-muted" style="max-width:200px; font-size:.85rem;">
+                  <%= truncate(signup.notes, length: 80) %>
+                </td>
+                <td class="text-muted small"><%= signup.created_at.strftime("%b %d, %Y") %></td>
+                <td>
+                  <%= button_to "Remove", admin_interest_signup_path(signup), method: :delete,
+                                confirm: "Remove this signup?",
+                                class: "btn btn-outline-danger btn-sm",
+                                form_class: "d-inline" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <%= paginate @signups %>
+    <% else %>
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-inbox" style="font-size:3rem;"></i>
+        <p class="mt-3">No signups yet. Share <strong><%= request.base_url %>/interest</strong> to start collecting.</p>
+      </div>
+    <% end %>
+  </div>
+</div>
