@@ -143,7 +143,7 @@ class Admin::CheckinController < Admin::BaseController
   private
   
   def set_event
-    @event = Event.find(params[:id])
+    @event = Event.find_by!(slug: params[:id])
   end
   
   def success
