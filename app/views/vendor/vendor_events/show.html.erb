@@ -22,6 +22,11 @@
     <div class="vd-stat">
       <div class="vd-stat__num"><%= @vendor_event.opt_in_count %></div>
       <div class="vd-stat__label">Opt-ins</div>
+      <% if @vendor_event.opt_in_count > 0 %>
+        <div style="font-size:10px; color:rgba(255,255,255,0.3); margin-top:5px; line-height:1.6;">
+          📱&nbsp;<%= @phone_count %>&nbsp;·&nbsp;✉️&nbsp;<%= @email_count %>
+        </div>
+      <% end %>
     </div>
     <div class="vd-stat">
       <div class="vd-stat__num"><%= @vendor_event.broadcasts.sent.count %></div>
@@ -35,6 +40,36 @@
     </div>
   </div>
 </div>
+
+<%# ── Opt-in timeline ── %>
+<% if @opt_in_timeline.any? %>
+  <p class="vd-section-label">Opt-in Timeline</p>
+  <div class="vd-card" style="margin-bottom: 24px;">
+    <div class="vd-card__body" style="overflow-x: auto; padding-bottom: 14px;">
+      <% tl_max = @opt_in_timeline.values.max.to_f %>
+      <% tl_min_width = [@opt_in_timeline.size * 34, 240].max %>
+      <div style="display:flex; align-items:flex-end; gap:6px; height:72px; min-width:<%= tl_min_width %>px;">
+        <% @opt_in_timeline.each do |hour, count| %>
+          <div style="flex:1; min-width:28px; display:flex; flex-direction:column; align-items:center; gap:3px;">
+            <div style="font-size:9px; color:rgba(255,255,255,0.45); font-weight:600; min-height:12px;">
+              <%= count %>
+            </div>
+            <div style="width:100%; background:#a78bfa; border-radius:3px 3px 0 0;
+                        height:<%= [(count / tl_max * 48).round, 4].max %>px;"></div>
+          </div>
+        <% end %>
+      </div>
+      <div style="display:flex; gap:6px; margin-top:5px; min-width:<%= tl_min_width %>px;">
+        <% @opt_in_timeline.each do |hour, _| %>
+          <div style="flex:1; min-width:28px; font-size:9px; color:rgba(255,255,255,0.25);
+                      text-align:center; overflow:hidden; white-space:nowrap;">
+            <%= hour.strftime('%-I%p').downcase %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
 
 <%# ── Onboarding checklist ── %>
 <% booth_set      = @vendor_event.booth_number.present?
@@ -215,6 +250,13 @@
           <span class="vd-broadcast-item__scope">
             <%= broadcast.entire_con? ? 'Whole con' : 'My visitors' %>
           </span>
+          <% delivered = broadcast.broadcast_receipts.select(&:delivered?).size %>
+          <% failed    = broadcast.broadcast_receipts.select(&:failed?).size %>
+          <% if broadcast.recipient_count.to_i > 0 %>
+            <span style="<%= failed > 0 ? 'color:#ff7a92;' : '' %>">
+              <%= delivered %>/<%= broadcast.recipient_count %> delivered<%= failed > 0 ? " · #{failed} failed" : '' %>
+            </span>
+          <% end %>
         </div>
       </div>
     <% end %>

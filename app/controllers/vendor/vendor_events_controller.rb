@@ -26,8 +26,18 @@ class Vendor::VendorEventsController < Vendor::BaseController
     @recent_broadcasts = @vendor_event.broadcasts
                                       .sent
                                       .recent
+                                      .includes(:broadcast_receipts)
                                       .limit(10)
     @new_broadcast = Broadcast.new
+
+    opt_ins = @vendor_event.con_opt_ins
+    @phone_count = opt_ins.where.not(phone: [nil, '']).count
+    @email_count = opt_ins.where.not(email: [nil, '']).count
+    @opt_in_timeline = opt_ins
+                         .where.not(opted_in_at: nil)
+                         .group("date_trunc('hour', opted_in_at)")
+                         .order("date_trunc('hour', opted_in_at)")
+                         .count
   end
 
   def edit
