@@ -35,8 +35,8 @@ class Vendor::VendorEventsController < Vendor::BaseController
     @email_count = opt_ins.where.not(email: [nil, '']).count
     @opt_in_timeline = opt_ins
                          .where.not(opted_in_at: nil)
-                         .group("date_trunc('hour', opted_in_at)")
-                         .order("date_trunc('hour', opted_in_at)")
+                         .group(Arel.sql("date_trunc('hour', opted_in_at)"))
+                         .order(Arel.sql("date_trunc('hour', opted_in_at)"))
                          .count
   end
 
