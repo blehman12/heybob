@@ -54,7 +54,7 @@
 
       <div class="field-group">
         <%= f.label :phone, 'Phone or Email', class: 'field-label' %>
-        <%= f.tel_field :phone,
+        <%= f.telephone_field :phone,
                         placeholder: '(503) 555-0100',
                         class: "field-input #{'is-invalid' if @con_opt_in.errors[:phone].any?}",
                         autocomplete: 'tel',
