@@ -97,7 +97,7 @@
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h6 class="mb-0">Recent Check-ins</h6>
-        <%= link_to "Full Dashboard", admin_event_checkin_dashboard_path(@event.id), class: "btn btn-outline-success btn-sm" %>
+        <%= link_to "Full Dashboard", checkin_dashboard_admin_event_path(@event.id), class: "btn btn-outline-success btn-sm" %>
       </div>
       <% if @recent_checkins.any? %>
         <ul class="list-group list-group-flush">
