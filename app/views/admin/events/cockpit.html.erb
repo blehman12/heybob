@@ -4,7 +4,7 @@
     <small class="text-muted"><%= @event.name %> &middot; <%= @event.event_date.strftime('%B %-d, %Y') %></small>
   </div>
   <div class="d-flex gap-2">
-    <%= link_to "Check-in Dashboard", admin_event_checkin_dashboard_path(@event.id), class: "btn btn-outline-success btn-sm" %>
+    <%= link_to "Check-in Dashboard", checkin_dashboard_admin_event_path(@event), class: "btn btn-outline-success btn-sm" %>
     <%= link_to "Event", admin_event_path(@event), class: "btn btn-outline-secondary btn-sm" %>
   </div>
 </div>
