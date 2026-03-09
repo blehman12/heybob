@@ -1,8 +1,8 @@
 # Create app/controllers/checkin_controller.rb
 
 class CheckinController < ApplicationController
-  # No authentication required for check-in process
-  
+  skip_before_action :authenticate_user!
+
   def index
     # Main check-in interface
     redirect_to scan_checkin_path

@@ -10,11 +10,19 @@ FactoryBot.define do
     phone { Faker::PhoneNumber.phone_number }
 
     trait :admin do
-      role { 'admin' }
+      role { 'super_admin' }
     end
 
-    trait :vendor do
-      role { 'vendor' }
+    trait :super_admin do
+      role { 'super_admin' }
+    end
+
+    trait :event_admin do
+      role { 'event_admin' }
+    end
+
+    trait :vendor_admin do
+      role { 'vendor_admin' }
     end
   end
 end

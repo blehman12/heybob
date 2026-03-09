@@ -38,6 +38,8 @@
                           style: "color: rgba(255,255,255,.75); background: none;",
                           form: { style: "display: inline;" } %>
           <% else %>
+            <%= link_to "Stay in the Loop", interest_signup_path,
+                        class: "btn btn-sm btn-outline-light me-2" %>
             <%= link_to "Sign In", new_user_session_path, class: "nav-link" %>
           <% end %>
         </div>

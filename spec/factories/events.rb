@@ -14,12 +14,13 @@ FactoryBot.define do
     association :creator, factory: :user
 
     trait :upcoming do
-      event_date { rand(1..4).weeks.from_now }
+      event_date    { 4.weeks.from_now }
+      rsvp_deadline { 2.weeks.from_now }
     end
 
     trait :past do
-      event_date { rand(1..4).weeks.ago }
-      rsvp_deadline { rand(2..5).weeks.ago }
+      event_date    { 2.weeks.ago }
+      rsvp_deadline { 4.weeks.ago }
     end
 
     trait :with_questions do

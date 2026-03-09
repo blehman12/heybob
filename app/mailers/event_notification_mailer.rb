@@ -1,6 +1,6 @@
 # app/mailers/event_notification_mailer.rb
 class EventNotificationMailer < ApplicationMailer
-  default from: ENV['GMAIL_USERNAME']
+  default from: ENV.fetch('GMAIL_USERNAME', 'noreply@example.com')
 
   def rsvp_confirmation(participant)
     @participant = participant

@@ -167,10 +167,23 @@
 8. ✅ Admin vendor show/edit pages — complete with import, all CRUD actions
 
 ### Backlog
-9. 📋 Event lifecycle status (draft / published / archived / cancelled)
+9. ✅ Event lifecycle status (draft / published / archived / cancelled)
 10. 📋 Quick-add venue modal on event form (AJAX, injects into dropdown, no page reload)
 11. 📋 Vendor analytics — opt-in count, scan trends (post-Sakuracon)
+13. 📋 **General interest / waitlist page** — standalone signup page not tied to a specific event. "Sign up to hear about upcoming PLM events." Creates a user account (or ConOptIn record), shareable link for Columbia PLM website and social media. Feeds into future broadcasts.
 12. 📋 **Rethink event date/time fields** — current model has redundancy (`event_date` is datetime-local AND separate `start_time`/`end_time` fields). Proposed: store `start_date` + `end_date` (date only) + `start_time` + `end_time` (daily operating hours). Single-day events have same start/end date. Schema change — touches event form, public page, calendar download, seeds.
+
+14. 📋 **Portland/Seattle demo seed data** — real venues (Oregon Convention Center, Seattle Convention Center, Hotel Lucia, Marriott Waterfront, etc.) + 6-10 plausible PLM/tech events across 2025-2026. Mix of lifecycle statuses. Makes demo look like a real product. No AI needed — good fixtures only.
+15. 📋 **Smart Fill via URL paste** — user pastes any public URL (company site, Meetup, LinkedIn event) on event/venue creation form. We fetch it, Claude API extracts name/description/date/location, pre-fills the form. No OAuth. Works with any public URL. Fraction-of-a-cent per call. Medium lift, high demo value.
+16. 📋 **Context-aware defaults** — no AI. Pre-fill new event forms from last used venue, creator name, previous event categories, current date +30 days. Easy UX win, do after Smart Fill.
+
+### AI Feature Decision Log (Feb 26, 2026)
+Discussed three tiers of AI-assisted pre-population:
+- **Rejected (for now)**: LinkedIn/Facebook/Gmail OAuth scraping — ToS issues, huge scope, not worth it yet
+- **Approved for later**: Smart Fill via URL paste (Claude API, any public URL, no OAuth) — medium lift, high value. Revisit when demo needs to impress.
+- **Approved for later**: Context-aware defaults (no AI, just smart UX) — easy, lower priority than Smart Fill
+- **Priority order agreed**: #10 venue modal → seed data → Smart Fill → context-aware defaults
+- **Revisit trigger**: When app is being shown to external stakeholders or PLM community and needs to feel "alive"
 
 ### Eventually / Needs Design Discussion
 - **Multi-day scheduling complexity**: Sakuracon runs Thu–Sun with different hours per day, plus sub-areas (Vendor Hall, Artist Alley, Main Events) with their own schedules. Before building: decide how far into event scheduling we go. Full per-day/per-area scheduling exists in tools like Sched, Eventeny, Growtix — we don't want to replicate that. The sweet spot is probably: date range on the Event, load-in details on VendorEvent (not Event), and daily hours as a simple structured field if needed. Avoid scope creep into a full scheduling engine.

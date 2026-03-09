@@ -18,7 +18,7 @@ RSpec.describe Event, type: :model do
   describe 'associations' do
     subject { build(:event) }
     
-    it { is_expected.to belong_to(:venue) }
+    it { is_expected.to belong_to(:venue).optional }
     it { is_expected.to belong_to(:creator).class_name('User') }
     it { is_expected.to have_many(:event_participants) }
     it { is_expected.to have_many(:users).through(:event_participants) }

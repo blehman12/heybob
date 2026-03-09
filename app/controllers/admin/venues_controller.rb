@@ -20,7 +20,7 @@ class Admin::VenuesController < Admin::BaseController
     if @venue.save
       redirect_to admin_venue_path(@venue), notice: 'Venue was successfully created.'
     else
-      render :new
+      render :new, status: :unprocessable_entity
     end
   end
   
@@ -31,7 +31,7 @@ class Admin::VenuesController < Admin::BaseController
     if @venue.update(venue_params)
       redirect_to admin_venue_path(@venue), notice: 'Venue was successfully updated.'
     else
-      render :edit
+      render :edit, status: :unprocessable_entity
     end
   end
   

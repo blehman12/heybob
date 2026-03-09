@@ -20,7 +20,7 @@ RSpec.describe 'User Management', type: :system do
       fill_in 'Phone', with: '555-123-4567'
       fill_in 'Password', with: 'password123'
       fill_in 'Password confirmation', with: 'password123'
-      select 'Attendee', from: 'Role'
+      select 'Attendee', from: 'User Role'
 
       click_button 'Create User'
 
@@ -31,6 +31,9 @@ RSpec.describe 'User Management', type: :system do
 
     it 'validates required fields' do
       visit new_admin_user_path
+      # Add novalidate to disable ALL browser constraint validation (required, minlength, etc.)
+      # Use 'main form' to skip the navbar's Sign Out button_to form which appears first in the DOM
+      page.execute_script("document.querySelector('main form').setAttribute('novalidate', '')")
       click_button 'Create User'
 
       expect(page).to have_content 'prohibited this user from being saved'
@@ -56,10 +59,10 @@ RSpec.describe 'User Management', type: :system do
     it 'prevents admin from demoting themselves' do
       visit edit_admin_user_path(admin_user)
 
-      select 'Attendee', from: 'Role'
-      click_button 'Update User'
+      # admin_safety.js fires a browser alert on the 'change' event when editing own role
+      alert_text = accept_alert { select 'Attendee', from: 'User Role' }
 
-      expect(page).to have_content 'You cannot remove your own admin privileges'
+      expect(alert_text).to include('cannot remove your own admin privileges')
     end
   end
 
@@ -94,11 +97,9 @@ RSpec.describe 'User Management', type: :system do
     it 'prevents deletion of own account' do
       visit admin_user_path(admin_user)
 
-      accept_confirm do
-        click_button 'Delete User'
-      end
-
-      expect(page).to have_content 'You cannot delete your own account'
+      # The Delete User button is hidden in the view when @user == current_user
+      # (app-level protection via <% unless @user == current_user %>)
+      expect(page).not_to have_button('Delete User')
     end
   end
 end

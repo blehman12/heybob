@@ -13,14 +13,14 @@ RSpec.describe 'Dashboard', type: :system do
 
   describe 'User Dashboard' do
     it 'displays upcoming events' do
-      visit dashboard_index_path
+      visit dashboard_path
 
       expect(page).to have_content upcoming_event.name
       expect(page).not_to have_content past_event.name
     end
 
     it 'shows event details' do
-      visit dashboard_index_path
+      visit dashboard_path
 
       expect(page).to have_content upcoming_event.name
       expect(page).to have_content upcoming_event.venue.name
@@ -30,9 +30,9 @@ RSpec.describe 'Dashboard', type: :system do
     it 'provides navigation to admin areas for admin users' do
       admin = create(:user, :admin)
       login_as(admin, scope: :user)
-      
-      visit dashboard_index_path
-      
+
+      visit dashboard_path
+
       expect(page).to have_link 'Events'
       expect(page).to have_link 'Users'
       expect(page).to have_link 'Venues'

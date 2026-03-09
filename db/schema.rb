@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_25_232554) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_27_100001) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -165,6 +165,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_25_232554) do
     t.index ["external_id"], name: "index_events_on_external_id", unique: true
     t.index ["lifecycle_status"], name: "index_events_on_lifecycle_status"
     t.index ["slug"], name: "index_events_on_slug", unique: true
+  end
+
+  create_table "interest_signups", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "email"
+    t.string "phone"
+    t.string "source"
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_interest_signups_on_created_at"
+    t.index ["email"], name: "index_interest_signups_on_email"
   end
 
   create_table "users", force: :cascade do |t|

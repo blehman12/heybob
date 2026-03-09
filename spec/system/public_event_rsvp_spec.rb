@@ -76,7 +76,7 @@ RSpec.describe 'Public Event Guest RSVP', type: :system do
     
     participant = EventParticipant.last
     expect(participant.guest_name).to eq('Minimal Guest')
-    expect(participant.guest_email).to be_nil
+    expect(participant.guest_email).to be_blank  # form submits "" not nil
     expect(participant.rsvp_status).to eq('maybe')
   end
 

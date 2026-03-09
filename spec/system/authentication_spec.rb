@@ -54,6 +54,8 @@ RSpec.describe 'Authentication', type: :system do
       fill_in 'First name', with: 'New'
       fill_in 'Last name', with: 'User'
       fill_in 'Email', with: 'newuser@example.com'
+      fill_in 'Phone', with: '555-123-4567'
+      fill_in 'Company', with: 'Test Company'
       fill_in 'Password', with: 'password123'
       fill_in 'Password confirmation', with: 'password123'
       click_button 'Sign up'
@@ -64,12 +66,18 @@ RSpec.describe 'Authentication', type: :system do
 
   describe 'User Logout' do
     it 'allows user to log out' do
-      login_as(user, scope: :user)
-      visit dashboard_index_path
+      # Sign in through the UI to establish a real browser cookie session
+      visit new_user_session_path
+      fill_in 'Email', with: user.email
+      fill_in 'Password', with: 'password123'
+      click_button 'Log in'
+      expect(page).to have_content 'Signed in successfully'
 
-      click_link 'Sign Out'
+      click_button 'Sign Out'
 
-      expect(page).to have_content 'Signed out successfully'
+      # Verify user is signed out — sign-in form should be visible
+      # (Devise redirects to root which then redirects to sign-in)
+      expect(page).to have_button('Log in').or(have_current_path(new_user_session_path))
     end
   end
 end

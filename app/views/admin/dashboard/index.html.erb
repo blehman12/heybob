@@ -4,7 +4,7 @@
 </div>
 
 <div class="row mb-4">
-  <div class="col-md-2">
+  <div class="col-md col-sm-4 col-6">
     <div class="card text-center">
       <div class="card-body">
         <h6>Total Users</h6>
@@ -12,7 +12,7 @@
       </div>
     </div>
   </div>
-  <div class="col-md-2">
+  <div class="col-md col-sm-4 col-6">
     <div class="card text-center">
       <div class="card-body">
         <h6>Total Events</h6>
@@ -20,7 +20,7 @@
       </div>
     </div>
   </div>
-  <div class="col-md-2">
+  <div class="col-md col-sm-4 col-6">
     <div class="card text-center">
       <div class="card-body">
         <h6>Total Venues</h6>
@@ -28,7 +28,7 @@
       </div>
     </div>
   </div>
-  <div class="col-md-2">
+  <div class="col-md col-sm-4 col-6">
     <div class="card text-center">
       <div class="card-body">
         <h6>Participants</h6>
@@ -36,7 +36,7 @@
       </div>
     </div>
   </div>
-  <div class="col-md-2">
+  <div class="col-md col-sm-4 col-6">
     <div class="card text-center">
       <div class="card-body">
         <h6>Vendors</h6>
@@ -44,11 +44,20 @@
       </div>
     </div>
   </div>
-  <div class="col-md-2">
+  <div class="col-md col-sm-4 col-6">
     <div class="card text-center">
       <div class="card-body">
         <h6>Confirmed</h6>
         <h3 class="text-secondary"><%= link_to EventParticipant.yes.count, admin_participants_path(rsvp_status: 'yes'), class: "text-secondary text-decoration-none" %></h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md col-sm-4 col-6">
+    <div class="card text-center">
+      <div class="card-body">
+        <h6>Signups</h6>
+        <h3><%= link_to InterestSignup.count, admin_interest_signups_path,
+                        class: "text-decoration-none", style: "color: #d63384;" %></h3>
       </div>
     </div>
   </div>
@@ -73,6 +82,9 @@
           </div>
           <div class="col-md-4 mb-3">
             <%= link_to "Manage Vendors", admin_vendors_path, class: "btn btn-danger w-100" %>
+          </div>
+          <div class="col-md-4 mb-3">
+            <%= link_to "View Signups", admin_interest_signups_path, class: "btn btn-outline-secondary w-100" %>
           </div>
         </div>
         <div class="row">

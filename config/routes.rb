@@ -15,11 +15,7 @@ Rails.application.routes.draw do
   get 'dashboard', to: 'dashboard#index'
 
   # ─── Vendor opt-in flow (public — no auth required) ──────────────────────────
-  # QR code lands here: /v/:token
-  # Old vendor optin routes — superseded by /join/:qr_token below
-
-  # Public live feed for a con event (no auth required)
-  get '/feed/:event_id',  to: 'con_feed#show',        as: 'con_feed'
+  # Old con_feed route removed — superseded by /feed/:event_slug below (visitor_opt_ins#feed)
 
   # Vendor dashboard (authenticated)
   namespace :vendor do

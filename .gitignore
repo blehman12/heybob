@@ -37,3 +37,12 @@ Thumbs.db
 /coverage/
 .byebug_history
 .rspec_status
+
+# Railway local config
+.railway/
+
+# Railway automation - old scripts with hardcoded tokens (deprecated)
+railway_logs.sh
+railway_logs2.sh
+railway_status.sh
+rls.sh

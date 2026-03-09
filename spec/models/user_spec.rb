@@ -13,8 +13,11 @@ RSpec.describe User, type: :model do
   end
   
   describe 'enums' do
-    it { is_expected.to define_enum_for(:role).with_values(attendee: 0, admin: 1) }
-    # Remove the rsvp_status enum test - it doesn't belong to User
+    it do
+      is_expected.to define_enum_for(:role).with_values(
+        attendee: 0, super_admin: 1, event_admin: 2, venue_admin: 3, vendor_admin: 4
+      )
+    end
   end
   
   describe '#full_name' do
