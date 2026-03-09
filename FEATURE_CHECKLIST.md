@@ -1,5 +1,5 @@
 # evm1 Feature Status & Testing Checklist
-**Updated:** February 24, 2026
+**Updated:** March 8, 2026
 **Target deployment:** Sakuracon 2026  
 **Production URL:** https://heybob-production.up.railway.app
 
@@ -168,14 +168,76 @@
 
 ### Backlog
 9. ✅ Event lifecycle status (draft / published / archived / cancelled)
-10. 📋 Quick-add venue modal on event form (AJAX, injects into dropdown, no page reload)
-11. 📋 Vendor analytics — opt-in count, scan trends (post-Sakuracon)
-13. 📋 **General interest / waitlist page** — standalone signup page not tied to a specific event. "Sign up to hear about upcoming PLM events." Creates a user account (or ConOptIn record), shareable link for Columbia PLM website and social media. Feeds into future broadcasts.
+10. ✅ Quick-add venue modal on event form (AJAX, injects into dropdown, no page reload)
+13. ✅ **General interest / waitlist page** — COMPLETED Mar 2026. Navbar link (logged-out), CTA banner on events index, admin dashboard stat card + quick action, CSV export.
 12. 📋 **Rethink event date/time fields** — current model has redundancy (`event_date` is datetime-local AND separate `start_time`/`end_time` fields). Proposed: store `start_date` + `end_date` (date only) + `start_time` + `end_time` (daily operating hours). Single-day events have same start/end date. Schema change — touches event form, public page, calendar download, seeds.
-
 14. 📋 **Portland/Seattle demo seed data** — real venues (Oregon Convention Center, Seattle Convention Center, Hotel Lucia, Marriott Waterfront, etc.) + 6-10 plausible PLM/tech events across 2025-2026. Mix of lifecycle statuses. Makes demo look like a real product. No AI needed — good fixtures only.
 15. 📋 **Smart Fill via URL paste** — user pastes any public URL (company site, Meetup, LinkedIn event) on event/venue creation form. We fetch it, Claude API extracts name/description/date/location, pre-fills the form. No OAuth. Works with any public URL. Fraction-of-a-cent per call. Medium lift, high demo value.
 16. 📋 **Context-aware defaults** — no AI. Pre-fill new event forms from last used venue, creator name, previous event categories, current date +30 days. Easy UX win, do after Smart Fill.
+
+---
+
+## FEATURE #11 — VENDOR ANALYTICS
+
+**Goal**: Give vendors actionable data about their booth performance and give organizers a macro view of floor traffic. Build from existing data first; add collection mechanisms later.
+
+**Design principles**:
+- Phase 1 uses 100% existing data — no schema changes
+- Simple charts + CSV export; let vendors do their own deep analysis
+- Build better analytics after seeing how Phase 1 is actually used
+- "Did I make booth?" can't be answered with revenue data we don't have, but we can give meaningful visit proxies
+
+---
+
+### Phase 1 — Vendor Dashboard Enhancements (no schema changes)
+
+Surfaces existing `con_opt_ins`, `broadcast_receipts` data in the vendor's own view.
+
+| # | Feature | Status | Notes |
+|---|---------|--------|-------|
+| 11.1 | **Hourly opt-in chart** — replace or augment current opt-in count chart with time-of-day bar chart (bucket `opted_in_at` by hour). Shows peak traffic hours. | 📋 | Single GROUP BY query on existing data |
+| 11.2 | **Broadcast performance row** — under each broadcast on vendor event show page: "Sent X · Delivered Y · Failed Z" colored badge row | 📋 | Uses existing `broadcast_receipts` table |
+| 11.3 | **Reach stat card** — "X unique people reached via broadcasts" (distinct `con_opt_in_id` across all delivered receipts for this vendor event) | 📋 | Single query, adds to existing stat cards |
+| 11.4 | **CSV export of opt-in list** — "Export Contacts" button on vendor event show page. Columns: Name, Phone, Email, Opted In At. Vendor's post-show follow-up sheet. | 📋 | `respond_to :csv` on vendor event controller, scoped to that event's opt-ins |
+
+---
+
+### Phase 2 — Organizer Floor View (no schema changes)
+
+Gives event organizers a macro picture of booth traffic across the whole event. Lives in admin cockpit.
+
+| # | Feature | Status | Notes |
+|---|---------|--------|-------|
+| 11.5 | **Booth leaderboard** — on admin event cockpit, rank vendors by opt-in count. Shows which booth/panel/guest drew the most traffic. | 📋 | One query on `vendor_opt_ins` grouped by `vendor_event_id` |
+| 11.6 | **Event-wide traffic heatmap** — hourly bar chart of all opt-ins across the entire event (all vendors combined). Shows when the floor was busiest. | 📋 | Same hour-bucket query as 11.1, scoped to event |
+| 11.7 | **Per-vendor broadcast summary** — admin cockpit table: for each vendor, show broadcast count + total reach + delivery rate. Quick health check. | 📋 | Aggregated from `broadcasts` + `broadcast_receipts` |
+
+---
+
+### Phase 3 — Repeat Visitor + Post-Event (minor schema additions, larger value)
+
+Builds loyalty signals and post-show follow-up tooling. Design before building.
+
+| # | Feature | Status | Notes |
+|---|---------|--------|-------|
+| 11.8 | **Repeat visitor detection** — "X people have found you at more than one event." Match `con_opt_ins.phone` (or email) across multiple events for the same vendor. Loyalty signal. | 💡 | Query only — no schema change. Needs multi-event vendor history to be useful. |
+| 11.9 | **Post-event follow-up list** — "Who haven't you messaged yet?" Opt-ins who never received a broadcast. Exportable. | 💡 | LEFT JOIN `broadcast_receipts` to `vendor_opt_ins`, show non-recipients |
+| 11.10 | **Cross-event comparison** — "How does this show compare to your last one?" Side-by-side stat cards (opt-in count, delivery rate, reach). | 💡 | Needs vendor to have 2+ VendorEvents to be meaningful |
+
+---
+
+### Parking Lot — End-User "Con Recap" (Phase 3+, needs design)
+
+Separate from vendor analytics but surfaced during the #11 brainstorm. Attendee-facing post-event experience.
+
+| # | Feature | Status | Notes |
+|---|---------|--------|-------|
+| 11.A | **"What did I miss?"** — post-event digest for attendees. Panels, booths, guests they didn't visit. | 💡 | Needs attendee check-in at booths (not just opt-in) to know what they *did* visit |
+| 11.B | **Social follow suggestions** — "Follow these vendors on Instagram after the show." Surfaces vendor social handles to opted-in attendees. | 💡 | Data exists (`vendor.social_handles`); needs delivery mechanism (email or feed) |
+| 11.C | **Post-con purchasing** — link to vendor storefronts after the event. "Buy that print you saw at Sakuracon." | 💡 | Needs vendor storefront URL field + attendee-facing post-event page |
+| 11.D | **"Stay in touch" hub** — opted-in attendees get a persistent link to the event feed + vendor updates after the show closes. Ties into #13 interest signups. | 💡 | Extends existing `ConOptIn` + event feed concept |
+
+---
 
 ### AI Feature Decision Log (Feb 26, 2026)
 Discussed three tiers of AI-assisted pre-population:
@@ -187,14 +249,14 @@ Discussed three tiers of AI-assisted pre-population:
 
 ### Eventually / Needs Design Discussion
 - **Multi-day scheduling complexity**: Sakuracon runs Thu–Sun with different hours per day, plus sub-areas (Vendor Hall, Artist Alley, Main Events) with their own schedules. Before building: decide how far into event scheduling we go. Full per-day/per-area scheduling exists in tools like Sched, Eventeny, Growtix — we don't want to replicate that. The sweet spot is probably: date range on the Event, load-in details on VendorEvent (not Event), and daily hours as a simple structured field if needed. Avoid scope creep into a full scheduling engine.
-11. 📋 Vendor follower model (vendor-scoped, survives across events)
-12. 📋 Public vendor profiles
+- 📋 Vendor follower model (vendor-scoped, survives across events)
+- 📋 Public vendor profiles
 
 ### Future Considerations
-13. 💡 User interest self-selection from taxonomy (Phase 3)
-14. 💡 AI-assisted interest inference (Phase 4)
-15. 💡 Multi-tenant / organization model
-16. 💡 Mobile app / API layer
+- 💡 User interest self-selection from taxonomy (Phase 3)
+- 💡 AI-assisted interest inference (Phase 4)
+- 💡 Multi-tenant / organization model
+- 💡 Mobile app / API layer
 
 ---
 
