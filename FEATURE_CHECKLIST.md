@@ -195,7 +195,7 @@ Surfaces existing `con_opt_ins`, `broadcast_receipts` data in the vendor's own v
 
 | # | Feature | Status | Notes |
 |---|---------|--------|-------|
-| 11.1 | **Hourly opt-in chart** — replace or augment current opt-in count chart with time-of-day bar chart (bucket `opted_in_at` by hour). Shows peak traffic hours. | 📋 | Single GROUP BY query on existing data |
+| 11.1 | **Hourly opt-in chart** — time-of-day bar chart (bucket `opted_in_at` by hour) on vendor event show page. Shows peak traffic hours. | ✅ | Already existed — `@opt_in_timeline` GROUP BY hour query + inline HTML bar chart |
 | 11.2 | **Broadcast performance row** — under each broadcast on vendor event show page: "Sent X · Delivered Y · Failed Z" colored badge row | 📋 | Uses existing `broadcast_receipts` table |
 | 11.3 | **Reach stat card** — "X unique people reached via broadcasts" (distinct `con_opt_in_id` across all delivered receipts for this vendor event) | 📋 | Single query, adds to existing stat cards |
 | 11.4 | **CSV export of opt-in list** — "Export Contacts" button on vendor event show page. Columns: Name, Phone, Email, Opted In At. Vendor's post-show follow-up sheet. | 📋 | `respond_to :csv` on vendor event controller, scoped to that event's opt-ins |

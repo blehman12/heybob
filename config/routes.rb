@@ -25,6 +25,7 @@ Rails.application.routes.draw do
         member do
           get  :qr_code
           post :broadcast
+          get  :export_contacts
         end
       end
     end

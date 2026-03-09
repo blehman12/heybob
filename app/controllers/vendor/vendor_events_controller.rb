@@ -1,6 +1,6 @@
 class Vendor::VendorEventsController < Vendor::BaseController
   before_action :find_vendor,       only: [:new, :create]
-  before_action :find_vendor_event, only: [:show, :edit, :update, :qr_code, :broadcast]
+  before_action :find_vendor_event, only: [:show, :edit, :update, :qr_code, :broadcast, :export_contacts]
 
   def new
     @vendor_event = VendorEvent.new
@@ -38,6 +38,13 @@ class Vendor::VendorEventsController < Vendor::BaseController
                          .group(Arel.sql("date_trunc('hour', opted_in_at)"))
                          .order(Arel.sql("date_trunc('hour', opted_in_at)"))
                          .count
+
+    @reached_count = BroadcastReceipt
+                       .joins(:broadcast)
+                       .where(broadcasts: { vendor_event_id: @vendor_event.id })
+                       .where(status: :delivered)
+                       .distinct
+                       .count(:con_opt_in_id)
   end
 
   def edit
@@ -50,6 +57,25 @@ class Vendor::VendorEventsController < Vendor::BaseController
     else
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  def export_contacts
+    opt_ins = @vendor_event.con_opt_ins.order(:opted_in_at)
+    csv_data = CSV.generate(headers: true) do |csv|
+      csv << ['Name', 'Phone', 'Email', 'Opted In At']
+      opt_ins.each do |o|
+        csv << [
+          o.name,
+          o.phone,
+          o.email,
+          o.opted_in_at&.strftime('%Y-%m-%d %H:%M')
+        ]
+      end
+    end
+    send_data csv_data,
+              filename: "#{@vendor_event.event.name.parameterize}-contacts-#{Date.today}.csv",
+              type: 'text/csv',
+              disposition: 'attachment'
   end
 
   def qr_code
