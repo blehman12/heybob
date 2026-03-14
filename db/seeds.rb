@@ -19,7 +19,7 @@ unless VendorEvent.exists?(qr_token: TWILIO_QR_TOKEN)
     end
     ve = VendorEvent.new(vendor: vendor, event: event, category: :dealer,
                          qr_token: TWILIO_QR_TOKEN,
-                         metadata: { "booth_number" => "247", "hall" => "Main Hall" }.to_json)
+                         metadata: { "booth_number" => "247", "hall" => "Main Hall" })
     ve.save!
     puts "  ✅ Created /join/#{TWILIO_QR_TOKEN}"
   else
