@@ -60,6 +60,6 @@ class Admin::VenuesController < Admin::BaseController
   end
   
   def venue_params
-    params.require(:venue).permit(:name, :address, :capacity, :description, :contact_info)
+    params.require(:venue).permit(:name, :address, :capacity, :description, :contact_info, :photo)
   end
 end

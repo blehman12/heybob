@@ -1,4 +1,5 @@
 class Venue < ApplicationRecord
+  has_one_attached :photo
   has_many :events, dependent: :destroy
   
   validates :name, :address, presence: true

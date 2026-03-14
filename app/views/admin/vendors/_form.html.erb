@@ -2,7 +2,7 @@
   <div class="col-md-8">
     <div class="card">
       <div class="card-body">
-        <%= form_with(model: [:admin, @vendor], local: true) do |form| %>
+        <%= form_with(model: [:admin, @vendor], local: true, multipart: true) do |form| %>
           <% if @vendor.errors.any? %>
             <div class="alert alert-danger">
               <h4><%= pluralize(@vendor.errors.count, "error") %> prohibited this vendor from being saved:</h4>
@@ -13,6 +13,18 @@
               </ul>
             </div>
           <% end %>
+
+          <div class="mb-3">
+            <%= form.label :hero_image, "Hero Image", class: "form-label" %>
+            <% if @vendor.hero_image.attached? %>
+              <div class="mb-2">
+                <%= image_tag @vendor.hero_image, class: "img-thumbnail", style: "max-height: 150px;" %>
+                <div class="form-text">Current image — upload a new one to replace it.</div>
+              </div>
+            <% end %>
+            <%= form.file_field :hero_image, class: "form-control", accept: "image/*" %>
+            <div class="form-text">JPG or PNG · Shown as banner on the vendor opt-in page.</div>
+          </div>
 
           <div class="mb-3">
             <%= form.label :name, class: "form-label" %>

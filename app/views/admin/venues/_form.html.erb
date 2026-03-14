@@ -2,7 +2,7 @@
   <div class="col-md-8">
     <div class="card">
       <div class="card-body">
-        <%= form_with(model: [:admin, @venue], local: true) do |form| %>
+        <%= form_with(model: [:admin, @venue], local: true, multipart: true) do |form| %>
           <% if @venue.errors.any? %>
             <div class="alert alert-danger">
               <h4><%= pluralize(@venue.errors.count, "error") %> prohibited this venue from being saved:</h4>
@@ -37,6 +37,18 @@
           <div class="mb-3">
             <%= form.label :contact_info, "Contact Information", class: "form-label" %>
             <%= form.text_area :contact_info, class: "form-control", rows: 3 %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :photo, "Venue Photo", class: "form-label" %>
+            <% if @venue.photo.attached? %>
+              <div class="mb-2">
+                <%= image_tag @venue.photo, class: "img-thumbnail", style: "max-height: 150px;" %>
+                <div class="form-text">Current photo — upload a new one to replace it.</div>
+              </div>
+            <% end %>
+            <%= form.file_field :photo, class: "form-control", accept: "image/*" %>
+            <div class="form-text">JPG or PNG · Optional venue photo.</div>
           </div>
 
           <div class="d-grid gap-2 d-md-flex justify-content-md-end">

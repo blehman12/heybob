@@ -75,6 +75,6 @@ end
   def user_params
     params.require(:user).permit(:first_name, :last_name, :email, :company, 
                                  :phone, :role, :password, :password_confirmation, 
-                                 :text_capable)
+                                 :text_capable, :avatar)
   end
 end

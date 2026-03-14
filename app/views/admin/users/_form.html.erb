@@ -2,7 +2,7 @@
   <div class="col-md-8">
     <div class="card">
       <div class="card-body">
-        <%= form_with(model: [:admin, @user], local: true) do |form| %>
+        <%= form_with(model: [:admin, @user], local: true, multipart: true) do |form| %>
           <% if @user.errors.any? %>
             <div class="alert alert-danger">
               <h4><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h4>
@@ -95,6 +95,18 @@
               <%= form.check_box :text_capable, class: "form-check-input" %>
               <%= form.label :text_capable, "Can receive text messages", class: "form-check-label" %>
             </div>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :avatar, "Profile Photo", class: "form-label" %>
+            <% if @user.avatar.attached? %>
+              <div class="mb-2">
+                <%= image_tag @user.avatar, class: "img-thumbnail rounded-circle", style: "max-height: 80px; max-width: 80px;" %>
+                <div class="form-text">Current photo — upload a new one to replace it.</div>
+              </div>
+            <% end %>
+            <%= form.file_field :avatar, class: "form-control", accept: "image/*" %>
+            <div class="form-text">JPG or PNG · Optional profile photo.</div>
           </div>
 
           <div class="d-grid gap-2 d-md-flex justify-content-md-end">
