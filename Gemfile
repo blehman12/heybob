@@ -55,5 +55,5 @@ group :development do
 end
 
 group :production do
-  # Add production-specific gems here if needed
+  gem "aws-sdk-s3", require: false
 end
