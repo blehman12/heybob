@@ -10,7 +10,7 @@ unless VendorEvent.exists?(qr_token: TWILIO_QR_TOKEN)
             Event.where("name ILIKE ?", "%sakura%").first ||
             Event.create!(
               name: "SakuraCon 2026", slug: "sakuracon-2026",
-              event_date: DateTime.new(2026, 3, 27, 10, 0, 0),
+              event_date: DateTime.new(2026, 4, 3, 10, 0, 0),
               lifecycle_status: 1, creator_id: owner.id
             )
     vendor = Vendor.find_or_create_by!(name: "Portland KPOP CO", user: owner) do |v|
