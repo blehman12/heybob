@@ -1,3 +1,35 @@
+# ── Production-safe seeds (run in ALL environments) ───────────────────────────
+
+# Twilio toll-free verification: seed a known QR token for the opt-in URL
+TWILIO_QR_TOKEN = "SAKURACON2026"
+unless VendorEvent.exists?(qr_token: TWILIO_QR_TOKEN)
+  puts "Seeding Twilio verification VendorEvent (#{TWILIO_QR_TOKEN})..."
+  owner = User.find_by(email: "blehman12@comcast.net") || User.where(role: 1).first || User.first
+  if owner
+    event = Event.find_by(slug: "sakuracon-2026") ||
+            Event.where("name ILIKE ?", "%sakura%").first ||
+            Event.create!(
+              name: "SakuraCon 2026", slug: "sakuracon-2026",
+              event_date: DateTime.new(2026, 3, 27, 10, 0, 0),
+              lifecycle_status: 1, creator_id: owner.id
+            )
+    vendor = Vendor.find_or_create_by!(name: "Portland KPOP CO", user: owner) do |v|
+      v.participant_type = :business
+      v.description = "Portland's premier KPOP merchandise vendor"
+    end
+    ve = VendorEvent.new(vendor: vendor, event: event, category: :dealer,
+                         qr_token: TWILIO_QR_TOKEN,
+                         metadata: { "booth_number" => "247", "hall" => "Main Hall" }.to_json)
+    ve.save!
+    puts "  ✅ Created /join/#{TWILIO_QR_TOKEN}"
+  else
+    puts "  ⚠ No user found — skipping Twilio verification seed."
+  end
+else
+  puts "  Twilio verification seed already present (/join/#{TWILIO_QR_TOKEN})"
+end
+
+# ── Production guard — everything below is dev/test only ──────────────────────
 if Rails.env.production?
   puts "SKIPPING destructive wipe — production environment."
   puts "Run individual seed files with: rails runner db/seeds/<file>.rb"
