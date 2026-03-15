@@ -21,7 +21,10 @@ Bundler.require(*Rails.groups)
 module Evm1
   class Application < Rails::Application
     # Background job processing
-    config.active_job.queue_adapter = :sidekiq
+    # TODO: Switch back to :sidekiq once Railway Redis private networking is confirmed.
+    # Railway private networking (redis.railway.internal) DNS resolution is failing —
+    # may require Hobby plan. Using :async (background threads) as interim workaround.
+    config.active_job.queue_adapter = :async
 
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.1
