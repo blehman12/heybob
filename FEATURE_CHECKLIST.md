@@ -169,11 +169,25 @@
 ### Backlog
 9. ✅ Event lifecycle status (draft / published / archived / cancelled)
 10. ✅ Quick-add venue modal on event form (AJAX, injects into dropdown, no page reload)
+11. ✅ **Vendors link in admin navbar** — added Mar 15 2026. Dashboard → Events → Venues → Vendors → Users on all admin screens.
 13. ✅ **General interest / waitlist page** — COMPLETED Mar 2026. Navbar link (logged-out), CTA banner on events index, admin dashboard stat card + quick action, CSV export.
 12. 📋 **Rethink event date/time fields** — current model has redundancy (`event_date` is datetime-local AND separate `start_time`/`end_time` fields). Proposed: store `start_date` + `end_date` (date only) + `start_time` + `end_time` (daily operating hours). Single-day events have same start/end date. Schema change — touches event form, public page, calendar download, seeds.
-14. 📋 **Portland/Seattle demo seed data** — real venues (Oregon Convention Center, Seattle Convention Center, Hotel Lucia, Marriott Waterfront, etc.) + 6-10 plausible PLM/tech events across 2025-2026. Mix of lifecycle statuses. Makes demo look like a real product. No AI needed — good fixtures only.
+14. ✅ **Portland/Seattle demo seed data** — 6 PNW venues + 8 PLM/tech events seeded. Deployed Feb 27.
 15. 📋 **Smart Fill via URL paste** — user pastes any public URL (company site, Meetup, LinkedIn event) on event/venue creation form. We fetch it, Claude API extracts name/description/date/location, pre-fills the form. No OAuth. Works with any public URL. Fraction-of-a-cent per call. Medium lift, high demo value.
 16. 📋 **Context-aware defaults** — no AI. Pre-fill new event forms from last used venue, creator name, previous event categories, current date +30 days. Easy UX win, do after Smart Fill.
+
+### Sprint: Hero Image & Visual Polish (NEW — Mar 15 2026)
+17. 📋 **Hero image on admin show pages** — vendor, venue, and user admin show pages display uploaded image at top of detail card. Acceptance: image shows if attached; initial/placeholder shows if not. Both states error-free.
+18. 📋 **Hero image in admin list/table views** — small thumbnail (40x40px) in leftmost column of vendors, venues, users index tables. Shows placeholder initial if no image. Makes scanning lists faster.
+19. 📋 **Grid view for vendors/events** — card grid layout as alternative to table view. Each card shows hero image, name, key metadata. Toggle between grid and table. High visual impact for demos.
+
+### Sprint: End User Experience (NEW — Mar 15 2026)
+*Goal: Give logged-in attendees something to do beyond RSVP. Needed before SakuraCon.*
+
+20. 📋 **"My Events" on attendee dashboard** — list of events user has RSVPed to with status badge (yes/maybe/no/pending), event date, check-in status. Currently shows nothing useful for attendees.
+21. 📋 **Post-RSVP confirmation page with QR + calendar** — after RSVPing yes, show the user their check-in QR code and an "Add to Calendar" button on the confirmation page. Reduces "where's my ticket?" support asks.
+22. 📋 **Public vendor profiles** — `/vendors/:slug` public page showing vendor hero image, description, social links, and events they're attending. Lets attendees discover and follow vendors before the event.
+23. 📋 **Follow a vendor from public profile** — opt-in button on public vendor profile page. Creates a `ConOptIn` record linked to the vendor's active event. Same as scanning the QR but web-accessible.
 
 ---
 
@@ -196,9 +210,9 @@ Surfaces existing `con_opt_ins`, `broadcast_receipts` data in the vendor's own v
 | # | Feature | Status | Notes |
 |---|---------|--------|-------|
 | 11.1 | **Hourly opt-in chart** — time-of-day bar chart (bucket `opted_in_at` by hour) on vendor event show page. Shows peak traffic hours. | ✅ | Already existed — `@opt_in_timeline` GROUP BY hour query + inline HTML bar chart |
-| 11.2 | **Broadcast performance row** — under each broadcast on vendor event show page: "Sent X · Delivered Y · Failed Z" colored badge row | 📋 | Uses existing `broadcast_receipts` table |
-| 11.3 | **Reach stat card** — "X unique people reached via broadcasts" (distinct `con_opt_in_id` across all delivered receipts for this vendor event) | 📋 | Single query, adds to existing stat cards |
-| 11.4 | **CSV export of opt-in list** — "Export Contacts" button on vendor event show page. Columns: Name, Phone, Email, Opted In At. Vendor's post-show follow-up sheet. | 📋 | `respond_to :csv` on vendor event controller, scoped to that event's opt-ins |
+| 11.2 | **Broadcast performance row** — under each broadcast on vendor event show page: "Sent X · Delivered Y · Failed Z" colored badge row | ✅ | Green ✓ / red ✗ / grey ⏳ badges — in-memory on eager-loaded receipts |
+| 11.3 | **Reach stat card** — "X unique people reached via broadcasts" (distinct `con_opt_in_id` across all delivered receipts for this vendor event) | ✅ | 4th stat card added; `@reached_count` query in show action; CSS grid bumped to repeat(4,1fr) |
+| 11.4 | **CSV export of opt-in list** — "Export Contacts" button on vendor event show page. Columns: Name, Phone, Email, Opted In At. Vendor's post-show follow-up sheet. | ✅ | `export_contacts` member route + action + "↓ Export contacts" link above timeline |
 
 ---
 
