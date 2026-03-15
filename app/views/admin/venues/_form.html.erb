@@ -43,7 +43,7 @@
             <%= form.label :photo, "Venue Photo", class: "form-label" %>
             <% if @venue.photo.attached? %>
               <div class="mb-2">
-                <%= image_tag @venue.photo, class: "img-thumbnail", style: "max-height: 150px;" %>
+                <%= image_tag @venue.photo.variant(resize_to_limit: [1200, 400]), class: "img-thumbnail", style: "max-height: 150px;" %>
                 <div class="form-text">Current photo — upload a new one to replace it.</div>
               </div>
             <% end %>

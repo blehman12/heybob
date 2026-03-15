@@ -101,7 +101,7 @@
             <%= form.label :avatar, "Profile Photo", class: "form-label" %>
             <% if @user.avatar.attached? %>
               <div class="mb-2">
-                <%= image_tag @user.avatar, class: "img-thumbnail rounded-circle", style: "max-height: 80px; max-width: 80px;" %>
+                <%= image_tag @user.avatar.variant(resize_to_limit: [160, 160]), class: "img-thumbnail rounded-circle", style: "max-height: 80px; max-width: 80px;" %>
                 <div class="form-text">Current photo — upload a new one to replace it.</div>
               </div>
             <% end %>

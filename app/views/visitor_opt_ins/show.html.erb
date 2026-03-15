@@ -5,7 +5,7 @@
   <%# ── Hero image ── %>
   <div class="optin-hero <%= @vendor_event.vendor.hero_image.attached? ? '' : 'optin-hero--placeholder' %>">
     <% if @vendor_event.vendor.hero_image.attached? %>
-      <%= image_tag @vendor_event.vendor.hero_image,
+      <%= image_tag @vendor_event.vendor.hero_image.variant(resize_to_limit: [1200, 400]),
                     class: 'optin-hero__image',
                     alt: @vendor_event.vendor.name %>
     <% else %>

@@ -18,7 +18,7 @@
             <%= form.label :hero_image, "Hero Image", class: "form-label" %>
             <% if @vendor.hero_image.attached? %>
               <div class="mb-2">
-                <%= image_tag @vendor.hero_image, class: "img-thumbnail", style: "max-height: 150px;" %>
+                <%= image_tag @vendor.hero_image.variant(resize_to_limit: [1200, 400]), class: "img-thumbnail", style: "max-height: 150px;" %>
                 <div class="form-text">Current image — upload a new one to replace it.</div>
               </div>
             <% end %>

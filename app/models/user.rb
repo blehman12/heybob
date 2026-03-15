@@ -2,6 +2,8 @@
 class User < ApplicationRecord
   include HasExternalId
   has_one_attached :avatar
+
+  validate :avatar_acceptable, if: -> { avatar.attached? }
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
@@ -96,6 +98,16 @@ class User < ApplicationRecord
   end
 
   private
+
+  def avatar_acceptable
+    acceptable_types = %w[image/jpeg image/png image/gif image/webp]
+    unless avatar.content_type.in?(acceptable_types)
+      errors.add(:avatar, "must be a JPEG, PNG, GIF, or WebP image")
+    end
+    if avatar.byte_size > 5.megabytes
+      errors.add(:avatar, "must be smaller than 5 MB")
+    end
+  end
 
   def cannot_demote_last_admin
     if role_changed? && role_was == 'super_admin' && role == 'attendee'

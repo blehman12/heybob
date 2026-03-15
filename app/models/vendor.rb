@@ -6,6 +6,8 @@ class Vendor < ApplicationRecord
   has_many :vendor_events, dependent: :destroy
   has_many :events, through: :vendor_events
   has_one_attached :hero_image
+
+  validate :hero_image_acceptable, if: -> { hero_image.attached? }
   has_many :categorizations, as: :categorizable, dependent: :destroy
   has_many :categories, through: :categorizations
 
@@ -31,6 +33,16 @@ class Vendor < ApplicationRecord
 
   def artist?
     participant_type == 'artist'
+  end
+
+  def hero_image_acceptable
+    acceptable_types = %w[image/jpeg image/png image/gif image/webp]
+    unless hero_image.content_type.in?(acceptable_types)
+      errors.add(:hero_image, "must be a JPEG, PNG, GIF, or WebP image")
+    end
+    if hero_image.byte_size > 5.megabytes
+      errors.add(:hero_image, "must be smaller than 5 MB")
+    end
   end
 
   def primary_web_presence
