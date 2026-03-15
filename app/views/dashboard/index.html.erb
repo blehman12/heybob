@@ -1,203 +1,150 @@
 <div class="row">
-  <div class="col-md-8">
-    <% if @current_event %>
-      <!-- Current Event Card -->
-      <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h4><%= @current_event.name %></h4>
-          <% if @my_role == 'vendor' %>
-            <span class="badge bg-warning">Vendor</span>
-          <% elsif @my_role == 'organizer' %>
-            <span class="badge bg-success">Organizer</span>
-          <% end %>
-        </div>
-        <div class="card-body">
-          <p><strong>Date:</strong> <%= @current_event.event_date&.strftime("%A, %B %d, %Y") %></p>
-          
-          <% if @current_event.start_time %>
-            <p><strong>Time:</strong> 
-              <%= @current_event.start_time.strftime("%I:%M %p") %>
-              <% if @current_event.end_time %>
-                - <%= @current_event.end_time.strftime("%I:%M %p") %>
-              <% end %>
-            </p>
-          <% end %>
-          
-          <% if @current_event.venue %>
-            <p><strong>Location:</strong> <%= @current_event.venue.name %><br>
-              <small class="text-muted"><%= @current_event.venue.address %></small>
-            </p>
-          <% end %>
-          
-          <% if @current_event.rsvp_deadline %>
-            <p><strong>RSVP Deadline:</strong> <%= @current_event.rsvp_deadline.strftime("%B %d, %Y at %I:%M %p") %></p>
-          <% end %>
-          
-          <% if @current_event.max_attendees %>
-            <p><strong>Capacity:</strong> <%= @current_event.max_attendees %> attendees
-              <% if @current_event.respond_to?(:spots_remaining) %>
-                <small class="text-muted">(<%= @current_event.spots_remaining %> spots remaining)</small>
-              <% end %>
-            </p>
-          <% end %>
-          
-          <% if @current_event.description.present? %>
-            <hr>
-            <p><strong>About this event:</strong></p>
-            <%= simple_format(@current_event.description) %>
-          <% end %>
-        </div>
-      </div>
 
-      <!-- RSVP Card -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <h5>Your RSVP Status: 
-            <% 
-              status_class = case @user_rsvp_status.to_s
-                           when 'yes', '1' then 'success'
-                           when 'maybe', '3' then 'warning' 
-                           when 'no', '2' then 'danger'
-                           else 'secondary'
-                           end
-            %>
-            <span class="badge bg-<%= status_class %>">
-              <%= @user_rsvp_status.to_s.humanize %>
-            </span>
-          </h5>
-        </div>
-        <div class="card-body">
-          <% if @current_event.rsvp_deadline && @current_event.rsvp_deadline > Time.current %>
-            <%= form_with url: update_rsvp_path(@current_event.id), method: :patch, local: true do |form| %>
-              <div class="btn-group d-flex mb-3" role="group" aria-label="RSVP Options">
-                <%= form.submit "Yes, I'll be there!", 
-                    name: "status", 
-                    value: "yes", 
-                    class: "btn #{(@user_rsvp_status.to_s == 'yes' || @user_rsvp_status.to_s == '1') ? 'btn-success' : 'btn-outline-success'} flex-fill" %>
-                
-                <%= form.submit "Maybe", 
-                    name: "status", 
-                    value: "maybe", 
-                    class: "btn #{(@user_rsvp_status.to_s == 'maybe' || @user_rsvp_status.to_s == '3') ? 'btn-warning' : 'btn-outline-warning'} flex-fill" %>
-                
-                <%= form.submit "Can't make it", 
-                    name: "status", 
-                    value: "no", 
-                    class: "btn #{(@user_rsvp_status.to_s == 'no' || @user_rsvp_status.to_s == '2') ? 'btn-danger' : 'btn-outline-danger'} flex-fill" %>
+  <%# ── Main: My Events ── %>
+  <div class="col-md-8">
+
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h4 class="mb-0"><i class="bi bi-calendar-event"></i> My Events</h4>
+      <%= link_to 'Browse All Events', public_events_path, class: 'btn btn-sm btn-outline-primary' %>
+    </div>
+
+    <% if @upcoming_participants.any? %>
+      <% @upcoming_participants.each do |participant| %>
+        <% event = participant.event %>
+        <%
+          s = participant.rsvp_status.to_s
+          status_label = { 'yes' => 'Going', 'maybe' => 'Maybe', 'no' => 'Not Going', 'pending' => 'Invited' }
+          status_color = { 'yes' => 'success', 'maybe' => 'warning', 'no' => 'danger', 'pending' => 'secondary' }
+        %>
+        <div class="card mb-3 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start gap-3">
+              <div class="flex-grow-1 min-w-0">
+                <h5 class="card-title mb-1"><%= event.name %></h5>
+                <p class="text-muted small mb-0">
+                  <i class="bi bi-calendar3"></i>
+                  <%= event.event_date&.strftime('%A, %B %-d, %Y') %>
+                  <% if event.venue.present? %>
+                    &nbsp;·&nbsp;<i class="bi bi-geo-alt"></i> <%= event.venue.name %>
+                  <% end %>
+                </p>
               </div>
-              
-              <% if (@user_rsvp_status.to_s == 'yes' || @user_rsvp_status.to_s == '1') %>
-                <div class="alert alert-success">
-                  <strong>Great!</strong> We're looking forward to seeing you there!
-                </div>
-              <% end %>
-            <% end %>
-          <% else %>
-            <div class="alert alert-warning">
-              <i class="bi bi-clock"></i> RSVP deadline has passed
+              <div class="text-end flex-shrink-0">
+                <span class="badge bg-<%= status_color[s] || 'secondary' %> px-3 py-2">
+                  <%= status_label[s] || s.humanize %>
+                </span>
+                <% if participant.vendor? %>
+                  <br><span class="badge bg-warning text-dark mt-1">Vendor</span>
+                <% elsif participant.organizer? %>
+                  <br><span class="badge bg-info text-dark mt-1">Organizer</span>
+                <% end %>
+                <% if participant.checked_in? %>
+                  <br><small class="text-success mt-1 d-block">
+                    <i class="bi bi-check-circle-fill"></i> Checked in
+                  </small>
+                <% end %>
+              </div>
             </div>
-          <% end %>
+
+            <div class="d-flex gap-2 mt-3 flex-wrap">
+              <%= link_to public_event_path(event.slug), class: 'btn btn-sm btn-outline-primary' do %>
+                <i class="bi bi-arrow-right-circle"></i> View Event
+              <% end %>
+              <% if s == 'yes' && event.rsvp_open? %>
+                <%= link_to public_event_path(event.slug), class: 'btn btn-sm btn-outline-secondary' do %>
+                  <i class="bi bi-pencil"></i> Update RSVP
+                <% end %>
+              <% end %>
+              <% if s == 'yes' %>
+                <%= link_to public_event_calendar_path(event.slug), class: 'btn btn-sm btn-outline-success' do %>
+                  <i class="bi bi-calendar-plus"></i> Add to Calendar
+                <% end %>
+              <% end %>
+            </div>
+          </div>
         </div>
-      </div>
+      <% end %>
+
     <% else %>
-      <!-- No Events Message -->
-      <div class="alert alert-info">
-        <h4><i class="bi bi-calendar-x"></i> No Current Events</h4>
-        <p>Check back soon for upcoming events! In the meantime, update your profile to the right.</p>
+      <div class="card border-0 bg-light">
+        <div class="card-body text-center py-5">
+          <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+          <h5 class="text-muted mt-3">No upcoming events</h5>
+          <p class="text-muted mb-3">Browse events to find something you'd like to attend.</p>
+          <%= link_to 'Browse Events', public_events_path, class: 'btn btn-primary' %>
+        </div>
       </div>
     <% end %>
+
+    <% if @past_participants.any? %>
+      <h6 class="text-muted mt-4 mb-3">
+        <i class="bi bi-clock-history"></i> Past Events
+      </h6>
+      <% @past_participants.each do |participant| %>
+        <% event = participant.event %>
+        <% s = participant.rsvp_status.to_s %>
+        <% status_color = { 'yes' => 'success', 'maybe' => 'warning', 'no' => 'danger', 'pending' => 'secondary' } %>
+        <div class="card mb-2 border-0 bg-light">
+          <div class="card-body py-2 px-3 d-flex justify-content-between align-items-center">
+            <div>
+              <span class="fw-semibold text-muted"><%= event.name %></span>
+              <small class="text-muted ms-2">
+                <i class="bi bi-calendar3"></i> <%= event.event_date&.strftime('%b %-d, %Y') %>
+              </small>
+            </div>
+            <% if participant.checked_in? %>
+              <span class="badge bg-success">
+                <i class="bi bi-check-circle"></i> Attended
+              </span>
+            <% else %>
+              <span class="badge bg-<%= status_color[s] || 'secondary' %>">
+                <%= s.humanize %>
+              </span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+
   </div>
-  
-  <!-- Sidebar -->
+
+  <%# ── Sidebar ── %>
   <div class="col-md-4">
-    <!-- User Profile Card -->
+
     <div class="card mb-3">
       <div class="card-header">
-        <h5><i class="bi bi-person-circle"></i> Your Profile</h5>
+        <h5 class="mb-0"><i class="bi bi-person-circle"></i> Your Profile</h5>
       </div>
       <div class="card-body">
-        <p><strong>Name:</strong> <%= current_user.full_name %></p>
-        <p><strong>Email:</strong> <%= current_user.email %></p>
-        <p><strong>Company:</strong> <%= current_user.company %></p>
+        <p class="mb-1 fw-semibold"><%= current_user.full_name %></p>
+        <p class="text-muted small mb-1"><%= current_user.email %></p>
+        <% if current_user.company.present? %>
+          <p class="text-muted small mb-1"><%= current_user.company %></p>
+        <% end %>
         <% if current_user.phone.present? %>
-          <p><strong>Phone:</strong> <%= current_user.phone %></p>
+          <p class="text-muted small mb-2"><%= current_user.phone %></p>
         <% end %>
         <% if current_user.admin? %>
-          <p><span class="badge bg-primary">Administrator</span></p>
+          <span class="badge bg-primary mb-2">Administrator</span><br>
         <% end %>
-        <hr>
-        <div class="d-grid">
-          <%= link_to "Edit Profile", edit_profile_path, class: "btn btn-outline-primary btn-sm" %>
-        </div>
+        <%= link_to 'Edit Profile', edit_profile_path, class: 'btn btn-outline-primary btn-sm d-block' %>
       </div>
     </div>
 
-    <!-- My Events Card -->
-    <% if @my_events&.any? %>
-      <div class="card">
-        <div class="card-header">
-          <h6><i class="bi bi-calendar-event"></i> My Events (<%= @my_events.count %>)</h6>
-        </div>
-        <div class="card-body">
-          <% @my_events.each do |event| %>
-            <% participant = current_user.event_participants.find_by(event: event) %>
-            <div class="mb-3 pb-3 border-bottom">
-              <strong><%= event.name %></strong><br>
-              <small class="text-muted">
-                <i class="bi bi-calendar3"></i> <%= event.event_date&.strftime("%b %d, %Y") %>
-              </small>
-              
-              <% if participant %>
-                <br>
-                <% 
-                  participant_status_class = case participant.rsvp_status.to_s
-                                           when 'yes', '1' then 'success'
-                                           when 'maybe', '3' then 'warning'
-                                           when 'no', '2' then 'danger'
-                                           else 'secondary'
-                                           end
-                %>
-                <span class="badge bg-<%= participant_status_class %>">
-                  <%= participant.rsvp_status.to_s.humanize %>
-                </span>
-                
-                <% if participant.role.to_s == 'vendor' || participant.role.to_s == '1' %>
-                  <span class="badge bg-warning text-dark">Vendor</span>
-                <% elsif participant.role.to_s == 'organizer' || participant.role.to_s == '2' %>
-                  <span class="badge bg-info text-dark">Organizer</span>
-                <% end %>
-                
-                <% if participant.checked_in? %>
-                  <br><small class="text-success"><i class="bi bi-check-circle-fill"></i> Checked in</small>
-                <% end %>
-              <% end %>
-            </div>
-          <% end %>
-        </div>
-      </div>
-    <% else %>
-      <div class="card">
-        <div class="card-body text-center text-muted">
-          <i class="bi bi-calendar-x" style="font-size: 2rem;"></i>
-          <p class="mt-2 mb-0">No events yet</p>
-        </div>
-      </div>
-    <% end %>
-    
-    <!-- Quick Links (if admin) -->
     <% if current_user.admin? %>
-      <div class="card mt-3">
+      <div class="card">
         <div class="card-header">
-          <h6><i class="bi bi-gear"></i> Quick Admin Links</h6>
+          <h6 class="mb-0"><i class="bi bi-gear"></i> Admin</h6>
         </div>
         <div class="card-body">
           <div class="d-grid gap-2">
-            <%= link_to "Admin Dashboard", admin_root_path, class: "btn btn-sm btn-outline-primary" %>
-            <%= link_to "Manage Events", admin_events_path, class: "btn btn-sm btn-outline-success" %>
-            <%= link_to "Manage Users", admin_users_path, class: "btn btn-sm btn-outline-info" %>
+            <%= link_to 'Admin Dashboard', admin_root_path, class: 'btn btn-sm btn-outline-primary' %>
+            <%= link_to 'Manage Events',   admin_events_path, class: 'btn btn-sm btn-outline-success' %>
+            <%= link_to 'Manage Users',    admin_users_path,  class: 'btn btn-sm btn-outline-info' %>
           </div>
         </div>
       </div>
     <% end %>
+
   </div>
 </div>
