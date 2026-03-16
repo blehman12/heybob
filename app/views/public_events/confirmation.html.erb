@@ -1,111 +1,136 @@
+<%
+  going = @event_participant.rsvp_status.to_s == 'yes'
+  maybe = @event_participant.rsvp_status.to_s == 'maybe'
+  qr_url = going ? @event_participant.qr_code_data : nil
+%>
+
 <div class="container py-5">
   <div class="row justify-content-center">
-    <div class="col-lg-8">
-      
-      <!-- Success Message -->
-      <div class="card shadow-sm border-success">
-        <div class="card-body text-center py-5">
-          <div class="mb-4">
-            <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
-          </div>
-          
-          <h1 class="display-4 mb-3">Thank You!</h1>
-          <p class="lead mb-4">Your RSVP has been successfully submitted.</p>
-          
-          <!-- Event Summary -->
-          <div class="card bg-light mb-4">
-            <div class="card-body">
-              <h4 class="mb-3"><%= @event.name %></h4>
-              <p class="mb-2">
-                <i class="bi bi-calendar-event text-primary"></i>
-                <strong>Date:</strong> <%= @event.event_date.strftime('%A, %B %d, %Y') %>
-              </p>
-              <% if @event.start_time.present? %>
-                <p class="mb-2">
-                  <i class="bi bi-clock text-primary"></i>
-                  <strong>Time:</strong> <%= @event.start_time.strftime('%I:%M %p') %>
-                </p>
-              <% end %>
-              <% if @event.venue.present? %>
-                <p class="mb-0">
-                  <i class="bi bi-geo-alt text-primary"></i>
-                  <strong>Location:</strong> <%= @event.venue.name %>
-                </p>
-              <% end %>
-            </div>
-          </div>
+    <div class="col-lg-7">
 
-          <!-- RSVP Details -->
-          <div class="alert alert-info">
-            <% if @event_participant.is_guest? %>
-              <p class="mb-2"><strong>Name:</strong> <%= @event_participant.guest_name %></p>
-              <% if @event_participant.guest_email.present? %>
-                <p class="mb-2"><strong>Email:</strong> <%= @event_participant.guest_email %></p>
-                <p class="mb-0 small">We'll send event updates to this email address.</p>
+      <%# ── Hero card ── %>
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body text-center py-5 px-4">
+
+          <% if going %>
+            <div class="mb-3">
+              <i class="bi bi-check-circle-fill text-success" style="font-size: 4.5rem;"></i>
+            </div>
+            <h1 class="display-5 fw-bold mb-1">You're In!</h1>
+            <p class="lead text-muted mb-4">Your RSVP is confirmed. See you there.</p>
+          <% elsif maybe %>
+            <div class="mb-3">
+              <i class="bi bi-question-circle-fill text-warning" style="font-size: 4.5rem;"></i>
+            </div>
+            <h1 class="display-5 fw-bold mb-1">Got It!</h1>
+            <p class="lead text-muted mb-4">We've recorded your maybe — no worries if plans change.</p>
+          <% else %>
+            <div class="mb-3">
+              <i class="bi bi-x-circle-fill text-secondary" style="font-size: 4.5rem;"></i>
+            </div>
+            <h1 class="display-5 fw-bold mb-1">RSVP Recorded</h1>
+            <p class="lead text-muted mb-4">We've noted your response.</p>
+          <% end %>
+
+          <%# Event summary -%>
+          <div class="rounded-3 bg-light p-3 mb-4 text-start">
+            <h5 class="fw-semibold mb-2"><%= @event.name %></h5>
+            <p class="mb-1 small">
+              <i class="bi bi-calendar3 text-primary"></i>
+              <%= @event.event_date.strftime('%A, %B %-d, %Y') %>
+              <% if @event.start_time.present? %>
+                &nbsp;·&nbsp;<i class="bi bi-clock text-primary"></i>
+                <%= @event.start_time.strftime('%-I:%M %p') %>
               <% end %>
-            <% else %>
-              <p class="mb-0">Confirmation sent to <%= @event_participant.user.email %></p>
+            </p>
+            <% if @event.venue.present? %>
+              <p class="mb-0 small">
+                <i class="bi bi-geo-alt text-primary"></i>
+                <%= @event.venue.name %>
+              </p>
             <% end %>
           </div>
 
-          <!-- RSVP Status -->
-          <div class="mb-4">
-            <h5>Your Response:</h5>
-            <span class="badge bg-<%= @event_participant.rsvp_status == 'yes' ? 'success' : (@event_participant.rsvp_status == 'maybe' ? 'warning' : 'secondary') %> fs-5 px-4 py-2">
-              <%= @event_participant.rsvp_status_text %>
-            </span>
-          </div>
-
-          <!-- Add to Calendar -->
-          <% if @event_participant.rsvp_status == 'yes' %>
-            <div class="mb-4">
-              <%= link_to public_event_calendar_path(@event.slug), class: 'btn btn-success btn-lg' do %>
-                <i class="bi bi-calendar-plus"></i> Add to Calendar
+          <%# Contact info -%>
+          <% if @event_participant.is_guest? %>
+            <div class="alert alert-info py-2 small mb-4">
+              <strong><%= @event_participant.guest_name %></strong>
+              <% if @event_participant.guest_email.present? %>
+                &nbsp;·&nbsp;<%= @event_participant.guest_email %>
               <% end %>
-              <p class="text-muted small mt-2">Download .ics file for Google Calendar, Apple Calendar, Outlook</p>
             </div>
           <% end %>
 
-          <!-- Next Steps -->
-          <div class="mt-4">
-            <h5 class="mb-3">What's Next?</h5>
-            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-              <%= link_to public_event_path(@event.slug), class: 'btn btn-outline-primary' do %>
-                <i class="bi bi-arrow-left"></i> Back to Event Details
-              <% end %>
-              <% if @event.rsvp_open? %>
-                <%= link_to public_event_path(@event.slug), class: 'btn btn-outline-secondary' do %>
-                  <i class="bi bi-pencil"></i> Update My RSVP
-                <% end %>
-              <% end %>
-            </div>
-          </div>
+          <%# Add to Calendar -%>
+          <% if going %>
+            <%= link_to public_event_calendar_path(@event.slug),
+                        class: 'btn btn-success btn-lg px-4 mb-2 w-100' do %>
+              <i class="bi bi-calendar-plus"></i> Add to Calendar
+            <% end %>
+            <p class="text-muted small mb-0">Works with Google Calendar, Apple Calendar &amp; Outlook</p>
+          <% end %>
+
         </div>
       </div>
 
-      <!-- Share Event -->
-      <div class="card shadow-sm mt-4">
-        <div class="card-body text-center">
-          <h5 class="mb-3">Spread the Word!</h5>
-          <p class="text-muted mb-3">Share this event with friends:</p>
-          
-          <div class="input-group mb-3">
-            <input type="text" class="form-control" id="shareUrl" value="<%= request.base_url %><%= public_event_path(@event.slug) %>" readonly>
+      <%# ── QR code card (confirmed only) ── %>
+      <% if going && qr_url.present? %>
+        <div class="card shadow-sm border-0 mb-4" id="qr-card">
+          <div class="card-body text-center py-4 px-4">
+            <h5 class="fw-semibold mb-1">
+              <i class="bi bi-qr-code-scan text-primary"></i> Your Check-in QR Code
+            </h5>
+            <p class="text-muted small mb-4">Show this at the door — staff will scan it to check you in.</p>
+
+            <div id="qr-container" class="d-inline-block p-3 bg-white rounded-3 border mb-3"
+                 style="line-height:0;">
+              <%# Populated by JS below %>
+            </div>
+
+            <br>
+            <button class="btn btn-outline-secondary btn-sm" onclick="printQr()">
+              <i class="bi bi-printer"></i> Print / Save
+            </button>
+            <p class="text-muted" style="font-size: 0.7rem; margin-top: 0.5rem;">
+              Ref: #<%= @event_participant.id %>
+            </p>
+          </div>
+        </div>
+      <% end %>
+
+      <%# ── What's next ── %>
+      <div class="d-flex gap-2 justify-content-center flex-wrap mb-4">
+        <%= link_to public_event_path(@event.slug), class: 'btn btn-outline-primary' do %>
+          <i class="bi bi-arrow-left"></i> Back to Event
+        <% end %>
+        <% if @event.rsvp_open? %>
+          <%= link_to public_event_path(@event.slug), class: 'btn btn-outline-secondary' do %>
+            <i class="bi bi-pencil"></i> Update My RSVP
+          <% end %>
+        <% end %>
+      </div>
+
+      <%# ── Share card ── %>
+      <div class="card border-0 bg-light">
+        <div class="card-body text-center py-3">
+          <h6 class="mb-3">Spread the Word</h6>
+          <div class="input-group input-group-sm mb-3">
+            <input type="text" class="form-control" id="shareUrl"
+                   value="<%= request.base_url + public_event_path(@event.slug) %>" readonly>
             <button class="btn btn-outline-secondary" type="button" onclick="copyShareUrl()">
-              <i class="bi bi-clipboard"></i> Copy Link
+              <i class="bi bi-clipboard"></i> Copy
             </button>
           </div>
-          
           <div class="d-flex gap-2 justify-content-center flex-wrap">
-            <a href="https://www.facebook.com/sharer/sharer.php?u=<%= CGI.escape(request.base_url + public_event_path(@event.slug)) %>" 
+            <a href="https://www.facebook.com/sharer/sharer.php?u=<%= CGI.escape(request.base_url + public_event_path(@event.slug)) %>"
                target="_blank" class="btn btn-sm btn-primary">
               <i class="bi bi-facebook"></i> Facebook
             </a>
-            <a href="https://twitter.com/intent/tweet?url=<%= CGI.escape(request.base_url + public_event_path(@event.slug)) %>&text=<%= CGI.escape("Join me at #{@event.name}!") %>" 
+            <a href="https://twitter.com/intent/tweet?url=<%= CGI.escape(request.base_url + public_event_path(@event.slug)) %>&text=<%= CGI.escape("Join me at #{@event.name}!") %>"
                target="_blank" class="btn btn-sm btn-info text-white">
-              <i class="bi bi-twitter"></i> Twitter
+              <i class="bi bi-twitter-x"></i> X / Twitter
             </a>
-            <a href="mailto:?subject=<%= CGI.escape("You're invited: #{@event.name}") %>&body=<%= CGI.escape("I wanted to invite you to #{@event.name}!\n\nRSVP here: #{request.base_url + public_event_path(@event.slug)}") %>" 
+            <a href="mailto:?subject=<%= CGI.escape("You're invited: #{@event.name}") %>&body=<%= CGI.escape("I wanted to invite you to #{@event.name}!\n\nRSVP here: #{request.base_url + public_event_path(@event.slug)}") %>"
                class="btn btn-sm btn-secondary">
               <i class="bi bi-envelope"></i> Email
             </a>
@@ -117,28 +142,61 @@
   </div>
 </div>
 
+<%# QR code library + render -%>
+<% if going && qr_url.present? %>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      new QRCode(document.getElementById("qr-container"), {
+        text: "<%= j qr_url %>",
+        width: 240,
+        height: 240,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    });
+
+    function printQr() {
+      const qrCard = document.getElementById("qr-card");
+      const w = window.open("", "_blank", "width=400,height=500");
+      w.document.write(`
+        <html><head><title>Check-in QR — <%= j @event.name %></title>
+        <style>
+          body { font-family: sans-serif; text-align: center; padding: 2rem; }
+          h2 { margin-bottom: 0.25rem; }
+          p  { color: #555; font-size: 0.9rem; margin-top: 0; }
+          img { width: 240px; height: 240px; }
+        </style></head><body>
+        <h2><%= j @event.name %></h2>
+        <p><%= j @event.event_date.strftime('%B %-d, %Y') %></p>
+        ${qrCard.querySelector("canvas,img") ? qrCard.querySelector("canvas,img").outerHTML : "<p>QR unavailable</p>"}
+        <p style="margin-top:1rem; font-size:0.75rem; color:#999;">
+          Ref #<%= @event_participant.id %> &nbsp;·&nbsp; Show this at the door
+        </p>
+        </body></html>
+      `);
+      w.document.close();
+      w.focus();
+      setTimeout(() => { w.print(); }, 400);
+    }
+  </script>
+<% end %>
+
 <script>
 function copyShareUrl() {
-  const urlInput = document.getElementById('shareUrl');
+  const urlInput = document.getElementById("shareUrl");
   urlInput.select();
-  urlInput.setSelectionRange(0, 99999); // For mobile devices
-  
+  urlInput.setSelectionRange(0, 99999);
   navigator.clipboard.writeText(urlInput.value).then(() => {
-    // Change button text temporarily
-    const btn = event.target.closest('button');
-    const originalHTML = btn.innerHTML;
+    const btn = event.target.closest("button");
+    const orig = btn.innerHTML;
     btn.innerHTML = '<i class="bi bi-check"></i> Copied!';
-    btn.classList.remove('btn-outline-secondary');
-    btn.classList.add('btn-success');
-    
+    btn.classList.replace("btn-outline-secondary", "btn-success");
     setTimeout(() => {
-      btn.innerHTML = originalHTML;
-      btn.classList.remove('btn-success');
-      btn.classList.add('btn-outline-secondary');
+      btn.innerHTML = orig;
+      btn.classList.replace("btn-success", "btn-outline-secondary");
     }, 2000);
-  }).catch(err => {
-    console.error('Failed to copy:', err);
-    alert('Failed to copy link. Please copy manually.');
-  });
+  }).catch(() => alert("Please copy the link manually."));
 }
 </script>
