@@ -146,9 +146,11 @@
 <% if going && qr_url.present? %>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script>
-    function initQr() {
+    // Inline execution — qr-container is already in DOM above this script,
+    // and the synchronous <script src> above guarantees QRCode is defined.
+    (function() {
       const el = document.getElementById("qr-container");
-      if (el && el.children.length === 0) {
+      if (el && typeof QRCode !== "undefined" && el.children.length === 0) {
         new QRCode(el, {
           text: "<%= j qr_url %>",
           width: 240,
@@ -158,10 +160,7 @@
           correctLevel: QRCode.CorrectLevel.M
         });
       }
-    }
-    // DOMContentLoaded for full page loads; turbo:load for Turbo Drive navigations
-    document.addEventListener("DOMContentLoaded", initQr);
-    document.addEventListener("turbo:load", initQr);
+    })();
 
     function printQr() {
       const qrCard = document.getElementById("qr-card");
