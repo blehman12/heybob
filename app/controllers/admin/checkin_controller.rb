@@ -100,8 +100,8 @@ class Admin::CheckinController < Admin::BaseController
       
       participants.each do |participant|
         csv << [
-          "#{participant.user.first_name} #{participant.user.last_name}",
-          participant.user.email,
+          participant.display_name,
+          participant.display_email,
           participant.rsvp_status_text,
           participant.checked_in? ? 'Yes' : 'No',
           participant.checked_in? ? participant.checked_in_at.strftime('%m/%d/%Y %I:%M %p') : '',
@@ -130,7 +130,7 @@ class Admin::CheckinController < Admin::BaseController
                             .limit(5)
                             .map do |p|
                               {
-                                name: "#{p.user.first_name} #{p.user.last_name}",
+                                name: p.display_name,
                                 time: p.checked_in_at.strftime('%I:%M %p'),
                                 method: p.check_in_method_text
                               }

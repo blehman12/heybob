@@ -17,7 +17,8 @@ RSpec.describe DashboardController, type: :controller do
 
   it 'assigns instance variables' do
     get :index
-    expect(assigns(:current_event)).to be_present
+    expect(assigns(:upcoming_participants)).not_to be_nil
+    expect(assigns(:past_participants)).not_to be_nil
   end
 end
 

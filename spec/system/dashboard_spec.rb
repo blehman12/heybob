@@ -5,6 +5,8 @@ RSpec.describe 'Dashboard', type: :system do
   let!(:venue) { create(:venue) }
   let!(:upcoming_event) { create(:event, :upcoming, venue: venue) }
   let!(:past_event) { create(:event, :past, venue: venue) }
+  # Dashboard shows the user's own RSVPs -- must link user to the upcoming event
+  let!(:upcoming_participant) { create(:event_participant, event: upcoming_event, user: user, rsvp_status: :yes) }
 
   before do
     driven_by(:selenium_chrome_headless)

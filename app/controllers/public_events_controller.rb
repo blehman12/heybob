@@ -33,17 +33,19 @@ class PublicEventsController < ApplicationController
   def rsvp
     @event_participant = EventParticipant.new(event_participant_params)
     @event_participant.event = @event
-    
+
     # Handle user vs guest RSVP
     if current_user
       # Logged-in user RSVP
       @event_participant.user = current_user
       @event_participant.is_guest = false
-      
+
       # Check if user already has an RSVP and update it instead
       existing_rsvp = @event.event_participants.find_by(user: current_user)
       if existing_rsvp
         if existing_rsvp.update(event_participant_params)
+          session[:confirmed_rsvp_ids] ||= []
+          session[:confirmed_rsvp_ids] |= [existing_rsvp.id]
           redirect_to public_event_confirmation_path(@event.slug, participant_id: existing_rsvp.id)
         else
           @event_participant = existing_rsvp
@@ -56,10 +58,12 @@ class PublicEventsController < ApplicationController
       @event_participant.is_guest = true
       @event_participant.user = nil
     end
-    
+
     @event_participant.responded_at = Time.current
-    
+
     if @event_participant.save
+      session[:confirmed_rsvp_ids] ||= []
+      session[:confirmed_rsvp_ids] |= [@event_participant.id]
       redirect_to public_event_confirmation_path(@event.slug, participant_id: @event_participant.id)
     else
       render :show, alert: 'Unable to save RSVP. Please check the form.'
@@ -68,9 +72,23 @@ class PublicEventsController < ApplicationController
 
   def confirmation
     @event_participant = @event.event_participants.find_by(id: params[:participant_id])
-    
+
     unless @event_participant
       redirect_to public_event_path(@event.slug), alert: 'RSVP not found.'
+      return
+    end
+
+    # Security: verify the viewer is authorized to see this confirmation
+    authorized = if @event_participant.is_guest?
+      # Guests have no account — verify they submitted this RSVP in this session
+      session[:confirmed_rsvp_ids]&.include?(@event_participant.id)
+    else
+      # Registered users must be viewing their own RSVP
+      current_user && @event_participant.user_id == current_user.id
+    end
+
+    unless authorized
+      redirect_to public_event_path(@event.slug), alert: 'RSVP confirmation not found.'
     end
   end
 

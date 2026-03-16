@@ -122,6 +122,7 @@ RSpec.describe PublicEventsController, type: :controller do
     let!(:participant) { create(:event_participant, event: public_event, guest_name: 'Jane Doe', is_guest: true) }
 
     it 'displays confirmation page' do
+      session[:confirmed_rsvp_ids] = [participant.id]
       get :confirmation, params: { slug: public_event.slug, participant_id: participant.id }
       expect(response).to have_http_status(:success)
       expect(assigns(:event_participant)).to eq(participant)

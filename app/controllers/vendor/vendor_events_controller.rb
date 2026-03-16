@@ -95,12 +95,13 @@ class Vendor::VendorEventsController < Vendor::BaseController
     @broadcast.recipient_count = recipients.count
 
     if @broadcast.save
-      recipients.each do |opt_in|
-        BroadcastReceipt.create!(
-          broadcast:   @broadcast,
-          con_opt_in:  opt_in,
-          status:      :pending
-        )
+      if recipients.any?
+        now = Time.current
+        receipt_data = recipients.map do |opt_in|
+          { broadcast_id: @broadcast.id, con_opt_in_id: opt_in.id,
+            status: 0, created_at: now, updated_at: now }
+        end
+        BroadcastReceipt.insert_all(receipt_data)
       end
 
       BroadcastSmsJob.perform_later(@broadcast.id)

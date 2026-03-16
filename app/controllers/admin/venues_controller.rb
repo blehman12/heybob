@@ -1,7 +1,6 @@
 class Admin::VenuesController < Admin::BaseController
   before_action :set_venue, only: [:show, :edit, :update, :destroy]
-  skip_before_action :verify_authenticity_token, only: [:quick_create]
-  
+
   def index
     @venues = Venue.includes(:events).order(:name)
   end

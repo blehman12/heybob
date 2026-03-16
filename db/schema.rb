@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_15_000001) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_16_172110) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -133,6 +133,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_15_000001) do
     t.boolean "is_guest", default: false
     t.index ["checked_in_at"], name: "index_event_participants_on_checked_in_at"
     t.index ["checked_in_by_id"], name: "index_event_participants_on_checked_in_by_id"
+    t.index ["event_id", "role"], name: "index_event_participants_on_event_id_and_role"
+    t.index ["event_id", "rsvp_status"], name: "index_event_participants_on_event_id_and_rsvp_status"
     t.index ["event_id"], name: "index_event_participants_on_event_id"
     t.index ["guest_email"], name: "index_event_participants_on_guest_email"
     t.index ["qr_code_token"], name: "index_event_participants_on_qr_code_token", unique: true
@@ -161,10 +163,12 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_15_000001) do
     t.string "external_url"
     t.string "external_id"
     t.integer "lifecycle_status", default: 1, null: false
+    t.index ["creator_id"], name: "index_events_on_creator_id"
     t.index ["event_type"], name: "index_events_on_event_type"
     t.index ["external_id"], name: "index_events_on_external_id", unique: true
     t.index ["lifecycle_status"], name: "index_events_on_lifecycle_status"
     t.index ["slug"], name: "index_events_on_slug", unique: true
+    t.index ["venue_id"], name: "index_events_on_venue_id"
   end
 
   create_table "interest_signups", force: :cascade do |t|

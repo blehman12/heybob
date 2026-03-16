@@ -53,22 +53,22 @@ class CheckinController < ApplicationController
     token = params[:token]
     event_id = params[:event_id]
     participant_id = params[:participant_id]
-    
+
     # Find participant securely
     participant = EventParticipant.joins(:event)
                                   .where(qr_code_token: token,
                                          event_id: event_id,
                                          id: participant_id)
                                   .first
-    
+
     if participant && !participant.checked_in?
       # Perform check-in
       participant.check_in!(method: :qr_code)
-      
-      redirect_to success_checkin_path(participant.id), 
+
+      redirect_to success_checkin_path(participant.id, token: token),
                   notice: "Successfully checked in!"
     elsif participant&.checked_in?
-      redirect_to success_checkin_path(participant.id),
+      redirect_to success_checkin_path(participant.id, token: token),
                   alert: "Already checked in at #{participant.checked_in_at.strftime('%I:%M %p')}"
     else
       redirect_to checkin_path, alert: "Invalid check-in information"
@@ -77,8 +77,8 @@ class CheckinController < ApplicationController
   
   def success
     # Check-in confirmation page
-    @participant = EventParticipant.find_by(id: params[:id])
-    
+    @participant = EventParticipant.find_by(id: params[:id], qr_code_token: params[:token])
+
     if @participant
       @event = @participant.event
       @user = @participant.user
