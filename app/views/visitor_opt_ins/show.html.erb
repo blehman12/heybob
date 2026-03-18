@@ -80,9 +80,10 @@
     <% end %>
 
     <p class="fine-print">
-      By joining you'll receive live updates from
+      By submitting, you consent to receive SMS event updates from
       <%= @vendor_event.vendor.name %> during <%= @vendor_event.event.name %>.
-      No spam. Unsubscribe anytime.
+      Message &amp; data rates may apply. Reply STOP to opt out, HELP for help.
+      <%= link_to 'Privacy Policy', 'https://crplm.com/privacy-policy', target: '_blank', rel: 'noopener' %>.
     </p>
 
   </div>
