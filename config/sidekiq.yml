@@ -2,6 +2,7 @@
 :concurrency: 5
 :queues:
   - critical
+  - broadcasts
   - mailers
   - default
   - low
