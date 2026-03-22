@@ -96,19 +96,9 @@ Rails.application.configure do
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
   
-  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.delivery_method = :resend
   config.action_mailer.perform_deliveries = true
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'heybob-production.up.railway.app'), protocol: 'https' }
-
-  config.action_mailer.smtp_settings = {
-    address: 'smtp.resend.com',
-    port: 587,
-    domain: ENV.fetch('APP_HOST', 'heybob-production.up.railway.app'),
-    user_name: 'resend',
-    password: ENV['RESEND_API_KEY'],
-    authentication: 'plain',
-    enable_starttls_auto: true
-  }
 
 end
