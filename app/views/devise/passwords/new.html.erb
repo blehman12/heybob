@@ -4,9 +4,11 @@
   <%= f.error_notification %>
 
   <div class="form-inputs">
+    <%= f.label :email, "Email address" %>
     <%= f.email_field :email, class: "form-control",
                 required: true,
                 autofocus: true,
+                placeholder: "Enter your account email address",
                 input_html: { autocomplete: "email" } %>
   </div>
 

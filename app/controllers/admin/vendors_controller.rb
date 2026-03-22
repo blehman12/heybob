@@ -3,7 +3,7 @@ require 'csv'
 class Admin::VendorsController < Admin::BaseController
 
   def index
-    @vendors = Vendor.includes(:user, :events).order(:name)
+    @vendors = Vendor.includes(:user, :events).order(:name).page(params[:page]).per(25)
   end
 
   def show
