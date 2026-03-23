@@ -16,7 +16,8 @@ class Admin::VendorsController < Admin::BaseController
 
   def create
     owner = find_or_create_owner(vendor_params[:owner_email])
-    @vendor = Vendor.new(vendor_params.except(:owner_email).merge(user: owner))
+    @vendor = Vendor.new(vendor_params.except(:owner_email))
+    @vendor.user = owner if owner
     if @vendor.save
       redirect_to admin_vendor_path(@vendor), notice: 'Vendor created.'
     else
@@ -41,6 +42,17 @@ class Admin::VendorsController < Admin::BaseController
     @vendor = Vendor.find(params[:id])
     @vendor.destroy
     redirect_to admin_vendors_path, notice: 'Vendor deleted.'
+  end
+
+  def send_password_reset
+    @vendor = Vendor.find(params[:id])
+    owner = @vendor.user
+    if owner
+      owner.send_reset_password_instructions
+      redirect_to admin_vendor_path(@vendor), notice: "Password reset email sent to #{owner.email}."
+    else
+      redirect_to admin_vendor_path(@vendor), alert: "This vendor has no owner account."
+    end
   end
 
   # GET /admin/vendors/import
@@ -119,12 +131,14 @@ class Admin::VendorsController < Admin::BaseController
   end
 
   def find_or_create_owner(email)
-    return User.find_or_initialize_by(email: email&.downcase) if email.blank?
+    return nil if email.blank?
     User.find_or_create_by!(email: email.downcase) do |u|
       u.first_name = 'Vendor'
       u.last_name  = 'Owner'
+      u.phone      = '000-000-0000'
+      u.company    = 'Vendor'
       u.password   = SecureRandom.hex(12)
-      u.role       = 0
+      u.role       = :vendor_admin
     end
   end
 
@@ -146,9 +160,10 @@ class Admin::VendorsController < Admin::BaseController
           User.find_or_create_by!(email: data[:owner_email].downcase) do |u|
             u.first_name = data[:owner_first_name].presence || 'Vendor'
             u.last_name  = data[:owner_last_name].presence  || 'Owner'
-            u.phone      = data[:owner_phone]
+            u.phone      = data[:owner_phone].presence      || '000-000-0000'
+            u.company    = data[:name].presence             || 'Vendor'
             u.password   = SecureRandom.hex(12)
-            u.role       = 0
+            u.role       = :vendor_admin
           end
         else
           User.find_by(email: 'admin@nwtg.com') || User.where(role: 1).first

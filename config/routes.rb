@@ -150,6 +150,9 @@ end
 
     # Vendor management
     resources :vendors do
+      member do
+        post :send_password_reset
+      end
       collection do
         get  'import_form'
         post 'import'
