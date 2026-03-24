@@ -1,6 +1,6 @@
 # app/mailers/invitation_mailer.rb
 class InvitationMailer < ApplicationMailer
-  default from: ENV.fetch('MAILER_FROM_EMAIL', 'events@confab.example.com')
+  default from: ENV.fetch('MAILER_FROM', 'noreply@crplm.com')
 
   # Send event invitation to a participant
   def event_invitation(participant)

@@ -32,6 +32,13 @@
     <%# ── Main column ── %>
     <div class="col-md-8">
 
+      <%# Hero image %>
+      <% if @vendor.hero_image.attached? %>
+        <div class="card mb-4">
+          <%= image_tag @vendor.hero_image, class: "card-img-top", style: "max-height: 300px; object-fit: cover;" %>
+        </div>
+      <% end %>
+
       <%# Vendor details %>
       <div class="card mb-4">
         <div class="card-header"><h5 class="mb-0">Vendor Details</h5></div>
