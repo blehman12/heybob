@@ -1,0 +1,71 @@
+<% content_for :title, "#{@vendor_event.vendor.name} — QR Code" %>
+
+<%# Screen toolbar — hidden when printing %>
+<div class="print-toolbar">
+  <%= link_to vendor_vendor_event_path(@vendor_event) do %>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Back
+  <% end %>
+
+  <button class="print-btn" onclick="window.print()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 6 2 18 2 18 9"/>
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+      <rect x="6" y="14" width="12" height="8"/>
+    </svg>
+    Print
+  </button>
+</div>
+
+<%# Printable card %>
+<div class="qr-card">
+
+  <%# Header with vendor name and hook line %>
+  <div class="qr-card__header">
+    <div class="qr-card__vendor-name"><%= @vendor_event.vendor.name %></div>
+    <% if @vendor_event.vendor.hook_line.present? %>
+      <div class="qr-card__hook"><%= @vendor_event.vendor.hook_line %></div>
+    <% end %>
+  </div>
+
+  <div class="qr-card__body">
+
+    <%# Call to action %>
+    <div class="qr-card__cta">
+      <strong>Scan to follow us!</strong>
+      Get exclusive deals, drawings & updates straight to your phone.
+    </div>
+
+    <%# QR code image — pulled from qrserver.com at 480px for crisp printing %>
+    <img class="qr-card__qr"
+         src="https://api.qrserver.com/v1/create-qr-code/?size=480x480&margin=0&data=<%= CGI.escape(@optin_url) %>"
+         alt="QR Code for <%= @vendor_event.vendor.name %>">
+
+    <div class="qr-card__url"><%= @optin_url %></div>
+
+    <%# Booth info — only shown if set %>
+    <% booth = @vendor_event.booth_number
+       hall  = @vendor_event.hall %>
+    <% if booth.present? || hall.present? %>
+      <div class="qr-card__booth">
+        <div class="qr-card__booth-label">Find us at</div>
+        <div class="qr-card__booth-value">
+          <% if booth.present? && hall.present? %>
+            Booth <%= booth %> &middot; <%= hall %>
+          <% elsif booth.present? %>
+            Booth <%= booth %>
+          <% else %>
+            <%= hall %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="qr-card__event"><%= @vendor_event.event.name %> &middot; <%= @vendor_event.event.event_date.strftime('%B %-d, %Y') %></div>
+
+  </div>
+</div>

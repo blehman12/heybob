@@ -81,6 +81,7 @@ class Vendor::VendorEventsController < Vendor::BaseController
   def qr_code
     @optin_url = vendor_optin_url(@vendor_event.qr_token,
                                   host: request.base_url)
+    render layout: 'print'
   end
 
   def broadcast
