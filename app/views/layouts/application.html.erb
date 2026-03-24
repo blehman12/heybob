@@ -18,8 +18,15 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container">
         <%= link_to "HeyBob", root_path, class: "navbar-brand" %>
-        
-        <div class="navbar-nav ms-auto d-flex align-items-center">
+
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+                aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+        <div class="navbar-nav ms-auto d-flex align-items-center flex-wrap">
           <% if user_signed_in? %>
             <span class="navbar-text me-3">
               Hello, <%= current_user.respond_to?(:full_name) ? current_user.full_name : "#{current_user.first_name} #{current_user.last_name}" %>
@@ -50,6 +57,7 @@
                         class: "btn btn-sm btn-outline-light me-2" %>
             <%= link_to "Sign In", new_user_session_path, class: "nav-link" %>
           <% end %>
+        </div>
         </div>
       </div>
     </nav>

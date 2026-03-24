@@ -22,7 +22,9 @@ class PublicEventsController < ApplicationController
 
   def show
     @event_participant = EventParticipant.new
-    
+    @vendor_events = @event.vendor_events.includes(vendor: [:categories, :hero_image_attachment])
+                           .order('vendors.name')
+
     # If user is logged in, check if they already have an RSVP
     if current_user
       @existing_rsvp = @event.event_participants.find_by(user: current_user)
