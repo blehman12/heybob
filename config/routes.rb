@@ -43,6 +43,10 @@ Rails.application.routes.draw do
   post '/interest',       to: 'interest_signups#create'
   get  '/interest/thanks', to: 'interest_signups#thank_you', as: 'interest_signup_thanks'
 
+  # Public vendor profiles (no authentication required)
+  get '/vendors',     to: 'public_vendors#index', as: 'public_vendors'
+  get '/vendors/:id', to: 'public_vendors#show',  as: 'public_vendor'
+
   # Public event pages (no authentication required)
   get '/events', to: 'public_events#index', as: 'public_events'
   get '/e/:slug', to: 'public_events#show', as: 'public_event'

@@ -1,0 +1,118 @@
+<%# Hero image banner %>
+<% if @vendor.hero_image.attached? %>
+  <div class="mb-4" style="max-height: 360px; overflow: hidden; border-radius: 0.5rem;">
+    <%= image_tag @vendor.hero_image, style: "width: 100%; max-height: 360px; object-fit: cover;" %>
+  </div>
+<% end %>
+
+<%# Header %>
+<div class="d-flex align-items-start justify-content-between mb-1">
+  <h2 class="mb-0"><%= @vendor.name %></h2>
+  <span class="badge fs-6 <%= @vendor.artist? ? 'bg-warning text-dark' : 'bg-primary' %>">
+    <%= @vendor.artist? ? 'Artist' : 'Business' %>
+  </span>
+</div>
+
+<% if @vendor.hook_line.present? %>
+  <p class="lead text-muted fst-italic mb-3">"<%= @vendor.hook_line %>"</p>
+<% end %>
+
+<%# Categories %>
+<% if @vendor.categories.any? %>
+  <div class="mb-4">
+    <% @vendor.categories.each do |cat| %>
+      <span class="badge bg-secondary me-1"><%= cat.name %></span>
+    <% end %>
+  </div>
+<% end %>
+
+<div class="row">
+
+  <%# ── Main content ── %>
+  <div class="col-md-8">
+
+    <% if @vendor.description.present? %>
+      <div class="card mb-4">
+        <div class="card-body">
+          <%= simple_format(@vendor.description) %>
+        </div>
+      </div>
+    <% end %>
+
+    <%# Upcoming appearances %>
+    <% if @upcoming_appearances.any? %>
+      <h5 class="mb-3"><i class="bi bi-calendar-event"></i> Appearing At</h5>
+      <% @upcoming_appearances.each do |ve| %>
+        <div class="card mb-3 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="mb-1">
+                  <%= link_to ve.event.name, public_event_path(ve.event.slug), class: 'text-decoration-none fw-semibold' %>
+                </h6>
+                <p class="text-muted small mb-1">
+                  <i class="bi bi-calendar3"></i> <%= ve.event.event_date&.strftime('%A, %B %-d, %Y') %>
+                </p>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                  <span class="badge bg-secondary"><%= ve.category_label %></span>
+                  <% if ve.booth_number.present? %>
+                    <small class="text-muted"><i class="bi bi-grid-3x3-gap"></i> Booth <%= ve.booth_number %></small>
+                  <% end %>
+                  <% if ve.hall.present? %>
+                    <small class="text-muted"><i class="bi bi-building"></i> <%= ve.hall %></small>
+                  <% end %>
+                </div>
+              </div>
+              <%= link_to vendor_optin_path(ve.qr_token), class: 'btn btn-sm btn-success flex-shrink-0 ms-3' do %>
+                <i class="bi bi-bell"></i> Follow
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+
+  </div>
+
+  <%# ── Sidebar ── %>
+  <div class="col-md-4">
+
+    <%# Links %>
+    <div class="card mb-3">
+      <div class="card-header"><h6 class="mb-0">Find Us Online</h6></div>
+      <div class="card-body d-grid gap-2">
+        <% if @vendor.website.present? %>
+          <%= link_to @vendor.website, target: '_blank', rel: 'noopener', class: 'btn btn-sm btn-outline-primary' do %>
+            <i class="bi bi-globe"></i> Website
+          <% end %>
+        <% end %>
+        <% handles = @vendor.social_handles %>
+        <% if handles[:instagram].present? %>
+          <%= link_to "https://instagram.com/#{handles[:instagram]}", target: '_blank', rel: 'noopener', class: 'btn btn-sm btn-outline-danger' do %>
+            <i class="bi bi-instagram"></i> @<%= handles[:instagram] %>
+          <% end %>
+        <% end %>
+        <% if handles[:tiktok].present? %>
+          <%= link_to "https://tiktok.com/@#{handles[:tiktok]}", target: '_blank', rel: 'noopener', class: 'btn btn-sm btn-outline-dark' do %>
+            <i class="bi bi-tiktok"></i> @<%= handles[:tiktok] %>
+          <% end %>
+        <% end %>
+        <% if handles[:twitter].present? %>
+          <%= link_to "https://twitter.com/#{handles[:twitter]}", target: '_blank', rel: 'noopener', class: 'btn btn-sm btn-outline-info' do %>
+            <i class="bi bi-twitter-x"></i> @<%= handles[:twitter] %>
+          <% end %>
+        <% end %>
+        <% if @vendor.website.blank? && @vendor.social_handles.empty? %>
+          <p class="text-muted small mb-0">No links added yet.</p>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Back link %>
+    <div class="d-grid">
+      <%= link_to 'All Vendors', public_vendors_path, class: 'btn btn-outline-secondary btn-sm' %>
+    </div>
+
+  </div>
+
+</div>
