@@ -33,6 +33,9 @@ gem 'simple_form'
 # Calendar functionality
 gem 'icalendar', '~> 2.10'
 
+# QR code generation
+gem 'rqrcode', '~> 2.0'
+
 
 # Add to your Gemfile:
 group :development, :test do
