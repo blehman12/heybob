@@ -86,6 +86,21 @@
 }
 .vd-signout:hover { color: #212529; background: #f1f3f5; }
 
+.vd-admin-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6c757d;
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 5px;
+  border: 1px solid #dee2e6;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+.vd-admin-link:hover { color: #212529; background: #f1f3f5; border-color: #adb5bd; }
+
 /* ---- Main content ---- */
 .vd-main {
   padding: 20px 16px 48px;
