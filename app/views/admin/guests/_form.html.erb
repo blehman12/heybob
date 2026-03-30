@@ -1,0 +1,109 @@
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-body">
+        <%= form_with(model: [:admin, @guest], local: true, multipart: true) do |form| %>
+          <% if @guest.errors.any? %>
+            <div class="alert alert-danger">
+              <h4><%= pluralize(@guest.errors.count, "error") %> prohibited this guest from being saved:</h4>
+              <ul class="mb-0">
+                <% @guest.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <%# Photo %>
+          <div class="mb-3">
+            <%= form.label :photo, "Photo", class: "form-label" %>
+            <% if @guest.photo.attached? %>
+              <div class="mb-2">
+                <%= image_tag @guest.photo.variant(resize_to_limit: [200, 200]),
+                      class: "img-thumbnail rounded-circle",
+                      style: "width: 100px; height: 100px; object-fit: cover;" %>
+                <div class="form-text">Current photo — upload a new one to replace it.</div>
+              </div>
+            <% end %>
+            <%= form.file_field :photo, class: "form-control", accept: "image/*" %>
+            <div class="form-text">JPG, PNG, or WebP · Max 5 MB</div>
+          </div>
+
+          <%# Name %>
+          <div class="mb-3">
+            <%= form.label :name, class: "form-label" %>
+            <%= form.text_field :name, class: "form-control", required: true %>
+          </div>
+
+          <%# Guest type %>
+          <div class="mb-3">
+            <%= form.label :guest_type, "Guest Type", class: "form-label fw-bold" %>
+            <%= form.select :guest_type,
+                  Guest.guest_types.keys.map { |t| [Guest.new(guest_type: t).guest_type_label, t] },
+                  {},
+                  class: "form-select" %>
+          </div>
+
+          <%# Bio %>
+          <div class="mb-3">
+            <%= form.label :bio, class: "form-label" %>
+            <%= form.text_area :bio, class: "form-control", rows: 4,
+                  placeholder: "Brief biography shown on the public guest profile." %>
+          </div>
+
+          <%# Website %>
+          <div class="mb-3">
+            <%= form.label :website, class: "form-label" %>
+            <%= form.url_field :website, class: "form-control", placeholder: "https://example.com" %>
+          </div>
+
+          <%# Social handles %>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Social Media</label>
+            <div class="row g-2">
+              <div class="col-md-3">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-instagram"></i></span>
+                  <%= form.text_field :instagram_handle, class: "form-control", placeholder: "handle" %>
+                </div>
+                <div class="form-text">Instagram</div>
+              </div>
+              <div class="col-md-3">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-twitter-x"></i></span>
+                  <%= form.text_field :twitter_handle, class: "form-control", placeholder: "handle" %>
+                </div>
+                <div class="form-text">Twitter / X</div>
+              </div>
+              <div class="col-md-3">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-tiktok"></i></span>
+                  <%= form.text_field :tiktok_handle, class: "form-control", placeholder: "handle" %>
+                </div>
+                <div class="form-text">TikTok</div>
+              </div>
+              <div class="col-md-3">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-youtube"></i></span>
+                  <%= form.text_field :youtube_handle, class: "form-control", placeholder: "handle" %>
+                </div>
+                <div class="form-text">YouTube</div>
+              </div>
+            </div>
+          </div>
+
+          <%# Active toggle %>
+          <div class="mb-3 form-check">
+            <%= form.check_box :is_active, class: "form-check-input" %>
+            <%= form.label :is_active, "Active (visible on public guest page)", class: "form-check-label" %>
+          </div>
+
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <%= link_to "Cancel", admin_guests_path, class: "btn btn-outline-secondary me-md-2" %>
+            <%= form.submit class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

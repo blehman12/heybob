@@ -1,0 +1,72 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Guests</h1>
+  <div class="btn-group">
+    <%= link_to 'New Guest', new_admin_guest_path, class: 'btn btn-primary' %>
+  </div>
+</div>
+
+<% if @guests.empty? %>
+  <div class="alert alert-info">
+    No guests yet. <%= link_to 'Add the first guest', new_admin_guest_path %>.
+  </div>
+<% else %>
+  <div class="card">
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 52px;"></th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Events</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @guests.each do |guest| %>
+            <tr>
+              <td class="px-3">
+                <% if guest.photo.attached? %>
+                  <%= image_tag guest.photo.variant(resize_to_limit: [80, 80]),
+                        style: 'width: 40px; height: 40px; object-fit: cover; border-radius: 50%;',
+                        alt: '' %>
+                <% else %>
+                  <div style="width: 40px; height: 40px; border-radius: 50%; background: #e9ecef;
+                               display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-person text-muted"></i>
+                  </div>
+                <% end %>
+              </td>
+              <td><strong><%= link_to guest.name, admin_guest_path(guest) %></strong></td>
+              <td>
+                <span class="badge <%= guest.guest_type_badge_class %>">
+                  <%= guest.guest_type_label %>
+                </span>
+              </td>
+              <td><span class="badge bg-secondary"><%= guest.events.size %></span></td>
+              <td>
+                <% if guest.is_active? %>
+                  <span class="badge bg-success">Active</span>
+                <% else %>
+                  <span class="badge bg-secondary">Inactive</span>
+                <% end %>
+              </td>
+              <td class="text-end">
+                <%= link_to 'Edit', edit_admin_guest_path(guest), class: 'btn btn-sm btn-outline-primary' %>
+                <%= link_to 'Delete', admin_guest_path(guest),
+                    data: { turbo_method: :delete, turbo_confirm: "Delete #{guest.name}?" },
+                    class: 'btn btn-sm btn-outline-danger' %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <p class="text-muted mb-0"><%= pluralize(@guests.total_count, 'guest') %> total</p>
+    <%= paginate @guests %>
+  </div>
+<% end %>

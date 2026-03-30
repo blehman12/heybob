@@ -1,0 +1,104 @@
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div class="d-flex align-items-center gap-3">
+    <% if @sponsor.logo.attached? %>
+      <%= image_tag @sponsor.logo.variant(resize_to_limit: [300, 120]),
+            style: 'max-height: 60px; max-width: 180px; object-fit: contain;',
+            alt: @sponsor.name %>
+    <% end %>
+    <div>
+      <h2 class="mb-1"><%= @sponsor.name %></h2>
+      <span class="badge <%= @sponsor.tier_badge_class %> me-1"><%= @sponsor.tier_label %></span>
+      <% unless @sponsor.is_active? %>
+        <span class="badge bg-secondary">Inactive</span>
+      <% end %>
+    </div>
+  </div>
+  <div class="btn-group">
+    <%= link_to 'Edit', edit_admin_sponsor_path(@sponsor), class: 'btn btn-outline-primary' %>
+    <%= link_to 'Delete', admin_sponsor_path(@sponsor),
+        data: { turbo_method: :delete, turbo_confirm: "Delete #{@sponsor.name}?" },
+        class: 'btn btn-outline-danger' %>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+
+    <% if @sponsor.description.present? %>
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0">Description</h6></div>
+        <div class="card-body">
+          <%= simple_format(@sponsor.description) %>
+        </div>
+      </div>
+    <% end %>
+
+    <%# Events %>
+    <div class="card mb-4">
+      <div class="card-header"><h6 class="mb-0">Events Sponsored</h6></div>
+      <div class="card-body">
+        <% if @sponsor.sponsor_events.any? %>
+          <table class="table table-sm mb-3">
+            <thead class="table-light">
+              <tr>
+                <th>Event</th>
+                <th>Date</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @sponsor.sponsor_events.each do |se| %>
+                <tr>
+                  <td><%= link_to se.event.name, admin_event_path(se.event) %></td>
+                  <td><small class="text-muted"><%= se.event.event_date&.strftime('%b %-d, %Y') %></small></td>
+                  <td class="text-end">
+                    <%= link_to 'Remove',
+                          admin_sponsor_event_path(se),
+                          data: { turbo_method: :delete, turbo_confirm: 'Remove this event?' },
+                          class: 'btn btn-sm btn-outline-danger' %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          <p class="text-muted small mb-3">Not linked to any events yet.</p>
+        <% end %>
+
+        <hr>
+        <p class="fw-semibold small mb-2">Link to an event:</p>
+        <%= form_with url: admin_sponsor_events_path, method: :post, class: 'd-flex gap-2 align-items-end' do |f| %>
+          <%= f.hidden_field :sponsor_id, value: @sponsor.id %>
+          <div class="flex-grow-1">
+            <%= f.select :event_id,
+                  @all_events.map { |e| [e.name, e.id] },
+                  { include_blank: '— select event —' },
+                  class: 'form-select form-select-sm' %>
+          </div>
+          <%= f.submit 'Link', class: 'btn btn-sm btn-primary' %>
+        <% end %>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="col-md-4">
+    <div class="card mb-3">
+      <div class="card-header"><h6 class="mb-0">Details</h6></div>
+      <div class="card-body">
+        <% if @sponsor.website.present? %>
+          <p class="mb-2">
+            <%= link_to @sponsor.website, target: '_blank', rel: 'noopener', class: 'btn btn-sm btn-outline-primary w-100' do %>
+              <i class="bi bi-globe"></i> Visit Website
+            <% end %>
+          </p>
+        <% end %>
+        <p class="mb-1 small text-muted">Display order: <%= @sponsor.display_order %></p>
+      </div>
+    </div>
+
+    <div class="d-grid">
+      <%= link_to 'Public Profile', public_sponsor_path(@sponsor), class: 'btn btn-outline-secondary btn-sm', target: '_blank' %>
+    </div>
+  </div>
+</div>

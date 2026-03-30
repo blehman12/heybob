@@ -1,0 +1,103 @@
+<%# Header %>
+<div class="d-flex align-items-start gap-4 mb-4">
+  <% if @guest.photo.attached? %>
+    <%= image_tag @guest.photo.variant(resize_to_limit: [300, 300]),
+          class: 'rounded-circle flex-shrink-0',
+          style: 'width: 120px; height: 120px; object-fit: cover;',
+          alt: @guest.name %>
+  <% else %>
+    <div class="rounded-circle flex-shrink-0 d-flex align-items-center justify-content-center bg-light"
+         style="width: 120px; height: 120px;">
+      <i class="bi bi-person text-muted" style="font-size: 3rem;"></i>
+    </div>
+  <% end %>
+  <div>
+    <h2 class="mb-1"><%= @guest.name %></h2>
+    <span class="badge fs-6 <%= @guest.guest_type_badge_class %>">
+      <%= @guest.guest_type_label %>
+    </span>
+  </div>
+</div>
+
+<div class="row">
+
+  <%# ── Main content ── %>
+  <div class="col-md-8">
+
+    <% if @guest.bio.present? %>
+      <div class="card mb-4">
+        <div class="card-body">
+          <%= simple_format(@guest.bio) %>
+        </div>
+      </div>
+    <% end %>
+
+    <%# Upcoming appearances %>
+    <% if @upcoming_appearances.any? %>
+      <h5 class="mb-3"><i class="bi bi-calendar-event"></i> Appearing At</h5>
+      <% @upcoming_appearances.each do |ga| %>
+        <div class="card mb-3 shadow-sm">
+          <div class="card-body">
+            <h6 class="mb-1">
+              <%= link_to ga.event.name, public_event_path(ga.event.slug), class: 'text-decoration-none fw-semibold' %>
+            </h6>
+            <p class="text-muted small mb-1">
+              <i class="bi bi-calendar3"></i> <%= ga.event.event_date&.strftime('%A, %B %-d, %Y') %>
+            </p>
+            <% if ga.notes.present? %>
+              <p class="text-muted small mb-0"><i class="bi bi-info-circle"></i> <%= ga.notes %></p>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+
+  </div>
+
+  <%# ── Sidebar ── %>
+  <div class="col-md-4">
+
+    <%# Links %>
+    <div class="card mb-3">
+      <div class="card-header"><h6 class="mb-0">Find Online</h6></div>
+      <div class="card-body d-grid gap-2">
+        <% if @guest.website.present? %>
+          <%= link_to @guest.website, target: '_blank', rel: 'noopener', class: 'btn btn-sm btn-outline-primary' do %>
+            <i class="bi bi-globe"></i> Website
+          <% end %>
+        <% end %>
+        <% handles = @guest.social_handles %>
+        <% if handles[:instagram].present? %>
+          <%= link_to "https://instagram.com/#{handles[:instagram]}", target: '_blank', rel: 'noopener', class: 'btn btn-sm btn-outline-danger' do %>
+            <i class="bi bi-instagram"></i> @<%= handles[:instagram] %>
+          <% end %>
+        <% end %>
+        <% if handles[:twitter].present? %>
+          <%= link_to "https://twitter.com/#{handles[:twitter]}", target: '_blank', rel: 'noopener', class: 'btn btn-sm btn-outline-info' do %>
+            <i class="bi bi-twitter-x"></i> @<%= handles[:twitter] %>
+          <% end %>
+        <% end %>
+        <% if handles[:tiktok].present? %>
+          <%= link_to "https://tiktok.com/@#{handles[:tiktok]}", target: '_blank', rel: 'noopener', class: 'btn btn-sm btn-outline-dark' do %>
+            <i class="bi bi-tiktok"></i> @<%= handles[:tiktok] %>
+          <% end %>
+        <% end %>
+        <% if handles[:youtube].present? %>
+          <%= link_to "https://youtube.com/@#{handles[:youtube]}", target: '_blank', rel: 'noopener', class: 'btn btn-sm btn-outline-danger' do %>
+            <i class="bi bi-youtube"></i> @<%= handles[:youtube] %>
+          <% end %>
+        <% end %>
+        <% if @guest.website.blank? && handles.empty? %>
+          <p class="text-muted small mb-0">No links added yet.</p>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Back link %>
+    <div class="d-grid">
+      <%= link_to 'All Guests', public_guests_path, class: 'btn btn-outline-secondary btn-sm' %>
+    </div>
+
+  </div>
+
+</div>

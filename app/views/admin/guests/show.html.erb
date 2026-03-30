@@ -1,0 +1,139 @@
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div class="d-flex align-items-center gap-3">
+    <% if @guest.photo.attached? %>
+      <%= image_tag @guest.photo.variant(resize_to_limit: [160, 160]),
+            style: 'width: 80px; height: 80px; object-fit: cover; border-radius: 50%;',
+            alt: @guest.name %>
+    <% else %>
+      <div style="width: 80px; height: 80px; border-radius: 50%; background: #e9ecef;
+                   display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <i class="bi bi-person text-muted" style="font-size: 2rem;"></i>
+      </div>
+    <% end %>
+    <div>
+      <h2 class="mb-1"><%= @guest.name %></h2>
+      <span class="badge <%= @guest.guest_type_badge_class %> me-1"><%= @guest.guest_type_label %></span>
+      <% unless @guest.is_active? %>
+        <span class="badge bg-secondary">Inactive</span>
+      <% end %>
+    </div>
+  </div>
+  <div class="btn-group">
+    <%= link_to 'Edit', edit_admin_guest_path(@guest), class: 'btn btn-outline-primary' %>
+    <%= link_to 'Delete', admin_guest_path(@guest),
+        data: { turbo_method: :delete, turbo_confirm: "Delete #{@guest.name}?" },
+        class: 'btn btn-outline-danger' %>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+
+    <% if @guest.bio.present? %>
+      <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0">Bio</h6></div>
+        <div class="card-body">
+          <%= simple_format(@guest.bio) %>
+        </div>
+      </div>
+    <% end %>
+
+    <%# Appearances %>
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">Event Appearances</h6>
+      </div>
+      <div class="card-body">
+        <% if @guest.guest_appearances.any? %>
+          <table class="table table-sm mb-3">
+            <thead class="table-light">
+              <tr>
+                <th>Event</th>
+                <th>Date</th>
+                <th>Notes</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @guest.guest_appearances.each do |ga| %>
+                <tr>
+                  <td><%= link_to ga.event.name, admin_event_path(ga.event) %></td>
+                  <td><small class="text-muted"><%= ga.event.event_date&.strftime('%b %-d, %Y') %></small></td>
+                  <td><small><%= ga.notes %></small></td>
+                  <td class="text-end">
+                    <%= link_to 'Remove',
+                          admin_guest_appearance_path(ga),
+                          data: { turbo_method: :delete, turbo_confirm: 'Remove this appearance?' },
+                          class: 'btn btn-sm btn-outline-danger' %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          <p class="text-muted small mb-3">No event appearances yet.</p>
+        <% end %>
+
+        <%# Add appearance form %>
+        <hr>
+        <p class="fw-semibold small mb-2">Add to an event:</p>
+        <%= form_with url: admin_guest_appearances_path, method: :post, class: 'd-flex gap-2 align-items-end flex-wrap' do |f| %>
+          <%= f.hidden_field :guest_id, value: @guest.id %>
+          <div>
+            <%= f.select :event_id,
+                  @all_events.map { |e| [e.name, e.id] },
+                  { include_blank: '— select event —' },
+                  class: 'form-select form-select-sm' %>
+          </div>
+          <div class="flex-grow-1">
+            <%= f.text_field :notes, class: 'form-control form-control-sm',
+                  placeholder: 'Panel room, autograph details, schedule slot…' %>
+          </div>
+          <%= f.submit 'Add', class: 'btn btn-sm btn-primary' %>
+        <% end %>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="col-md-4">
+    <div class="card mb-3">
+      <div class="card-header"><h6 class="mb-0">Links</h6></div>
+      <div class="card-body d-grid gap-2">
+        <% if @guest.website.present? %>
+          <%= link_to @guest.website, target: '_blank', rel: 'noopener', class: 'btn btn-sm btn-outline-primary' do %>
+            <i class="bi bi-globe"></i> Website
+          <% end %>
+        <% end %>
+        <% handles = @guest.social_handles %>
+        <% if handles[:instagram].present? %>
+          <%= link_to "https://instagram.com/#{handles[:instagram]}", target: '_blank', rel: 'noopener', class: 'btn btn-sm btn-outline-danger' do %>
+            <i class="bi bi-instagram"></i> @<%= handles[:instagram] %>
+          <% end %>
+        <% end %>
+        <% if handles[:twitter].present? %>
+          <%= link_to "https://twitter.com/#{handles[:twitter]}", target: '_blank', rel: 'noopener', class: 'btn btn-sm btn-outline-info' do %>
+            <i class="bi bi-twitter-x"></i> @<%= handles[:twitter] %>
+          <% end %>
+        <% end %>
+        <% if handles[:tiktok].present? %>
+          <%= link_to "https://tiktok.com/@#{handles[:tiktok]}", target: '_blank', rel: 'noopener', class: 'btn btn-sm btn-outline-dark' do %>
+            <i class="bi bi-tiktok"></i> @<%= handles[:tiktok] %>
+          <% end %>
+        <% end %>
+        <% if handles[:youtube].present? %>
+          <%= link_to "https://youtube.com/@#{handles[:youtube]}", target: '_blank', rel: 'noopener', class: 'btn btn-sm btn-outline-danger' do %>
+            <i class="bi bi-youtube"></i> @<%= handles[:youtube] %>
+          <% end %>
+        <% end %>
+        <% if @guest.website.blank? && handles.empty? %>
+          <p class="text-muted small mb-0">No links added yet.</p>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="d-grid">
+      <%= link_to 'Public Profile', public_guest_path(@guest), class: 'btn btn-outline-secondary btn-sm', target: '_blank' %>
+    </div>
+  </div>
+</div>

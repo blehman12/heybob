@@ -44,9 +44,17 @@ Rails.application.routes.draw do
   get  '/interest/thanks', to: 'interest_signups#thank_you', as: 'interest_signup_thanks'
 
   # Public vendor profiles (no authentication required)
-  get  '/vendors',          to: 'public_vendors#index',  as: 'public_vendors'
-  get  '/vendors/:id',      to: 'public_vendors#show',   as: 'public_vendor'
+  get  '/vendors',            to: 'public_vendors#index',  as: 'public_vendors'
+  get  '/vendors/:id',        to: 'public_vendors#show',   as: 'public_vendor'
   post '/vendors/:id/follow', to: 'public_vendors#follow', as: 'follow_public_vendor'
+
+  # Public guest profiles (no authentication required)
+  get '/guests',     to: 'public_guests#index', as: 'public_guests'
+  get '/guests/:id', to: 'public_guests#show',  as: 'public_guest'
+
+  # Public sponsor listing (no authentication required)
+  get '/sponsors',     to: 'public_sponsors#index', as: 'public_sponsors'
+  get '/sponsors/:id', to: 'public_sponsors#show',  as: 'public_sponsor'
 
   # Public event pages (no authentication required)
   get '/events', to: 'public_events#index', as: 'public_events'
@@ -152,6 +160,14 @@ resources :events do
     get :export
   end
 end
+
+    # Guest management
+    resources :guests
+    resources :guest_appearances, only: [:create, :destroy]
+
+    # Sponsor management
+    resources :sponsors
+    resources :sponsor_events, only: [:create, :destroy]
 
     # Vendor management
     resources :vendors do

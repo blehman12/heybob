@@ -11,6 +11,10 @@ class Event < ApplicationRecord
            through: :event_participants, source: :user
   has_many :organizers, -> { where(event_participants: { role: :organizer }) },
            through: :event_participants, source: :user
+  has_many :guest_appearances, dependent: :destroy
+  has_many :guests, through: :guest_appearances
+  has_many :sponsor_events, dependent: :destroy
+  has_many :sponsors, through: :sponsor_events
   has_many :categorizations, as: :categorizable, dependent: :destroy
   has_many :categories, through: :categorizations
 
