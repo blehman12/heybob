@@ -46,25 +46,27 @@
       </div>
     <% end %>
 
-    <% if event_day %>
-      <div class="welcome-card">
-        <span class="welcome-card__icon">📲</span>
-        <div class="welcome-card__text">
-          <strong>Stay tuned</strong>
-          You'll get text updates about specials,
-          drawings, and events happening right now on the floor.
+    <% if @sms_opted_in %>
+      <% if event_day %>
+        <div class="welcome-card">
+          <span class="welcome-card__icon">📲</span>
+          <div class="welcome-card__text">
+            <strong>Stay tuned</strong>
+            You'll get text updates about specials,
+            drawings, and events happening right now on the floor.
+          </div>
         </div>
-      </div>
-    <% else %>
-      <div class="welcome-card">
-        <span class="welcome-card__icon">📲</span>
-        <div class="welcome-card__text">
-          <strong>You're on the list</strong>
-          We'll text you with specials and updates when
-          <%= @vendor_event.event.name %> kicks off on
-          <%= @vendor_event.event.event_date.strftime('%B %-d') %>.
+      <% else %>
+        <div class="welcome-card">
+          <span class="welcome-card__icon">📲</span>
+          <div class="welcome-card__text">
+            <strong>You're on the list</strong>
+            We'll text you with specials and updates when
+            <%= @vendor_event.event.name %> kicks off on
+            <%= @vendor_event.event.event_date.strftime('%B %-d') %>.
+          </div>
         </div>
-      </div>
+      <% end %>
     <% end %>
 
     <% handles = @vendor_event.vendor.social_handles %>

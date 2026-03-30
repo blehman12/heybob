@@ -276,6 +276,60 @@ html, body {
   text-align: center;
 }
 
+/* ---- SMS opt-in toggle section ---- */
+.sms-optin-section {
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sms-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--white);
+  line-height: 1.4;
+}
+
+.sms-checkbox-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.sms-consent-text {
+  text-align: left;
+  margin-top: 4px;
+  line-height: 1.6;
+}
+
+/* ---- Skip link ---- */
+.skip-link {
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+  text-decoration: none;
+  padding: 8px;
+  transition: color 0.2s;
+}
+
+.skip-link:hover,
+.skip-link:active {
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+}
+
 /* ============================================================
    WELCOME / CONFIRMATION SCREEN
    ============================================================ */

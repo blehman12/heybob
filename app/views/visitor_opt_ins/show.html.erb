@@ -39,8 +39,7 @@
     <%# ── Form ── %>
     <%= form_with model: @con_opt_in,
                   url: vendor_optin_path(@vendor_event.qr_token),
-                  class: 'optin-form',
-                  data: { controller: 'optin-form' } do |f| %>
+                  class: 'optin-form' do |f| %>
 
       <div class="field-group">
         <%= f.label :name, 'Your Name', class: 'field-label' %>
@@ -52,25 +51,47 @@
                          required: true %>
       </div>
 
-      <div class="field-group">
-        <%= f.label :phone, 'Phone or Email', class: 'field-label' %>
-        <%= f.telephone_field :phone,
-                        placeholder: '(503) 555-0100',
-                        class: "field-input #{'is-invalid' if @con_opt_in.errors[:phone].any?}",
-                        autocomplete: 'tel',
-                        inputmode: 'tel' %>
-        <small class="fine-print" style="text-align:left; margin-top: 2px;">
-          Or use email below if you prefer
-        </small>
+      <%# ── SMS opt-in — voluntary, unchecked by default ── %>
+      <div class="sms-optin-section">
+        <label class="sms-checkbox-label">
+          <input type="checkbox"
+                 name="sms_opt_in"
+                 value="1"
+                 id="sms_opt_in_checkbox"
+                 <%= 'checked' if @sms_opted_in %>
+                 onchange="togglePhoneField(this.checked)">
+          <span>Text me updates from <strong><%= @vendor_event.vendor.name %></strong> during <%= @vendor_event.event.name %></span>
+        </label>
+
+        <div id="phone_field_group" style="display:<%= @sms_opted_in ? 'block' : 'none' %>;">
+          <%= f.label :phone, 'Mobile Phone', class: 'field-label' %>
+          <%= f.telephone_field :phone,
+                          placeholder: '(503) 555-0100',
+                          class: "field-input #{'is-invalid' if @con_opt_in.errors[:phone].any?}",
+                          autocomplete: 'tel',
+                          inputmode: 'tel' %>
+          <p class="fine-print sms-consent-text">
+            By checking this box you consent to receive SMS event updates from
+            <strong><%= @vendor_event.vendor.name %></strong> during
+            <%= @vendor_event.event.name %>. Opt-in is voluntary and not required to
+            browse this page. Message &amp; data rates may apply.
+            Reply <strong>STOP</strong> to opt out at any time, <strong>HELP</strong> for help.
+            <%= link_to 'Privacy Policy', 'https://crplm.com/privacy-policy',
+                        target: '_blank', rel: 'noopener', style: 'color:inherit;' %>.
+          </p>
+        </div>
       </div>
 
       <div class="field-group">
-        <%= f.label :email, 'Email (optional if phone provided)', class: 'field-label' %>
+        <%= f.label :email, 'Email (optional)', class: 'field-label' %>
         <%= f.email_field :email,
                           placeholder: 'you@example.com',
                           class: "field-input #{'is-invalid' if @con_opt_in.errors[:email].any?}",
                           autocomplete: 'email',
                           inputmode: 'email' %>
+        <small class="fine-print" style="text-align:left; margin-top:2px;">
+          For event news by email instead of text
+        </small>
       </div>
 
       <%= f.submit 'Count Me In',
@@ -79,12 +100,17 @@
 
     <% end %>
 
-    <p class="fine-print">
-      By submitting, you consent to receive SMS event updates from
-      <%= @vendor_event.vendor.name %> during <%= @vendor_event.event.name %>.
-      Message &amp; data rates may apply. Reply STOP to opt out, HELP for help.
-      <%= link_to 'Privacy Policy', 'https://crplm.com/privacy-policy', target: '_blank', rel: 'noopener' %>.
+    <p style="text-align:center; margin-top:4px;">
+      <%= link_to event_feed_path(@vendor_event.event.slug), class: 'skip-link' do %>
+        No thanks &mdash; just browse the event &rarr;
+      <% end %>
     </p>
 
   </div>
 </div>
+
+<script>
+  function togglePhoneField(show) {
+    document.getElementById('phone_field_group').style.display = show ? 'block' : 'none';
+  }
+</script>

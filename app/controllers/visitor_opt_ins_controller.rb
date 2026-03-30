@@ -7,12 +7,26 @@ class VisitorOptInsController < ApplicationController
   # GET /join/:qr_token
   # Vendor-branded opt-in landing page
   def show
-    @con_opt_in = ConOptIn.new
+    @con_opt_in   = ConOptIn.new
+    @sms_opted_in = false
   end
 
   # POST /join/:qr_token
   def create
-    @con_opt_in = ConOptIn.new(opt_in_params)
+    sms_opted_in = params[:sms_opt_in] == "1"
+
+    attrs = opt_in_params
+    # Strip phone if user did not check the SMS opt-in box
+    attrs = attrs.merge(phone: nil) unless sms_opted_in
+
+    # No contact info at all — just send them to the feed (no record needed)
+    if attrs[:phone].blank? && attrs[:email].blank?
+      redirect_to event_feed_path(@vendor_event.event.slug),
+                  notice: 'Welcome! Browse the event below.'
+      return
+    end
+
+    @con_opt_in = ConOptIn.new(attrs)
     @con_opt_in.event        = @vendor_event.event
     @con_opt_in.vendor_event = @vendor_event
     @con_opt_in.opted_in_at  = Time.current
@@ -21,6 +35,8 @@ class VisitorOptInsController < ApplicationController
     @con_opt_in.user = find_matching_user(@con_opt_in)
 
     if @con_opt_in.save
+      session[:sms_opted_in] = sms_opted_in
+
       # Create VendorOptIn join record (first booth scan)
       VendorOptIn.find_or_create_by(
         vendor_event: @vendor_event,
@@ -42,6 +58,7 @@ class VisitorOptInsController < ApplicationController
         redirect_to vendor_optin_welcome_path(@vendor_event.qr_token),
                     notice: 'Welcome back! You are already in the con feed.'
       else
+        @sms_opted_in = sms_opted_in
         render :show, status: :unprocessable_entity
       end
     end
@@ -49,7 +66,7 @@ class VisitorOptInsController < ApplicationController
 
   # GET /join/:qr_token/welcome
   def welcome
-    # @vendor_event set by before_action
+    @sms_opted_in = session.delete(:sms_opted_in)
   end
 
   # GET /feed/:event_slug
