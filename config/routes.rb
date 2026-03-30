@@ -44,8 +44,9 @@ Rails.application.routes.draw do
   get  '/interest/thanks', to: 'interest_signups#thank_you', as: 'interest_signup_thanks'
 
   # Public vendor profiles (no authentication required)
-  get '/vendors',     to: 'public_vendors#index', as: 'public_vendors'
-  get '/vendors/:id', to: 'public_vendors#show',  as: 'public_vendor'
+  get  '/vendors',          to: 'public_vendors#index',  as: 'public_vendors'
+  get  '/vendors/:id',      to: 'public_vendors#show',   as: 'public_vendor'
+  post '/vendors/:id/follow', to: 'public_vendors#follow', as: 'follow_public_vendor'
 
   # Public event pages (no authentication required)
   get '/events', to: 'public_events#index', as: 'public_events'

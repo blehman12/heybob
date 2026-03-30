@@ -1,9 +1,24 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h1>Vendors</h1>
-  <div class="btn-group">
-    <%= link_to 'New Vendor', new_admin_vendor_path, class: 'btn btn-primary' %>
-    <%= link_to 'Import CSV', import_form_admin_vendors_path, class: 'btn btn-outline-success' %>
-    <%= link_to 'Export CSV', export_admin_vendors_path, class: 'btn btn-outline-secondary' %>
+  <div class="d-flex gap-2 align-items-center">
+    <%# View toggle %>
+    <div class="btn-group btn-group-sm" role="group" aria-label="View toggle">
+      <%= link_to admin_vendors_path(page: params[:page]),
+            class: "btn #{params[:view] != 'grid' ? 'btn-secondary' : 'btn-outline-secondary'}",
+            title: "Table view" do %>
+        <i class="bi bi-list-ul"></i>
+      <% end %>
+      <%= link_to admin_vendors_path(view: 'grid', page: params[:page]),
+            class: "btn #{params[:view] == 'grid' ? 'btn-secondary' : 'btn-outline-secondary'}",
+            title: "Grid view" do %>
+        <i class="bi bi-grid-3x3-gap"></i>
+      <% end %>
+    </div>
+    <div class="btn-group">
+      <%= link_to 'New Vendor', new_admin_vendor_path, class: 'btn btn-primary' %>
+      <%= link_to 'Import CSV', import_form_admin_vendors_path, class: 'btn btn-outline-success' %>
+      <%= link_to 'Export CSV', export_admin_vendors_path, class: 'btn btn-outline-secondary' %>
+    </div>
   </div>
 </div>
 
@@ -11,12 +26,58 @@
   <div class="alert alert-info">
     No vendors yet. <%= link_to 'Import from CSV', import_form_admin_vendors_path %> or <%= link_to 'create one manually', new_admin_vendor_path %>.
   </div>
+
+<% elsif params[:view] == 'grid' %>
+  <%# ── Grid View ── %>
+  <div class="row row-cols-1 row-cols-md-3 row-cols-xl-4 g-4 mb-3">
+    <% @vendors.each do |vendor| %>
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <% if vendor.hero_image.attached? %>
+            <%= image_tag vendor.hero_image.variant(resize_to_limit: [600, 240]),
+                  class: 'card-img-top',
+                  style: 'height: 140px; object-fit: cover;',
+                  alt: vendor.name %>
+          <% else %>
+            <div class="bg-light d-flex align-items-center justify-content-center"
+                 style="height: 140px;">
+              <i class="bi bi-shop text-muted" style="font-size: 2.5rem;"></i>
+            </div>
+          <% end %>
+
+          <div class="card-body pb-2">
+            <div class="d-flex justify-content-between align-items-start gap-1 mb-1">
+              <h6 class="card-title mb-0 fw-semibold">
+                <%= link_to vendor.name, admin_vendor_path(vendor), class: 'text-decoration-none stretched-link' %>
+              </h6>
+              <span class="badge <%= vendor.artist? ? 'bg-warning text-dark' : 'bg-primary' %> flex-shrink-0">
+                <%= vendor.artist? ? 'Artist' : 'Biz' %>
+              </span>
+            </div>
+            <% if vendor.hook_line.present? %>
+              <p class="card-text text-muted small fst-italic mb-1"><%= truncate(vendor.hook_line, length: 55) %></p>
+            <% end %>
+            <span class="badge bg-secondary"><%= vendor.events.size %> event<%= 's' unless vendor.events.size == 1 %></span>
+          </div>
+
+          <div class="card-footer bg-transparent d-flex gap-2 position-relative" style="z-index: 1;">
+            <%= link_to 'Edit', edit_admin_vendor_path(vendor), class: 'btn btn-sm btn-outline-primary' %>
+            <%= link_to 'Delete', admin_vendor_path(vendor), method: :delete,
+                data: { confirm: "Delete #{vendor.name}?" }, class: 'btn btn-sm btn-outline-danger' %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
 <% else %>
+  <%# ── Table View ── %>
   <div class="card">
     <div class="card-body p-0">
-      <table class="table table-hover mb-0">
+      <table class="table table-hover mb-0 align-middle">
         <thead class="table-light">
           <tr>
+            <th style="width: 52px;"></th>
             <th>Name</th>
             <th>Hook Line</th>
             <th>Website</th>
@@ -28,11 +89,24 @@
         <tbody>
           <% @vendors.each do |vendor| %>
             <tr>
+              <td class="px-3">
+                <% if vendor.hero_image.attached? %>
+                  <%= image_tag vendor.hero_image.variant(resize_to_limit: [80, 80]),
+                        style: 'width: 40px; height: 40px; object-fit: cover; border-radius: 6px;',
+                        alt: '' %>
+                <% else %>
+                  <div style="width: 40px; height: 40px; border-radius: 6px; background: #e9ecef;
+                               display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-shop text-muted" style="font-size: 1rem;"></i>
+                  </div>
+                <% end %>
+              </td>
               <td><strong><%= link_to vendor.name, admin_vendor_path(vendor) %></strong></td>
               <td><small class="text-muted"><%= vendor.hook_line %></small></td>
               <td>
                 <% if vendor.website.present? %>
-                  <%= link_to vendor.website.gsub(%r{^https?://}, ''), vendor.website, target: '_blank', class: 'text-truncate d-inline-block', style: 'max-width:150px' %>
+                  <%= link_to vendor.website.gsub(%r{^https?://}, ''), vendor.website,
+                        target: '_blank', class: 'text-truncate d-inline-block', style: 'max-width: 150px' %>
                 <% end %>
               </td>
               <td><%= vendor.user&.email %></td>
@@ -48,8 +122,9 @@
       </table>
     </div>
   </div>
-  <div class="d-flex justify-content-between align-items-center mt-3">
-    <p class="text-muted mb-0"><%= pluralize(@vendors.total_count, 'vendor') %> total</p>
-    <%= paginate @vendors %>
-  </div>
 <% end %>
+
+<div class="d-flex justify-content-between align-items-center mt-3">
+  <p class="text-muted mb-0"><%= pluralize(@vendors.total_count, 'vendor') %> total</p>
+  <%= paginate @vendors %>
+</div>

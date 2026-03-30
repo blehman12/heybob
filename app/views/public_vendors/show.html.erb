@@ -108,6 +108,55 @@
       </div>
     </div>
 
+    <%# Follow card %>
+    <div class="card mb-3">
+      <div class="card-header">
+        <h6 class="mb-0"><i class="bi bi-bell-fill text-success"></i> Follow <%= @vendor.name %></h6>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small mb-3">Get updates directly — no event scan needed.</p>
+
+        <% if flash[:notice].present? %>
+          <div class="alert alert-success py-2 mb-3"><small><%= flash[:notice] %></small></div>
+        <% end %>
+
+        <% if @follow&.errors&.any? %>
+          <div class="alert alert-danger py-2 mb-3">
+            <% @follow.errors.full_messages.each do |msg| %>
+              <small class="d-block"><%= msg %></small>
+            <% end %>
+          </div>
+        <% end %>
+
+        <%= form_with model: (@follow || VendorFollow.new),
+                      url: follow_public_vendor_path(@vendor),
+                      class: 'd-flex flex-column gap-2' do |f| %>
+          <%= f.text_field :name,
+                placeholder: 'Your name',
+                class: "form-control form-control-sm #{'is-invalid' if @follow&.errors&.[](:name)&.any?}",
+                required: true,
+                autocomplete: 'name' %>
+          <%= f.telephone_field :phone,
+                placeholder: 'Phone (SMS updates)',
+                class: 'form-control form-control-sm',
+                inputmode: 'tel',
+                autocomplete: 'tel' %>
+          <div class="text-center text-muted" style="font-size: 11px; margin: -2px 0;">or</div>
+          <%= f.email_field :email,
+                placeholder: 'Email',
+                class: 'form-control form-control-sm',
+                autocomplete: 'email' %>
+          <p class="text-muted mb-1" style="font-size: 10px;">
+            SMS is optional. Reply STOP to opt out anytime.
+            <%= link_to 'Privacy Policy', 'https://crplm.com/privacy-policy',
+                        target: '_blank', rel: 'noopener', class: 'text-muted' %>.
+          </p>
+          <%= f.submit "Follow #{@vendor.name}",
+                class: 'btn btn-success btn-sm w-100' %>
+        <% end %>
+      </div>
+    </div>
+
     <%# Back link %>
     <div class="d-grid">
       <%= link_to 'All Vendors', public_vendors_path, class: 'btn btn-outline-secondary btn-sm' %>

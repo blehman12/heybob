@@ -5,6 +5,7 @@ class Vendor < ApplicationRecord
   has_many :users, through: :vendor_users
   has_many :vendor_events, dependent: :destroy
   has_many :events, through: :vendor_events
+  has_many :vendor_follows, dependent: :destroy
   has_one_attached :hero_image
 
   validate :hero_image_acceptable, if: -> { hero_image.attached? }
