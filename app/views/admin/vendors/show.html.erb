@@ -81,6 +81,7 @@
                   <th>Category</th>
                   <th>Booth</th>
                   <th>Hall</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -91,6 +92,13 @@
                     <td><span class="badge bg-secondary"><%= ve.category&.humanize || '—' %></span></td>
                     <td><%= ve.booth_number.presence || '—' %></td>
                     <td><%= ve.hall.presence || '—' %></td>
+                    <td>
+                      <%= link_to vendor_vendor_event_path(ve),
+                            class: 'btn btn-sm btn-outline-success',
+                            title: 'View QR code & opt-in page' do %>
+                        <i class="bi bi-qr-code"></i> QR
+                      <% end %>
+                    </td>
                   </tr>
                 <% end %>
               </tbody>
