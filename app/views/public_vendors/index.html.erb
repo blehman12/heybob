@@ -1,65 +1,125 @@
 <div class="d-flex align-items-center justify-content-between mb-3">
   <h4 class="mb-0"><i class="bi bi-shop"></i> Vendors</h4>
+
+  <%# View toggle %>
+  <div class="btn-group btn-group-sm" role="group" aria-label="View toggle">
+    <%= link_to public_vendors_path(type: @active_type, view: params[:view]),
+          class: "btn #{params[:view] != 'list' ? 'btn-secondary' : 'btn-outline-secondary'}",
+          title: "Grid view" do %>
+      <i class="bi bi-grid-3x3-gap"></i>
+    <% end %>
+    <%= link_to public_vendors_path(type: @active_type, view: 'list'),
+          class: "btn #{params[:view] == 'list' ? 'btn-secondary' : 'btn-outline-secondary'}",
+          title: "List view" do %>
+      <i class="bi bi-list-ul"></i>
+    <% end %>
+  </div>
 </div>
 
 <%# Type filter %>
 <div class="d-flex gap-2 mb-4">
-  <%= link_to 'All', public_vendors_path,
+  <%= link_to 'All', public_vendors_path(view: params[:view]),
         class: "btn btn-sm #{@active_type.blank? ? 'btn-primary' : 'btn-outline-secondary'}" %>
-  <%= link_to 'Artist Alley', public_vendors_path(type: 'artist'),
+  <%= link_to 'Artist Alley', public_vendors_path(type: 'artist', view: params[:view]),
         class: "btn btn-sm #{@active_type == 'artist' ? 'btn-warning' : 'btn-outline-secondary'}" %>
-  <%= link_to "Dealer's Room", public_vendors_path(type: 'business'),
+  <%= link_to "Dealer's Room", public_vendors_path(type: 'business', view: params[:view]),
         class: "btn btn-sm #{@active_type == 'business' ? 'btn-primary' : 'btn-outline-secondary'}" %>
 </div>
 
 <% if @vendors.any? %>
-  <div class="row row-cols-1 row-cols-md-3 g-4">
-    <% @vendors.each do |vendor| %>
-      <div class="col">
-        <div class="card h-100 shadow-sm">
 
-          <%# Hero image %>
-          <% if vendor.hero_image.attached? %>
-            <%= image_tag vendor.hero_image, class: "card-img-top",
-                  style: "height: 180px; object-fit: cover;" %>
-          <% else %>
-            <div class="bg-light d-flex align-items-center justify-content-center"
-                 style="height: 180px;">
-              <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+  <% if params[:view] == 'list' %>
+    <%# ── List View ── %>
+    <div class="d-flex flex-column gap-2">
+      <% @vendors.each do |vendor| %>
+        <div class="card shadow-sm">
+          <div class="card-body py-2 px-3">
+            <div class="d-flex align-items-center gap-3">
+              <%# Thumbnail %>
+              <% if vendor.hero_image.attached? %>
+                <%= image_tag vendor.hero_image.variant(resize_to_limit: [80, 80]),
+                      style: 'width: 48px; height: 48px; object-fit: cover; border-radius: 6px; flex-shrink: 0;',
+                      alt: '' %>
+              <% else %>
+                <div style="width: 48px; height: 48px; border-radius: 6px; background: #e9ecef;
+                             display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <i class="bi bi-shop text-muted"></i>
+                </div>
+              <% end %>
+
+              <%# Info %>
+              <div class="flex-grow-1 min-width-0">
+                <div class="d-flex align-items-center gap-2">
+                  <strong class="text-truncate"><%= vendor.name %></strong>
+                  <span class="badge <%= vendor.artist? ? 'bg-warning text-dark' : 'bg-primary' %> flex-shrink-0">
+                    <%= vendor.artist? ? 'Artist' : 'Business' %>
+                  </span>
+                </div>
+                <% if vendor.hook_line.present? %>
+                  <small class="text-muted fst-italic">"<%= vendor.hook_line %>"</small>
+                <% end %>
+              </div>
+
+              <%# Action %>
+              <%= link_to 'View Profile', public_vendor_path(vendor),
+                    class: 'btn btn-sm btn-outline-primary flex-shrink-0' %>
             </div>
-          <% end %>
-
-          <div class="card-body">
-            <div class="d-flex align-items-start justify-content-between gap-2 mb-1">
-              <h5 class="card-title mb-0"><%= vendor.name %></h5>
-              <span class="badge <%= vendor.artist? ? 'bg-warning text-dark' : 'bg-primary' %> flex-shrink-0">
-                <%= vendor.artist? ? 'Artist' : 'Business' %>
-              </span>
-            </div>
-
-            <% if vendor.hook_line.present? %>
-              <p class="text-muted small fst-italic mb-2">"<%= vendor.hook_line %>"</p>
-            <% end %>
-
-            <% if vendor.description.present? %>
-              <p class="card-text small text-muted mb-2">
-                <%= truncate(vendor.description, length: 100) %>
-              </p>
-            <% end %>
-
-            <% vendor.categories.each do |cat| %>
-              <span class="badge bg-secondary me-1" style="font-size: 0.65rem;"><%= cat.name %></span>
-            <% end %>
           </div>
-
-          <div class="card-footer bg-transparent">
-            <%= link_to 'View Profile', public_vendor_path(vendor), class: 'btn btn-sm btn-outline-primary' %>
-          </div>
-
         </div>
-      </div>
-    <% end %>
-  </div>
+      <% end %>
+    </div>
+
+  <% else %>
+    <%# ── Grid View (default) ── %>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      <% @vendors.each do |vendor| %>
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+
+            <%# Hero image %>
+            <% if vendor.hero_image.attached? %>
+              <%= image_tag vendor.hero_image, class: "card-img-top",
+                    style: "height: 180px; object-fit: cover;" %>
+            <% else %>
+              <div class="bg-light d-flex align-items-center justify-content-center"
+                   style="height: 180px;">
+                <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+              </div>
+            <% end %>
+
+            <div class="card-body">
+              <div class="d-flex align-items-start justify-content-between gap-2 mb-1">
+                <h5 class="card-title mb-0"><%= vendor.name %></h5>
+                <span class="badge <%= vendor.artist? ? 'bg-warning text-dark' : 'bg-primary' %> flex-shrink-0">
+                  <%= vendor.artist? ? 'Artist' : 'Business' %>
+                </span>
+              </div>
+
+              <% if vendor.hook_line.present? %>
+                <p class="text-muted small fst-italic mb-2">"<%= vendor.hook_line %>"</p>
+              <% end %>
+
+              <% if vendor.description.present? %>
+                <p class="card-text small text-muted mb-2">
+                  <%= truncate(vendor.description, length: 100) %>
+                </p>
+              <% end %>
+
+              <% vendor.categories.each do |cat| %>
+                <span class="badge bg-secondary me-1" style="font-size: 0.65rem;"><%= cat.name %></span>
+              <% end %>
+            </div>
+
+            <div class="card-footer bg-transparent">
+              <%= link_to 'View Profile', public_vendor_path(vendor), class: 'btn btn-sm btn-outline-primary' %>
+            </div>
+
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
 <% else %>
   <div class="text-center py-5 text-muted">
     <i class="bi bi-shop" style="font-size: 3rem;"></i>
