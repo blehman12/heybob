@@ -39,6 +39,10 @@ class Vendor::VendorEventsController < Vendor::BaseController
                          .order(Arel.sql("date_trunc('hour', opted_in_at)"))
                          .count
 
+    con_opt_ins = @vendor_event.event.con_opt_ins
+    @con_phone_count = con_opt_ins.where.not(phone: [nil, '']).count
+    @con_email_count = con_opt_ins.where.not(email: [nil, '']).count
+
     @reached_count = BroadcastReceipt
                        .joins(:broadcast)
                        .where(broadcasts: { vendor_event_id: @vendor_event.id })

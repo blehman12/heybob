@@ -19,35 +19,61 @@
   </p>
 
   <div class="vd-stats">
-    <div class="vd-stat">
-      <div class="vd-stat__num"><%= @vendor_event.opt_in_count %></div>
-      <div class="vd-stat__label">Opt-ins</div>
-      <% if @vendor_event.opt_in_count > 0 %>
+    <%# OPT-INS — links to contact export if anyone has opted in %>
+    <% if @vendor_event.opt_in_count > 0 %>
+      <a href="<%= export_contacts_vendor_vendor_event_path(@vendor_event) %>"
+         class="vd-stat vd-stat--link" title="Download contacts CSV">
+        <div class="vd-stat__num"><%= @vendor_event.opt_in_count %></div>
+        <div class="vd-stat__label">Opt-ins ↓</div>
         <div style="font-size:10px; color:#adb5bd; margin-top:5px; line-height:1.6;">
           📱&nbsp;<%= @phone_count %>&nbsp;·&nbsp;✉️&nbsp;<%= @email_count %>
         </div>
-      <% end %>
-    </div>
-    <div class="vd-stat">
-      <div class="vd-stat__num"><%= @vendor_event.broadcasts.sent.count %></div>
-      <div class="vd-stat__label">Sent</div>
-    </div>
-    <div class="vd-stat">
-      <div class="vd-stat__num">
-        <%= @vendor_event.event.con_opt_ins.count %>
+      </a>
+    <% else %>
+      <div class="vd-stat">
+        <div class="vd-stat__num">0</div>
+        <div class="vd-stat__label">Opt-ins</div>
       </div>
+    <% end %>
+
+    <%# SENT — scrolls to recent broadcasts %>
+    <% sent_count = @vendor_event.broadcasts.sent.count %>
+    <% if sent_count > 0 %>
+      <a href="#recent-broadcasts" class="vd-stat vd-stat--link" title="View recent broadcasts">
+        <div class="vd-stat__num"><%= sent_count %></div>
+        <div class="vd-stat__label">Sent ↓</div>
+      </a>
+    <% else %>
+      <div class="vd-stat">
+        <div class="vd-stat__num">0</div>
+        <div class="vd-stat__label">Sent</div>
+      </div>
+    <% end %>
+
+    <%# CON TOTAL — informational only %>
+    <div class="vd-stat">
+      <div class="vd-stat__num"><%= @vendor_event.event.con_opt_ins.count %></div>
       <div class="vd-stat__label">Con total</div>
     </div>
-    <div class="vd-stat">
-      <div class="vd-stat__num"><%= @reached_count %></div>
-      <div class="vd-stat__label">Reached</div>
-    </div>
+
+    <%# REACHED — scrolls to recent broadcasts %>
+    <% if @reached_count > 0 %>
+      <a href="#recent-broadcasts" class="vd-stat vd-stat--link" title="View delivery stats">
+        <div class="vd-stat__num"><%= @reached_count %></div>
+        <div class="vd-stat__label">Reached ↓</div>
+      </a>
+    <% else %>
+      <div class="vd-stat">
+        <div class="vd-stat__num">0</div>
+        <div class="vd-stat__label">Reached</div>
+      </div>
+    <% end %>
   </div>
 </div>
 
 <%# ── Opt-in timeline ── %>
 <% if @opt_in_timeline.any? %>
-  <p class="vd-section-label">
+  <p class="vd-section-label" id="opt-in-section">
     Opt-in Timeline
     <%= link_to '↓ Export contacts',
                 export_contacts_vendor_vendor_event_path(@vendor_event),
@@ -196,6 +222,16 @@
         </div>
       </div>
 
+      <%# Recipient preview — updates dynamically when scope changes %>
+      <div id="broadcast-recipient-preview"
+           style="margin: -4px 0 16px; padding: 10px 14px; background:#f8f5ff;
+                  border-radius:8px; font-size:13px; color:#5b21b6; line-height:1.5;"
+           data-booth-phone="<%= @phone_count %>"
+           data-booth-email="<%= @email_count %>"
+           data-con-phone="<%= @con_phone_count %>"
+           data-con-email="<%= @con_email_count %>">
+      </div>
+
       <%= f.hidden_field :channel, value: 'sms' %>
 
       <div class="vd-field">
@@ -254,7 +290,7 @@
 
 <%# ── Recent broadcasts ── %>
 <% if @recent_broadcasts.any? %>
-  <p class="vd-section-label">Recent Broadcasts</p>
+  <p class="vd-section-label" id="recent-broadcasts">Recent Broadcasts</p>
   <div class="vd-card">
     <% @recent_broadcasts.each do |broadcast| %>
       <div class="vd-broadcast-item">
@@ -283,22 +319,76 @@
   </div>
 <% end %>
 
-<%# ── Minimal Stimulus controller for char count ── %>
+<%# ── Inline JS: char counter + recipient preview + stat link styles ── %>
+<style>
+  .vd-stat--link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    border-radius: 12px;
+  }
+  .vd-stat--link:hover {
+    background: rgba(124, 58, 237, 0.06);
+    transform: translateY(-1px);
+    color: inherit;
+    text-decoration: none;
+  }
+  .vd-stat--link .vd-stat__label {
+    color: #7c3aed;
+  }
+</style>
 <script>
-  // Simple inline char counter — no Stimulus needed
   document.addEventListener('DOMContentLoaded', function() {
+    // ── Char counter ──
     const textarea = document.querySelector('[maxlength="160"]');
     const counter  = document.querySelector('.vd-char-counter');
-    if (!textarea || !counter) return;
-
-    function update() {
-      const len = textarea.value.length;
-      counter.textContent = len + ' / 160';
-      counter.classList.toggle('warning', len > 120);
-      counter.classList.toggle('danger',  len > 150);
+    if (textarea && counter) {
+      function updateCount() {
+        const len = textarea.value.length;
+        counter.textContent = len + ' / 160';
+        counter.classList.toggle('warning', len > 120);
+        counter.classList.toggle('danger',  len > 150);
+      }
+      textarea.addEventListener('input', updateCount);
+      updateCount();
     }
 
-    textarea.addEventListener('input', update);
-    update();
+    // ── Recipient preview ──
+    const preview = document.getElementById('broadcast-recipient-preview');
+    const radios  = document.querySelectorAll('input[name="broadcast[scope]"]');
+    if (!preview || !radios.length) return;
+
+    const boothPhone = parseInt(preview.dataset.boothPhone, 10);
+    const boothEmail = parseInt(preview.dataset.boothEmail, 10);
+    const conPhone   = parseInt(preview.dataset.conPhone,   10);
+    const conEmail   = parseInt(preview.dataset.conEmail,   10);
+
+    function renderPreview(scope) {
+      const phone = scope === 'entire_con' ? conPhone : boothPhone;
+      const email = scope === 'entire_con' ? conEmail : boothEmail;
+      const total = scope === 'entire_con' ? (conPhone + conEmail) : (boothPhone + boothEmail);
+
+      if (total === 0) {
+        preview.innerHTML = '<span style="color:#adb5bd;">No opt-ins yet — share your QR code to start collecting visitors.</span>';
+      } else {
+        const parts = [];
+        if (phone > 0) parts.push('📱 ' + phone + ' can receive SMS');
+        if (email > 0) parts.push('✉️ ' + email + ' email only');
+        preview.innerHTML = parts.join('&nbsp;&nbsp;·&nbsp;&nbsp;');
+      }
+    }
+
+    function getSelectedScope() {
+      const checked = document.querySelector('input[name="broadcast[scope]"]:checked');
+      return checked ? checked.value : 'booth_visitors';
+    }
+
+    radios.forEach(function(r) {
+      r.addEventListener('change', function() { renderPreview(r.value); });
+    });
+
+    renderPreview(getSelectedScope());
   });
 </script>
