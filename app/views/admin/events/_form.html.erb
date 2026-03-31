@@ -54,7 +54,13 @@
             <%= form.text_area :description, class: "form-control", rows: 3 %>
           </div>
 
-          <%# ── Hosted-only fields (venue, capacity, dates, RSVP) ── %>
+          <%# ── Event Date — always shown for all event types ── %>
+          <div class="mb-3">
+            <%= form.label :event_date, "Event Date", class: "form-label" %>
+            <%= form.datetime_local_field :event_date, class: "form-control", required: true %>
+          </div>
+
+          <%# ── Hosted-only fields (venue, capacity, RSVP deadline) ── %>
           <div id="hosted-fields">
             <div class="row">
               <div class="col-md-6 mb-3">
@@ -75,34 +81,22 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <%= form.label :event_date, "Event Date", class: "form-label" %>
-                <%= form.datetime_local_field :event_date, class: "form-control", required: true %>
-              </div>
-              <div class="col-md-6 mb-3">
                 <%= form.label :rsvp_deadline, "RSVP Deadline", class: "form-label" %>
                 <%= form.datetime_local_field :rsvp_deadline, class: "form-control" %>
               </div>
-            </div>
-
-            <div class="row">
               <div class="col-md-6 mb-3">
                 <%= form.label :start_time, class: "form-label" %>
                 <%= form.time_field :start_time, class: "form-control",
                     value: @event.start_time&.strftime("%H:%M") %>
               </div>
+            </div>
+
+            <div class="row">
               <div class="col-md-6 mb-3">
                 <%= form.label :end_time, class: "form-label" %>
                 <%= form.time_field :end_time, class: "form-control",
                     value: @event.end_time&.strftime("%H:%M") %>
               </div>
-            </div>
-          </div>
-
-          <%# ── Reference/participating: just need the date ── %>
-          <div id="reference-date-field" style="display:none;">
-            <div class="mb-3">
-              <%= form.label :event_date, "Event Date", class: "form-label" %>
-              <%= form.datetime_local_field :event_date, class: "form-control", required: true %>
             </div>
           </div>
 
