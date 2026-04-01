@@ -29,7 +29,7 @@
     <div class="qr-card__vendor-name"><%= @event.name %></div>
     <% if @event.description.present? %>
       <div class="qr-card__hook">
-        <%= truncate(@event.description.gsub(/<[^>]*>/, ''), length: 100, omission: '…') %>
+        <%= truncate(@event.description.to_s.gsub(/<[^>]*>/, '').squish, length: 100, omission: '…') %>
       </div>
     <% end %>
   </div>
@@ -57,8 +57,10 @@
         <% if @event.venue.present? %>
           <div style="font-size:14px; font-weight:600; color:#6c757d; margin-top:4px; font-family:'DM Sans',sans-serif;">
             <%= @event.venue.name %>
-            <% if @event.venue.city.present? %>
-              &middot; <%= @event.venue.city %><% if @event.venue.state.present? %>, <%= @event.venue.state %><% end %>
+            <% if @event.venue.address.present? %>
+              <div style="font-size:12px; font-weight:400; margin-top:2px;">
+                <%= @event.venue.address.split("\n").first %>
+              </div>
             <% end %>
           </div>
         <% end %>
