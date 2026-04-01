@@ -1,0 +1,102 @@
+<% content_for :title, "#{@event.name} — Event QR Code" %>
+
+<%# Screen toolbar — hidden when printing %>
+<div class="print-toolbar">
+  <%= link_to admin_event_path(@event) do %>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Back
+  <% end %>
+
+  <button class="print-btn" onclick="window.print()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 6 2 18 2 18 9"/>
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+      <rect x="6" y="14" width="12" height="8"/>
+    </svg>
+    Print
+  </button>
+</div>
+
+<%# Printable event QR card %>
+<div class="qr-card">
+
+  <%# Header — event name + tagline %>
+  <div class="qr-card__header" style="background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%);">
+    <div class="qr-card__vendor-name"><%= @event.name %></div>
+    <% if @event.description.present? %>
+      <div class="qr-card__hook">
+        <%= truncate(@event.description.gsub(/<[^>]*>/, ''), length: 100, omission: '…') %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="qr-card__body">
+
+    <%# Call to action %>
+    <div class="qr-card__cta">
+      <strong>You're invited!</strong>
+      Browse guests, vendors &amp; sponsors — or RSVP to save your spot.
+    </div>
+
+    <%# QR code — 480px for crisp printing %>
+    <img class="qr-card__qr"
+         src="https://api.qrserver.com/v1/create-qr-code/?size=480x480&margin=0&data=<%= CGI.escape(@event_url) %>"
+         alt="QR Code for <%= @event.name %>">
+
+    <div class="qr-card__url"><%= @event_url %></div>
+
+    <%# Date + venue block %>
+    <div class="qr-card__booth">
+      <div class="qr-card__booth-label">When &amp; Where</div>
+      <div class="qr-card__booth-value" style="font-size:18px; line-height:1.35;">
+        <%= @event.event_date.strftime('%B %-d, %Y') %>
+        <% if @event.venue.present? %>
+          <div style="font-size:14px; font-weight:600; color:#6c757d; margin-top:4px; font-family:'DM Sans',sans-serif;">
+            <%= @event.venue.name %>
+            <% if @event.venue.city.present? %>
+              &middot; <%= @event.venue.city %><% if @event.venue.state.present? %>, <%= @event.venue.state %><% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Feature badges — show what's available at this event %>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+      <% if @event.guests.any? %>
+        <span style="background:#f3f0ff; color:#7c3aed; font-size:12px; font-weight:600;
+                     padding:5px 12px; border-radius:20px;">
+          <%= @event.guests.count %> Guests
+        </span>
+      <% end %>
+      <% if @event.vendor_events.any? %>
+        <span style="background:#f3f0ff; color:#7c3aed; font-size:12px; font-weight:600;
+                     padding:5px 12px; border-radius:20px;">
+          <%= @event.vendor_events.count %> Vendors
+        </span>
+      <% end %>
+      <% if @event.sponsors.any? %>
+        <span style="background:#f3f0ff; color:#7c3aed; font-size:12px; font-weight:600;
+                     padding:5px 12px; border-radius:20px;">
+          <%= @event.sponsors.count %> Sponsors
+        </span>
+      <% end %>
+      <% if @event.rsvp_available? %>
+        <span style="background:#ecfdf5; color:#065f46; font-size:12px; font-weight:600;
+                     padding:5px 12px; border-radius:20px;">
+          RSVP Open
+        </span>
+      <% end %>
+    </div>
+
+    <%# Powered-by footer %>
+    <div style="font-size:11px; color:#dee2e6; margin-top:4px;">
+      Powered by HeyBob
+    </div>
+
+  </div>
+</div>

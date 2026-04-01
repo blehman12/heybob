@@ -141,6 +141,7 @@ resources :events do
     get :export_participants
     post :bulk_invite_participants
     get :cockpit
+    get :qr_code
     patch :update_status
     # Check-in management (routed to Admin::CheckinController)
     get  :checkin_dashboard,    controller: 'checkin'

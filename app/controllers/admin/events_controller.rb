@@ -2,7 +2,7 @@
 require 'csv'
 
 class Admin::EventsController < Admin::BaseController
-  before_action :set_event, only: [:show, :edit, :update, :destroy, :update_status, :participants, :add_participant, :export_participants, :bulk_invite, :cockpit]
+  before_action :set_event, only: [:show, :edit, :update, :destroy, :update_status, :participants, :add_participant, :export_participants, :bulk_invite, :cockpit, :qr_code]
   before_action :load_venues, only: [:new, :create, :edit, :update]
   before_action :load_users, only: [:new, :create, :edit, :update]
 
@@ -177,6 +177,11 @@ class Admin::EventsController < Admin::BaseController
                                   .where.not(sent_at: nil)
                                   .order(sent_at: :desc)
                                   .limit(10)
+  end
+
+  def qr_code
+    @event_url = public_event_url(@event.slug, host: request.base_url)
+    render layout: 'print'
   end
 
   private
