@@ -53,6 +53,21 @@
 
       <%# ── SMS opt-in — voluntary, unchecked by default ── %>
       <div class="sms-optin-section">
+        <%# Consent language always visible (TCPA / Twilio compliance) %>
+        <p class="fine-print sms-consent-text" style="margin-bottom:8px;">
+          Check the box below to receive SMS text message updates from
+          <strong><%= @vendor_event.vendor.name %></strong> during
+          <%= @vendor_event.event.name %>. Opt-in is voluntary and is not required
+          to enter or browse the event. Message frequency varies.
+          Message &amp; data rates may apply.
+          Reply <strong>STOP</strong> to cancel at any time,
+          <strong>HELP</strong> for help.
+          <%= link_to 'Privacy Policy', 'https://crplm.com/privacy-policy',
+                      target: '_blank', rel: 'noopener', style: 'color:inherit;' %> |
+          <%= link_to 'Terms', 'https://crplm.com/terms',
+                      target: '_blank', rel: 'noopener', style: 'color:inherit;' %>.
+        </p>
+
         <label class="sms-checkbox-label">
           <input type="checkbox"
                  name="sms_opt_in"
@@ -60,7 +75,7 @@
                  id="sms_opt_in_checkbox"
                  <%= 'checked' if @sms_opted_in %>
                  onchange="togglePhoneField(this.checked)">
-          <span>Text me updates from <strong><%= @vendor_event.vendor.name %></strong> during <%= @vendor_event.event.name %></span>
+          <span>Yes, text me updates from <strong><%= @vendor_event.vendor.name %></strong></span>
         </label>
 
         <div id="phone_field_group" style="display:<%= @sms_opted_in ? 'block' : 'none' %>;">
@@ -70,15 +85,6 @@
                           class: "field-input #{'is-invalid' if @con_opt_in.errors[:phone].any?}",
                           autocomplete: 'tel',
                           inputmode: 'tel' %>
-          <p class="fine-print sms-consent-text">
-            By checking this box you consent to receive SMS event updates from
-            <strong><%= @vendor_event.vendor.name %></strong> during
-            <%= @vendor_event.event.name %>. Opt-in is voluntary and not required to
-            browse this page. Message &amp; data rates may apply.
-            Reply <strong>STOP</strong> to opt out at any time, <strong>HELP</strong> for help.
-            <%= link_to 'Privacy Policy', 'https://crplm.com/privacy-policy',
-                        target: '_blank', rel: 'noopener', style: 'color:inherit;' %>.
-          </p>
         </div>
       </div>
 
