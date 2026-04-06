@@ -136,21 +136,38 @@
                 class: "form-control form-control-sm #{'is-invalid' if @follow&.errors&.[](:name)&.any?}",
                 required: true,
                 autocomplete: 'name' %>
-          <%= f.telephone_field :phone,
-                placeholder: 'Phone (SMS updates)',
-                class: 'form-control form-control-sm',
-                inputmode: 'tel',
-                autocomplete: 'tel' %>
-          <div class="text-center text-muted" style="font-size: 11px; margin: -2px 0;">or</div>
-          <%= f.email_field :email,
-                placeholder: 'Email',
-                class: 'form-control form-control-sm',
-                autocomplete: 'email' %>
-          <p class="text-muted mb-1" style="font-size: 10px;">
-            SMS is optional. Reply STOP to opt out anytime.
+
+          <%# SMS consent — standalone checkbox required for TCPA / Twilio compliance %>
+          <p class="text-muted mb-1" style="font-size: 11px; line-height: 1.4;">
+            By checking the box below you consent to receive SMS text message
+            updates from <strong><%= @vendor.name %></strong>.
+            Opt-in is voluntary and not required to follow this vendor.
+            Message frequency varies. Msg &amp; data rates may apply.
+            Reply <strong>STOP</strong> to cancel, <strong>HELP</strong> for help.
             <%= link_to 'Privacy Policy', 'https://crplm.com/privacy-policy',
                         target: '_blank', rel: 'noopener', class: 'text-muted' %>.
           </p>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="sms_consent_vendor"
+                   name="sms_opt_in" value="1"
+                   onchange="document.getElementById('vendor_phone_field').style.display=this.checked?'block':'none'">
+            <label class="form-check-label small" for="sms_consent_vendor">
+              Yes, text me updates from <strong><%= @vendor.name %></strong>
+            </label>
+          </div>
+          <div id="vendor_phone_field" style="display:none;">
+            <%= f.telephone_field :phone,
+                  placeholder: 'Mobile phone',
+                  class: 'form-control form-control-sm',
+                  inputmode: 'tel',
+                  autocomplete: 'tel' %>
+          </div>
+
+          <%= f.email_field :email,
+                placeholder: 'Email (optional)',
+                class: 'form-control form-control-sm',
+                autocomplete: 'email' %>
+
           <%= f.submit "Follow #{@vendor.name}",
                 class: 'btn btn-success btn-sm w-100' %>
         <% end %>
