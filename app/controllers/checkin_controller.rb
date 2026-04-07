@@ -1,6 +1,7 @@
 # Create app/controllers/checkin_controller.rb
 
 class CheckinController < ApplicationController
+  layout 'checkin'
   skip_before_action :authenticate_user!
 
   def index

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#1a56db">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title><%= content_for?(:title) ? yield(:title) : 'Check-in' %> — HeyBob</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", media: "all" %>
+  </head>
+  <body>
+
+    <%# Minimal header — branding only, no nav %>
+    <div style="background:#1a56db; padding:10px 20px; text-align:center;">
+      <span style="color:white; font-size:18px; font-weight:800; letter-spacing:-0.5px;">
+        Hey<span style="font-weight:300;">Bob</span>
+      </span>
+    </div>
+
+    <% if notice %>
+      <div class="alert alert-success m-3"><%= notice %></div>
+    <% end %>
+    <% if alert %>
+      <div class="alert alert-danger m-3"><%= alert %></div>
+    <% end %>
+
+    <%= yield %>
+
+  </body>
+</html>
