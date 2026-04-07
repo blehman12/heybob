@@ -21,6 +21,7 @@
       </h1>
     </div>
     <div class="col-md-4 text-end">
+      <%= link_to "📊 Analytics", analytics_vendor_vendor_path(@vendor), class: "btn btn-outline-secondary" %>
       <%= link_to "Edit Vendor", edit_admin_vendor_path(@vendor), class: "btn btn-primary" %>
       <%= link_to "Delete", admin_vendor_path(@vendor), method: :delete,
           data: { confirm: "Delete #{@vendor.name}? This cannot be undone." },

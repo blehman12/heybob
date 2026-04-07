@@ -15,10 +15,13 @@
   </div>
 </div>
 
-<%# Edit button %>
+<%# Edit + Analytics buttons %>
 <div style="display: flex; gap: 8px; margin-bottom: 28px;">
   <%= link_to edit_vendor_vendor_path(@vendor), class: 'vd-btn vd-btn--ghost vd-btn--sm' do %>
     Edit Profile
+  <% end %>
+  <%= link_to analytics_vendor_vendor_path(@vendor), class: 'vd-btn vd-btn--ghost vd-btn--sm' do %>
+    📊 Analytics
   <% end %>
 </div>
 

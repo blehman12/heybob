@@ -1,0 +1,176 @@
+<% content_for :title, "#{@vendor.name} — Analytics" %>
+<% content_for :back_link do %>
+  <%= link_to vendor_vendor_path(@vendor), class: 'vd-back' do %>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  <% end %>
+<% end %>
+
+<div style="padding-top: 16px; margin-bottom: 24px;">
+  <h2 style="font-size:20px; font-weight:700; margin-bottom:4px;"><%= @vendor.name %></h2>
+  <p style="font-size:13px; color:#6c757d;">All-time analytics across <%= @vendor_events.size %> <%= 'event'.pluralize(@vendor_events.size) %></p>
+</div>
+
+<%# ── Hero stat cards ── %>
+<p class="vd-section-label">All-Time Summary</p>
+<div class="vd-stats" style="margin-bottom: 28px;">
+
+  <div class="vd-stat">
+    <div class="vd-stat__num"><%= @total_opt_ins %></div>
+    <div class="vd-stat__label">Total opt-ins</div>
+    <% if @total_opt_ins > 0 %>
+      <div style="font-size:10px; color:#adb5bd; margin-top:5px; line-height:1.6;">
+        📱&nbsp;<%= @phone_count %>&nbsp;·&nbsp;✉️&nbsp;<%= @email_count %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="vd-stat">
+    <div class="vd-stat__num"><%= @vendor_events.size %></div>
+    <div class="vd-stat__label">Events attended</div>
+  </div>
+
+  <div class="vd-stat">
+    <div class="vd-stat__num"><%= @total_broadcasts %></div>
+    <div class="vd-stat__label">Broadcasts sent</div>
+  </div>
+
+  <div class="vd-stat">
+    <% if @delivery_rate %>
+      <div class="vd-stat__num"><%= @delivery_rate %>%</div>
+    <% else %>
+      <div class="vd-stat__num" style="font-size:20px; color:#adb5bd;">—</div>
+    <% end %>
+    <div class="vd-stat__label">Delivery rate</div>
+  </div>
+
+</div>
+
+<%# ── Opt-in channel split ── %>
+<% if @total_opt_ins > 0 %>
+  <p class="vd-section-label">Audience Reach</p>
+  <div class="vd-card" style="margin-bottom: 28px;">
+    <div class="vd-card__body">
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; text-align:center;">
+        <div>
+          <div style="font-size:24px; font-weight:700; color:#7c3aed;">📱 <%= @phone_count %></div>
+          <div style="font-size:12px; color:#6c757d; margin-top:4px;">SMS reachable</div>
+        </div>
+        <div>
+          <div style="font-size:24px; font-weight:700; color:#7c3aed;">✉️ <%= @email_count %></div>
+          <div style="font-size:12px; color:#6c757d; margin-top:4px;">Email reachable</div>
+        </div>
+        <div>
+          <div style="font-size:24px; font-weight:700; color:#7c3aed;">🔗 <%= @both_count %></div>
+          <div style="font-size:12px; color:#6c757d; margin-top:4px;">Both channels</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<%# ── Per-event breakdown ── %>
+<p class="vd-section-label">By Event</p>
+<% if @event_rows.any? %>
+  <div class="vd-card" style="margin-bottom: 28px;">
+    <div class="vd-card__body" style="padding:0; overflow-x:auto;">
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <thead>
+          <tr style="border-bottom:2px solid #e9ecef;">
+            <th style="text-align:left; padding:12px 16px; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:#adb5bd; font-weight:600;">Event</th>
+            <th style="text-align:center; padding:12px 16px; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:#adb5bd; font-weight:600;">Date</th>
+            <th style="text-align:center; padding:12px 16px; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:#adb5bd; font-weight:600;">Opt-ins</th>
+            <th style="text-align:center; padding:12px 16px; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:#adb5bd; font-weight:600;">Broadcasts</th>
+            <th style="text-align:center; padding:12px 16px; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:#adb5bd; font-weight:600;">Delivery</th>
+            <th style="padding:12px 16px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @event_rows.each_with_index do |row, i| %>
+            <tr style="border-bottom:<%= i < @event_rows.size - 1 ? '1px solid #e9ecef' : 'none' %>;">
+              <td style="padding:14px 16px; font-weight:600;">
+                <%= row[:event].name %>
+                <% if row[:vendor_event].booth_number.present? %>
+                  <span style="font-size:11px; color:#adb5bd; font-weight:400; margin-left:6px;">Booth <%= row[:vendor_event].booth_number %></span>
+                <% end %>
+              </td>
+              <td style="padding:14px 16px; text-align:center; color:#6c757d; white-space:nowrap;">
+                <%= row[:event].event_date&.strftime('%b %-d, %Y') %>
+              </td>
+              <td style="padding:14px 16px; text-align:center;">
+                <span style="font-size:18px; font-weight:700; color:<%= row[:opt_ins] > 0 ? '#7c3aed' : '#adb5bd' %>;">
+                  <%= row[:opt_ins] %>
+                </span>
+              </td>
+              <td style="padding:14px 16px; text-align:center; color:#495057;">
+                <%= row[:broadcasts] %>
+              </td>
+              <td style="padding:14px 16px; text-align:center;">
+                <% if row[:delivery_rate] %>
+                  <span style="color:<%= row[:delivery_rate] >= 90 ? '#28a745' : row[:delivery_rate] >= 70 ? '#fd7e14' : '#dc3545' %>; font-weight:600;">
+                    <%= row[:delivery_rate] %>%
+                  </span>
+                <% else %>
+                  <span style="color:#adb5bd;">—</span>
+                <% end %>
+              </td>
+              <td style="padding:14px 16px; text-align:right;">
+                <%= link_to vendor_vendor_event_path(row[:vendor_event]),
+                            style: 'font-size:12px; color:#7c3aed; text-decoration:none; white-space:nowrap;' do %>
+                  View →
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% else %>
+  <div class="vd-card" style="margin-bottom:28px;">
+    <div class="vd-card__body" style="color:#adb5bd; text-align:center; padding:32px;">
+      No events yet. Register for an event to start tracking.
+    </div>
+  </div>
+<% end %>
+
+<%# ── Recent broadcasts ── %>
+<% if @recent_broadcasts.any? %>
+  <p class="vd-section-label">Recent Broadcasts</p>
+  <div class="vd-card" style="margin-bottom: 28px;">
+    <% @recent_broadcasts.each_with_index do |broadcast, i| %>
+      <div class="vd-broadcast-item" style="<%= i < @recent_broadcasts.size - 1 ? 'border-bottom:1px solid #e9ecef;' : '' %>">
+        <div style="font-size:11px; color:#adb5bd; margin-bottom:4px;">
+          <%= broadcast.vendor_event.event.name %> · <%= broadcast.sent_at&.strftime('%b %-d, %Y %-I:%M %p') %>
+        </div>
+        <div class="vd-broadcast-item__message"><%= broadcast.message %></div>
+        <div class="vd-broadcast-item__meta">
+          <span><%= broadcast.recipient_count %> recipients</span>
+          <span class="vd-broadcast-item__scope"><%= broadcast.entire_con? ? 'Whole con' : 'My visitors' %></span>
+          <% delivered = broadcast.broadcast_receipts.select(&:delivered?).size %>
+          <% failed    = broadcast.broadcast_receipts.select(&:failed?).size %>
+          <% if broadcast.recipient_count.to_i > 0 %>
+            <span style="color:#28a745; font-weight:600;">✓&nbsp;<%= delivered %></span>
+            <% if failed > 0 %>
+              <span style="color:#ff7a92; font-weight:600;">✗&nbsp;<%= failed %></span>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<%# ── Foot traffic placeholder ── %>
+<p class="vd-section-label">Foot Traffic</p>
+<div class="vd-card" style="margin-bottom: 28px; border: 1px dashed #dee2e6;">
+  <div class="vd-card__body" style="text-align:center; padding: 32px 24px;">
+    <div style="font-size:32px; margin-bottom:12px;">📡</div>
+    <div style="font-weight:700; font-size:15px; margin-bottom:6px; color:#495057;">Booth Traffic Analytics</div>
+    <div style="font-size:13px; color:#adb5bd; line-height:1.6; max-width:280px; margin:0 auto;">
+      Coming soon — see how many people walked past your booth, peak hours, and your opt-in conversion rate.
+    </div>
+  </div>
+</div>
