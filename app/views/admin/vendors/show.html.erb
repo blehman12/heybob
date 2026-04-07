@@ -93,11 +93,16 @@
                     <td><span class="badge bg-secondary"><%= ve.category&.humanize || '—' %></span></td>
                     <td><%= ve.booth_number.presence || '—' %></td>
                     <td><%= ve.hall.presence || '—' %></td>
-                    <td>
+                    <td class="d-flex gap-1">
                       <%= link_to vendor_vendor_event_path(ve),
                             class: 'btn btn-sm btn-outline-success',
                             title: 'View QR code & opt-in page' do %>
                         <i class="bi bi-qr-code"></i> QR
+                      <% end %>
+                      <%= link_to edit_vendor_vendor_event_path(ve),
+                            class: 'btn btn-sm btn-outline-secondary',
+                            title: 'Edit booth assignment' do %>
+                        <i class="bi bi-pencil"></i> Edit
                       <% end %>
                     </td>
                   </tr>
