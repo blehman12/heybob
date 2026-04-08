@@ -54,7 +54,7 @@
             <%= form.text_area :description, class: "form-control", rows: 3 %>
           </div>
 
-          <%# ── Event Date / End Date ── %>
+          <%# ── Dates ── %>
           <div class="row">
             <div class="col-md-6 mb-3">
               <%= form.label :event_date, "Start Date", class: "form-label" %>
@@ -68,8 +68,33 @@
             </div>
           </div>
 
+          <%# ── Times ── %>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <%= form.label :start_time, "Start Time", class: "form-label" %>
+              <%= form.time_field :start_time, class: "form-control",
+                  value: @event.start_time&.strftime("%H:%M") %>
+            </div>
+            <div class="col-md-6 mb-3">
+              <%= form.label :end_time, "End Time", class: "form-label" %>
+              <%= form.time_field :end_time, class: "form-control",
+                  value: @event.end_time&.strftime("%H:%M") %>
+            </div>
+          </div>
+
           <%# ── Hosted-only fields (venue, capacity, RSVP deadline) ── %>
           <div id="hosted-fields">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <%= form.label :rsvp_deadline, "RSVP Deadline", class: "form-label" %>
+                <%= form.datetime_local_field :rsvp_deadline, class: "form-control" %>
+              </div>
+              <div class="col-md-6 mb-3">
+                <%= form.label :max_attendees, class: "form-label" %>
+                <%= form.number_field :max_attendees, class: "form-control", min: 1 %>
+              </div>
+            </div>
+
             <div class="row">
               <div class="col-md-6 mb-3">
                 <%= form.label :venue_id, "Venue", class: "form-label" %>
@@ -80,30 +105,6 @@
                     + New
                   </button>
                 </div>
-              </div>
-              <div class="col-md-6 mb-3">
-                <%= form.label :max_attendees, class: "form-label" %>
-                <%= form.number_field :max_attendees, class: "form-control", min: 1 %>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <%= form.label :rsvp_deadline, "RSVP Deadline", class: "form-label" %>
-                <%= form.datetime_local_field :rsvp_deadline, class: "form-control" %>
-              </div>
-              <div class="col-md-6 mb-3">
-                <%= form.label :start_time, class: "form-label" %>
-                <%= form.time_field :start_time, class: "form-control",
-                    value: @event.start_time&.strftime("%H:%M") %>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <%= form.label :end_time, class: "form-label" %>
-                <%= form.time_field :end_time, class: "form-control",
-                    value: @event.end_time&.strftime("%H:%M") %>
               </div>
             </div>
           </div>
