@@ -15,13 +15,22 @@ class Admin::VendorsController < Admin::BaseController
   end
 
   def create
-    owner = find_or_create_owner(vendor_params[:owner_email])
+    owner_email = vendor_params[:owner_email]
+    owner, owner_error = find_or_create_owner(owner_email)
+
+    if owner_error
+      @vendor = Vendor.new(vendor_params.except(:owner_email))
+      flash.now[:alert] = owner_error
+      render :new, status: :unprocessable_entity
+      return
+    end
+
     @vendor = Vendor.new(vendor_params.except(:owner_email))
     @vendor.user = owner if owner
     if @vendor.save
       redirect_to admin_vendor_path(@vendor), notice: 'Vendor created.'
     else
-      render :new
+      render :new, status: :unprocessable_entity
     end
   end
 
@@ -130,15 +139,28 @@ class Admin::VendorsController < Admin::BaseController
                                    :tiktok_handle, :hero_image)
   end
 
+  # Returns [user_or_nil, error_string_or_nil]
   def find_or_create_owner(email)
-    return nil if email.blank?
-    User.find_or_create_by!(email: email.downcase) do |u|
-      u.first_name = 'Vendor'
-      u.last_name  = 'Owner'
-      u.phone      = '000-000-0000'
-      u.company    = 'Vendor'
-      u.password   = SecureRandom.hex(12)
-      u.role       = :vendor_admin
+    return [nil, nil] if email.blank?
+
+    existing = User.find_by(email: email.downcase)
+    return [existing, nil] if existing
+
+    # Email not found — auto-create a vendor_admin placeholder account
+    new_user = User.new(
+      email:      email.downcase,
+      first_name: 'Vendor',
+      last_name:  'Owner',
+      phone:      '0000000000',
+      company:    'TBD',
+      password:   SecureRandom.hex(12),
+      role:       :vendor_admin
+    )
+
+    if new_user.save
+      [new_user, nil]
+    else
+      [nil, "Could not create owner account for #{email}: #{new_user.errors.full_messages.to_sentence}"]
     end
   end
 

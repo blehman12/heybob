@@ -25,9 +25,9 @@
 
     <% if @vendor_event.vendor.hook_line.present? %>
       <div class="welcome-card">
-        <span class="welcome-card__icon">🎁</span>
+        <span class="welcome-card__icon">💬</span>
         <div class="welcome-card__text">
-          <strong>Your reward</strong>
+          <strong>From <%= @vendor_event.vendor.name %></strong>
           <%= @vendor_event.vendor.hook_line %>
         </div>
       </div>
