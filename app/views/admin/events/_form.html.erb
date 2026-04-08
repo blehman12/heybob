@@ -3,6 +3,21 @@
     <div class="card">
       <div class="card-body">
         <%= form_with(model: [:admin, @event], local: true) do |form| %>
+          <%# ── Context-aware defaults notice (new events only) ── %>
+          <% if @event.new_record? && defined?(@defaults_source) && @defaults_source.present? %>
+            <div class="alert alert-info d-flex align-items-start gap-2 py-2 px-3 mb-3"
+                 id="defaults-hint" style="font-size:.875rem;">
+              <span style="font-size:1.1rem; line-height:1.5;">✨</span>
+              <div class="flex-grow-1">
+                <strong>Pre-filled from your recent events.</strong>
+                Venue, capacity, times, and RSVP setting are suggested based on your history.
+                Change anything that doesn't apply.
+              </div>
+              <button type="button" class="btn-close btn-close-sm ms-2" style="font-size:.7rem;"
+                      onclick="document.getElementById('defaults-hint').remove()"></button>
+            </div>
+          <% end %>
+
           <% if @event.errors.any? %>
             <div class="alert alert-danger">
               <h4><%= pluralize(@event.errors.count, "error") %> prohibited this event from being saved:</h4>

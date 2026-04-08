@@ -35,6 +35,7 @@ class Admin::EventsController < Admin::BaseController
 
   def new
     @event = Event.new
+    @defaults_source = apply_event_defaults(@event)
   end
 
   def create
@@ -226,5 +227,54 @@ class Admin::EventsController < Admin::BaseController
     )
     p[:category_ids]&.reject!(&:blank?)
     p
+  end
+
+  # Pre-populate a new event with smart defaults from the creator's recent events.
+  # Returns the source event name (string) if defaults were applied, nil otherwise.
+  def apply_event_defaults(event)
+    recent = Event.where(creator: current_user)
+                  .where.not(event_date: nil)
+                  .order(event_date: :desc)
+                  .limit(5)
+                  .to_a
+
+    return nil if recent.empty?
+
+    # event_type: most common among recent events
+    event.event_type = recent.group_by(&:event_type)
+                             .max_by { |_, v| v.size }
+                             .first
+
+    # venue: most recently used
+    last_with_venue = recent.find { |e| e.venue_id.present? }
+    event.venue_id = last_with_venue&.venue_id
+
+    # max_attendees: average of recent events that have it, rounded to nearest 10
+    attendee_counts = recent.map(&:max_attendees).compact
+    if attendee_counts.any?
+      avg = attendee_counts.sum.to_f / attendee_counts.size
+      event.max_attendees = [(avg / 10.0).round * 10, 10].max
+    end
+
+    # start_time: most common hour:minute across recent events
+    start_times = recent.map(&:start_time).compact
+    if start_times.any?
+      event.start_time = start_times.group_by { |t| t.strftime('%H:%M') }
+                                    .max_by { |_, v| v.size }
+                                    .last.first
+    end
+
+    # end_time: most common
+    end_times = recent.map(&:end_time).compact
+    if end_times.any?
+      event.end_time = end_times.group_by { |t| t.strftime('%H:%M') }
+                                .max_by { |_, v| v.size }
+                                .last.first
+    end
+
+    # public_rsvp_enabled: true if majority of recent events had it on
+    event.public_rsvp_enabled = recent.count(&:public_rsvp_enabled?) > recent.size / 2
+
+    recent.first.name
   end
 end
