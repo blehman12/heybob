@@ -27,7 +27,7 @@
               <div class="card-body text-start">
                 <% if @event.event_date %>
                   <p class="mb-2">
-                    <strong>Date:</strong> <%= @event.event_date.strftime('%A, %B %d, %Y') %>
+                    <strong>Date:</strong> <%= @event.display_date_range %>
                   </p>
                 <% end %>
                 

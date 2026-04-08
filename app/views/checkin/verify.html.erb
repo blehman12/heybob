@@ -32,7 +32,7 @@
             <div class="alert alert-info mt-3">
               <strong>Event Details:</strong><br>
               <% if @event.event_date %>
-                Date: <%= @event.event_date.strftime("%A, %B %d, %Y") %><br>
+                Date: <%= @event.display_date_range %><br>
               <% end %>
               <% if @event.start_time %>
                 Time: <%= @event.start_time.strftime("%I:%M %p") %><br>
@@ -58,7 +58,7 @@
             <div class="alert alert-info">
               <strong>Event Details:</strong><br>
               <% if @event.event_date %>
-                Date: <%= @event.event_date.strftime("%A, %B %d, %Y") %><br>
+                Date: <%= @event.display_date_range %><br>
               <% end %>
               <% if @event.start_time %>
                 Time: <%= @event.start_time.strftime("%I:%M %p") %><br>

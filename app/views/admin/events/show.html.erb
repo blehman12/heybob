@@ -53,7 +53,10 @@
           <div class="row mb-3">
             <div class="col-md-6">
               <p><strong>Date:</strong><br>
-                <%= @event.event_date&.strftime("%A, %B %d, %Y") || 'Not set' %>
+                <%= @event.display_date_range %>
+                <% if @event.multi_day? %>
+                  <small class="text-muted d-block">Starts <%= @event.event_date.strftime("%A, %B %-d") %></small>
+                <% end %>
               </p>
             </div>
             <div class="col-md-6">

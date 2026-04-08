@@ -41,7 +41,7 @@
                 <td>
                   <%= link_to event.name, admin_event_path(event), class: "fw-bold text-decoration-none" %>
                 </td>
-                <td><%= event.event_date&.strftime("%b %d, %Y") %></td>
+                <td><%= event.display_date_range(format: :short) %></td>
                 <td>
                   <span class="badge <%= lifecycle_status_badge_class(event) %>">
                     <%= event.lifecycle_status.humanize %>

@@ -214,6 +214,7 @@ class Admin::EventsController < Admin::BaseController
       :external_url,
       :venue_id,
       :event_date,
+      :end_date,
       :start_time,
       :end_time,
       :max_attendees,

@@ -54,10 +54,18 @@
             <%= form.text_area :description, class: "form-control", rows: 3 %>
           </div>
 
-          <%# ── Event Date — always shown for all event types ── %>
-          <div class="mb-3">
-            <%= form.label :event_date, "Event Date", class: "form-label" %>
-            <%= form.datetime_local_field :event_date, class: "form-control", required: true %>
+          <%# ── Event Date / End Date ── %>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <%= form.label :event_date, "Start Date", class: "form-label" %>
+              <%= form.datetime_local_field :event_date, class: "form-control", required: true %>
+            </div>
+            <div class="col-md-6 mb-3">
+              <%= form.label :end_date, class: "form-label" do %>
+                End Date <small class="text-muted fw-normal">(optional — for multi-day events)</small>
+              <% end %>
+              <%= form.datetime_local_field :end_date, class: "form-control" %>
+            </div>
           </div>
 
           <%# ── Hosted-only fields (venue, capacity, RSVP deadline) ── %>

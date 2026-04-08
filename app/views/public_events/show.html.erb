@@ -19,7 +19,7 @@
             <div class="col-md-6">
               <p class="mb-2">
                 <i class="bi bi-calendar-event text-primary"></i>
-                <strong>Date:</strong> <%= @event.event_date.strftime('%A, %B %d, %Y') %>
+                <strong>Date:</strong> <%= @event.display_date_range %>
               </p>
               <% if @event.start_time.present? %>
                 <p class="mb-2">

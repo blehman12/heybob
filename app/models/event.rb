@@ -34,9 +34,9 @@ class Event < ApplicationRecord
   validates :slug, uniqueness: true, allow_nil: true
   validate :rsvp_deadline_before_event_date
 
-  # Scopes
-  scope :upcoming, -> { where('event_date > ?', Time.current) }
-  scope :past, -> { where('event_date < ?', Time.current) }
+  # Scopes — use end_date if present so multi-day events stay "upcoming" through last day
+  scope :upcoming, -> { where('COALESCE(end_date, event_date) >= ?', Time.current.beginning_of_day) }
+  scope :past,     -> { where('COALESCE(end_date, event_date) < ?',  Time.current.beginning_of_day) }
   scope :public_rsvp, -> { where(public_rsvp_enabled: true) }
   scope :publicly_visible, -> { where(lifecycle_status: :published) }
 
@@ -80,6 +80,28 @@ class Event < ApplicationRecord
     end
   end
 
+  def multi_day?
+    end_date.present? && end_date.to_date != event_date.to_date
+  end
+
+  def display_date_range(format: :long)
+    return event_date&.strftime('%B %-d, %Y') unless end_date.present?
+
+    if format == :short
+      start_fmt = '%b %-d'
+      end_fmt   = end_date.month == event_date.month ? '%-d, %Y' : '%b %-d, %Y'
+    else
+      start_fmt = '%B %-d'
+      end_fmt   = end_date.month == event_date.month ? '%-d, %Y' : '%B %-d, %Y'
+    end
+
+    if end_date.year != event_date.year
+      "#{event_date.strftime('%B %-d, %Y')} – #{end_date.strftime('%B %-d, %Y')}"
+    else
+      "#{event_date.strftime(start_fmt)}–#{end_date.strftime(end_fmt)}"
+    end
+  end
+
   def public_url
     return nil unless slug.present?
     host = ENV.fetch('APP_HOST', 'localhost:3000')
@@ -95,9 +117,18 @@ class Event < ApplicationRecord
 
   def rsvp_deadline_before_event_date
     return unless rsvp_deadline && event_date
-    
-    if rsvp_deadline >= event_date
-      errors.add(:rsvp_deadline, "must be before event date")
+
+    last_day = end_date || event_date
+    if end_date.present?
+      # Multi-day: deadline can fall during the event but not after
+      if rsvp_deadline > end_date
+        errors.add(:rsvp_deadline, "must be on or before the last day of the event")
+      end
+    else
+      # Single-day: deadline must be before event start
+      if rsvp_deadline >= event_date
+        errors.add(:rsvp_deadline, "must be before event date")
+      end
     end
   end
 
