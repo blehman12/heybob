@@ -1,0 +1,112 @@
+<% content_for :title, "SMS Opt-In Demo — HeyBob" %>
+
+<div class="optin-screen">
+
+  <%# ── Hero ── %>
+  <div class="optin-hero optin-hero--placeholder">
+    <div class="placeholder-icon">🎉</div>
+    <div class="con-badge">HeyBob Convention 2026</div>
+  </div>
+
+  <%# ── Card ── %>
+  <div class="optin-card">
+
+    <div>
+      <h1 class="vendor-name">HeyBob Demo Vendor</h1>
+      <p class="optin-headline">Follow us for updates during the event!</p>
+      <p class="hook-line">Get booth announcements, flash sales, and exclusive drops sent right to your phone.</p>
+    </div>
+
+    <%# ── Demo notice ── %>
+    <div style="background:#fff3cd; border:1px solid #ffc107; border-radius:8px; padding:10px 14px; margin-bottom:16px; font-size:.8rem; color:#856404;">
+      <strong>Demonstration page</strong> — This page shows the opt-in flow used at vendor booths.
+      It is provided for carrier/Twilio compliance review and does not submit data.
+    </div>
+
+    <%# ── Form (demo — no POST action) ── %>
+    <div class="optin-form">
+
+      <div class="field-group">
+        <label class="field-label">Your Name</label>
+        <input type="text" class="field-input" placeholder="First name is fine" autocomplete="name">
+      </div>
+
+      <%# ── SMS opt-in block ── %>
+      <div class="sms-optin-section">
+        <%# Consent language always visible above checkbox (TCPA / Twilio compliance) %>
+        <p class="fine-print sms-consent-text" style="margin-bottom:8px;">
+          Check the box below to receive SMS text message updates from
+          <strong>HeyBob Demo Vendor</strong> during HeyBob Convention 2026.
+          Opt-in is voluntary and is not required to enter or browse the event.
+          Message frequency varies. Message &amp; data rates may apply.
+          Reply <strong>STOP</strong> to cancel at any time,
+          <strong>HELP</strong> for help.
+          <%= link_to 'Privacy Policy', 'https://crplm.com/privacy-policy',
+                      target: '_blank', rel: 'noopener', style: 'color:inherit;' %> |
+          <%= link_to 'Terms', 'https://crplm.com/terms',
+                      target: '_blank', rel: 'noopener', style: 'color:inherit;' %>.
+        </p>
+
+        <label class="sms-checkbox-label">
+          <input type="checkbox" id="demo_sms_opt_in" value="1"
+                 onchange="toggleDemoPhone(this.checked)">
+          <span>Yes, text me updates from <strong>HeyBob Demo Vendor</strong></span>
+        </label>
+
+        <div id="demo_phone_field_group" style="display:none;">
+          <label class="field-label">Mobile Phone</label>
+          <input type="tel" class="field-input" placeholder="(503) 555-0100"
+                 autocomplete="tel" inputmode="tel">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Email (optional)</label>
+        <input type="email" class="field-input" placeholder="you@example.com"
+               autocomplete="email" inputmode="email">
+        <small class="fine-print" style="text-align:left; margin-top:2px;">
+          For event news by email instead of text
+        </small>
+      </div>
+
+      <button type="button" class="btn-cta" onclick="showDemoConfirm()">Count Me In</button>
+
+    </div>
+
+    <p style="text-align:center; margin-top:4px;">
+      <a href="#" class="skip-link" onclick="return false;">No thanks &mdash; just browse the event &rarr;</a>
+    </p>
+
+  </div>
+</div>
+
+<%# ── Demo submitted confirmation overlay ── %>
+<div id="demo-confirm" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55);
+     display:none; align-items:center; justify-content:center; z-index:9999;">
+  <div style="background:#fff; border-radius:16px; padding:32px 28px; max-width:320px;
+              text-align:center; box-shadow:0 8px 32px rgba(0,0,0,.2);">
+    <div style="font-size:2.5rem; margin-bottom:12px;">✅</div>
+    <h2 style="font-size:1.2rem; font-weight:700; margin-bottom:8px;">You're in!</h2>
+    <p style="font-size:.9rem; color:#555; margin-bottom:20px;">
+      In the live app, you'd receive a confirmation text and be redirected to the event feed.
+      This is a compliance demonstration page — no data was submitted.
+    </p>
+    <button onclick="hideDemoConfirm()"
+            style="background:#1a56db; color:#fff; border:none; border-radius:8px;
+                   padding:10px 24px; font-size:.95rem; cursor:pointer; font-weight:600;">
+      Got it
+    </button>
+  </div>
+</div>
+
+<script>
+  function toggleDemoPhone(show) {
+    document.getElementById('demo_phone_field_group').style.display = show ? 'block' : 'none';
+  }
+  function showDemoConfirm() {
+    document.getElementById('demo-confirm').style.display = 'flex';
+  }
+  function hideDemoConfirm() {
+    document.getElementById('demo-confirm').style.display = 'none';
+  }
+</script>

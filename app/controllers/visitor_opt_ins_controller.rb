@@ -4,6 +4,11 @@ class VisitorOptInsController < ApplicationController
   before_action :find_vendor_event, only: [:show, :create, :welcome]
   before_action :find_event_for_feed, only: [:feed]
 
+  # GET /opt-in-demo — static demonstration page for Twilio toll-free verification
+  def demo
+    # No database records needed — pure demo
+  end
+
   # GET /join/:qr_token
   # Vendor-branded opt-in landing page
   def show

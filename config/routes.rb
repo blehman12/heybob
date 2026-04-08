@@ -40,6 +40,7 @@ Rails.application.routes.draw do
   post '/join/:qr_token',         to: 'visitor_opt_ins#create'
   get  '/join/:qr_token/welcome', to: 'visitor_opt_ins#welcome', as: 'vendor_optin_welcome'
   get  '/feed/:event_slug',       to: 'visitor_opt_ins#feed',    as: 'event_feed'
+  get  '/opt-in-demo',            to: 'visitor_opt_ins#demo',    as: 'opt_in_demo'
 
   # General interest / waitlist signup (no authentication required)
   get  '/interest',       to: 'interest_signups#new',       as: 'interest_signup'
