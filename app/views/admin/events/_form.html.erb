@@ -246,7 +246,6 @@ document.addEventListener('turbo:load', initEventForm);
 function initEventForm() {
   const typeRadios    = document.querySelectorAll('input[name="event[event_type]"]');
   const hostedFields  = document.getElementById('hosted-fields');
-  const refDateField  = document.getElementById('reference-date-field');
   const extUrlSection = document.getElementById('external-url-section');
   const typeHint      = document.getElementById('event-type-hint');
   const container     = document.getElementById('custom-questions-container');
@@ -263,7 +262,6 @@ function initEventForm() {
     const isExternal  = type === 'participating' || type === 'reference';
 
     hostedFields.style.display   = isHosted   ? 'block' : 'none';
-    refDateField.style.display   = isExternal ? 'block' : 'none';
     extUrlSection.style.display  = isExternal ? 'block' : 'none';
     if (typeHint) typeHint.textContent = hints[type] || '';
   }
