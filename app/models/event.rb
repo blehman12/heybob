@@ -35,8 +35,8 @@ class Event < ApplicationRecord
   validate :rsvp_deadline_before_event_date
 
   # Scopes — use end_date if present so multi-day events stay "upcoming" through last day
-  scope :upcoming, -> { where('COALESCE(end_date, event_date) >= ?', Time.current.beginning_of_day) }
-  scope :past,     -> { where('COALESCE(end_date, event_date) < ?',  Time.current.beginning_of_day) }
+  scope :upcoming, -> { where('COALESCE(end_date, event_date) >= ?', Date.current) }
+  scope :past,     -> { where('COALESCE(end_date, event_date) < ?',  Date.current) }
   scope :public_rsvp, -> { where(public_rsvp_enabled: true) }
   scope :publicly_visible, -> { where(lifecycle_status: :published) }
 
@@ -118,16 +118,15 @@ class Event < ApplicationRecord
   def rsvp_deadline_before_event_date
     return unless rsvp_deadline && event_date
 
-    last_day = end_date || event_date
     if end_date.present?
-      # Multi-day: deadline can fall during the event but not after
-      if rsvp_deadline > end_date
-        errors.add(:rsvp_deadline, "must be on or before the last day of the event")
+      # Multi-day: deadline can fall during the event but not after the last day
+      if rsvp_deadline.to_date > end_date
+        errors.add(:rsvp_deadline, "must be on or before the last day of the event (#{end_date.strftime('%B %-d')})")
       end
     else
-      # Single-day: deadline must be before event start
-      if rsvp_deadline >= event_date
-        errors.add(:rsvp_deadline, "must be before event date")
+      # Single-day: deadline must be before event date
+      if rsvp_deadline.to_date >= event_date
+        errors.add(:rsvp_deadline, "must be before the event date")
       end
     end
   end

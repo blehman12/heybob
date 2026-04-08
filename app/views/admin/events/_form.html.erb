@@ -58,13 +58,13 @@
           <div class="row">
             <div class="col-md-6 mb-3">
               <%= form.label :event_date, "Start Date", class: "form-label" %>
-              <%= form.datetime_local_field :event_date, class: "form-control", required: true %>
+              <%= form.date_field :event_date, class: "form-control", required: true %>
             </div>
             <div class="col-md-6 mb-3">
               <%= form.label :end_date, class: "form-label" do %>
-                End Date <small class="text-muted fw-normal">(optional — for multi-day events)</small>
+                End Date <small class="text-muted fw-normal">(optional — multi-day events)</small>
               <% end %>
-              <%= form.datetime_local_field :end_date, class: "form-control" %>
+              <%= form.date_field :end_date, class: "form-control" %>
             </div>
           </div>
 
