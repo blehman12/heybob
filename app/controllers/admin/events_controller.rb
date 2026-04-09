@@ -36,8 +36,9 @@ class Admin::EventsController < Admin::BaseController
   def new
     @event = Event.new
     result = apply_event_defaults(@event)
-    @defaults_source  = result[:name]
-    @suggested_fields = result[:fields]
+    @defaults_source        = result[:name]
+    @suggested_fields       = result[:fields]
+    @suggested_category_ids = result[:category_ids]
   end
 
   def create
@@ -288,6 +289,16 @@ class Admin::EventsController < Admin::BaseController
     event.public_rsvp_enabled = recent.count(&:public_rsvp_enabled?) > recent.size / 2
     fields << :public_rsvp_enabled
 
-    { name: recent.first.name, fields: fields }
+    # categories: any category appearing in 2+ of the last 5 events
+    all_cat_ids = recent.flat_map(&:category_ids)
+    freq = all_cat_ids.tally
+    suggested_cat_ids = freq.select { |_, count| count >= 2 }.keys
+
+    if suggested_cat_ids.any?
+      event.category_ids = suggested_cat_ids
+      fields << :category_ids
+    end
+
+    { name: recent.first.name, fields: fields, category_ids: suggested_cat_ids }
   end
 end
