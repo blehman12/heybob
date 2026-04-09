@@ -3,14 +3,26 @@
     <div class="card">
       <div class="card-body">
         <%= form_with(model: [:admin, @event], local: true) do |form| %>
+          <%# ── Context-aware defaults setup ── %>
+          <% suggested = defined?(@suggested_fields) ? (@suggested_fields || Set.new) : Set.new %>
+          <% has_suggestions = @event.new_record? && suggested.any? %>
+
+          <%# Badge helper — inline lambda so it's available throughout the form %>
+          <% sbadge = ->(field) { suggested.include?(field) ?
+              '<span class="badge ms-2" style="background:#cff4fc;color:#055160;font-size:.65rem;font-weight:600;vertical-align:middle;border-radius:4px;">✨ suggested</span>'.html_safe
+              : ''.html_safe } %>
+
           <%# ── Context-aware defaults notice (new events only) ── %>
-          <% if @event.new_record? && defined?(@defaults_source) && @defaults_source.present? %>
+          <% if has_suggestions %>
+            <%  field_labels = { event_type: 'Event type', venue_id: 'Venue',
+                                 max_attendees: 'Max attendees', start_time: 'Start time',
+                                 end_time: 'End time', public_rsvp_enabled: 'Public RSVP' }
+                filled = suggested.map { |f| field_labels[f] }.compact.join(', ') %>
             <div class="alert alert-info d-flex align-items-start gap-2 py-2 px-3 mb-3"
                  id="defaults-hint" style="font-size:.875rem;">
               <span style="font-size:1.1rem; line-height:1.5;">✨</span>
               <div class="flex-grow-1">
-                <strong>Pre-filled from your recent events.</strong>
-                Venue, capacity, times, and RSVP setting are suggested based on your history.
+                <strong>Fields pre-filled from your recent events:</strong> <%= filled %>.
                 Change anything that doesn't apply.
               </div>
               <button type="button" class="btn-close btn-close-sm ms-2" style="font-size:.7rem;"
@@ -36,7 +48,7 @@
 
           <%# ── Event Type ── %>
           <div class="mb-3">
-            <%= form.label :event_type, "Event Type", class: "form-label fw-bold" %>
+            <%= form.label :event_type, "Event Type", class: "form-label fw-bold" %><%= sbadge.(:event_type) %>
             <div class="btn-group w-100" role="group" id="event-type-group">
               <% [['hosted', '🏠 Hosted', 'We run this event'], ['participating', '🤝 Participating', "We have a presence (booth/speaker)"], ['reference', '🔗 Reference', 'External event, awareness only']].each do |val, label, hint| %>
                 <%= form.radio_button :event_type, val, class: 'btn-check', id: "event_type_#{val}" %>
@@ -86,13 +98,13 @@
           <%# ── Times ── %>
           <div class="row">
             <div class="col-md-6 mb-3">
-              <%= form.label :start_time, "Start Time", class: "form-label" %>
-              <%= form.time_field :start_time, class: "form-control",
+              <%= form.label :start_time, "Start Time", class: "form-label" %><%= sbadge.(:start_time) %>
+              <%= form.time_field :start_time, class: "form-control #{'border-info border-2' if suggested.include?(:start_time)}",
                   value: @event.start_time&.strftime("%H:%M") %>
             </div>
             <div class="col-md-6 mb-3">
-              <%= form.label :end_time, "End Time", class: "form-label" %>
-              <%= form.time_field :end_time, class: "form-control",
+              <%= form.label :end_time, "End Time", class: "form-label" %><%= sbadge.(:end_time) %>
+              <%= form.time_field :end_time, class: "form-control #{'border-info border-2' if suggested.include?(:end_time)}",
                   value: @event.end_time&.strftime("%H:%M") %>
             </div>
           </div>
@@ -105,17 +117,17 @@
                 <%= form.datetime_local_field :rsvp_deadline, class: "form-control" %>
               </div>
               <div class="col-md-6 mb-3">
-                <%= form.label :max_attendees, class: "form-label" %>
-                <%= form.number_field :max_attendees, class: "form-control", min: 1 %>
+                <%= form.label :max_attendees, class: "form-label" %><%= sbadge.(:max_attendees) %>
+                <%= form.number_field :max_attendees, class: "form-control #{'border-info border-2' if suggested.include?(:max_attendees)}", min: 1 %>
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <%= form.label :venue_id, "Venue", class: "form-label" %>
+                <%= form.label :venue_id, "Venue", class: "form-label" %><%= sbadge.(:venue_id) %>
                 <div class="input-group">
                   <%= form.select :venue_id, options_from_collection_for_select(@venues, :id, :name, @event.venue_id),
-                                  { prompt: "Select a venue" }, { class: "form-select", id: "event_venue_id" } %>
+                                  { prompt: "Select a venue" }, { class: "form-select #{'border-info border-2' if suggested.include?(:venue_id)}", id: "event_venue_id" } %>
                   <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#quickAddVenueModal">
                     + New
                   </button>
@@ -209,7 +221,9 @@
           <%# ── Public RSVP ── %>
           <div class="mb-3 form-check">
             <%= form.check_box :public_rsvp_enabled, class: "form-check-input" %>
-            <%= form.label :public_rsvp_enabled, "Allow public RSVP via /e/:slug", class: "form-check-label" %>
+            <%= form.label :public_rsvp_enabled, class: "form-check-label" do %>
+              Allow public RSVP via /e/:slug<%= sbadge.(:public_rsvp_enabled) %>
+            <% end %>
             <div class="form-text">When enabled, anyone can view and RSVP to this event without logging in.</div>
           </div>
 
