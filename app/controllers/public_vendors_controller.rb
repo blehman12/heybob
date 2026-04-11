@@ -13,7 +13,7 @@ class PublicVendorsController < ApplicationController
   end
 
   def show
-    @vendor = Vendor.includes(:categories, vendor_events: :event).find(params[:id])
+    @vendor = Vendor.includes(:categories, vendor_events: :event).find_by!(slug: params[:id])
     @follow = VendorFollow.new
 
     @upcoming_appearances = @vendor.vendor_events
@@ -24,7 +24,7 @@ class PublicVendorsController < ApplicationController
   end
 
   def follow
-    @vendor = Vendor.find(params[:id])
+    @vendor = Vendor.find_by!(slug: params[:id])
     @follow = VendorFollow.new(follow_params)
     @follow.vendor  = @vendor
     @follow.source  = 'profile'

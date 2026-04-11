@@ -19,6 +19,13 @@ class Vendor < ApplicationRecord
 
   validates :name, presence: true
   validates :user, presence: true
+  validates :slug, uniqueness: true, allow_nil: true
+
+  before_validation :generate_slug, on: :create
+
+  def to_param
+    slug || id.to_s
+  end
 
   def accessible_by?(user)
     self.user == user || vendor_users.exists?(user: user)
@@ -45,6 +52,22 @@ class Vendor < ApplicationRecord
       errors.add(:hero_image, "must be smaller than 5 MB")
     end
   end
+
+  private
+
+  def generate_slug
+    return if slug.present?
+    base = name.parameterize
+    candidate = base
+    counter = 2
+    while Vendor.where(slug: candidate).where.not(id: id).exists?
+      candidate = "#{base}-#{counter}"
+      counter += 1
+    end
+    self.slug = candidate
+  end
+
+  public
 
   def primary_web_presence
     if artist?
