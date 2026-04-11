@@ -46,11 +46,11 @@
 </div>
 
 <div class="row">
-  <%# ── Vendor status ── %>
+  <%# ── Booth Leaderboard (11.5 + 11.7) ── %>
   <div class="col-md-5">
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h6 class="mb-0">Vendor Status</h6>
+        <h6 class="mb-0">Booth Leaderboard</h6>
         <%= link_to "All Vendors", admin_vendors_path, class: "btn btn-outline-secondary btn-sm" %>
       </div>
       <% if @vendor_events.any? %>
@@ -58,29 +58,43 @@
           <table class="table table-sm table-hover mb-0">
             <thead class="table-light">
               <tr>
+                <th class="text-center" style="width:32px;">#</th>
                 <th>Vendor</th>
-                <th>Booth</th>
                 <th class="text-center">Opt-ins</th>
                 <th class="text-center">Broadcasts</th>
               </tr>
             </thead>
             <tbody>
-              <% @vendor_events.each do |ve| %>
+              <% @vendor_events.each_with_index do |ve, i| %>
+                <%
+                  all_receipts = ve.broadcasts.flat_map(&:broadcast_receipts)
+                  delivered    = all_receipts.count(&:delivered?)
+                  total        = all_receipts.size
+                  rate         = total > 0 ? (delivered * 100.0 / total).round : nil
+                %>
                 <tr>
+                  <td class="text-center text-muted fw-semibold"><%= i + 1 %></td>
                   <td>
                     <div class="fw-semibold"><%= ve.vendor.name %></div>
                     <small class="text-muted"><%= ve.category_label %></small>
-                  </td>
-                  <td>
                     <% if ve.booth_number.present? %>
-                      <span class="badge bg-light text-dark"><%= ve.booth_number %></span>
-                      <% if ve.hall.present? %><small class="text-muted"> <%= ve.hall %></small><% end %>
+                      <small class="text-muted"> &middot; <%= ve.booth_number %><%= " #{ve.hall}" if ve.hall.present? %></small>
+                    <% end %>
+                  </td>
+                  <td class="text-center fw-semibold"><%= ve.opt_in_count %></td>
+                  <td class="text-center">
+                    <% sent_count = ve.broadcasts.count(&:sent_at) %>
+                    <% if sent_count > 0 %>
+                      <div><%= sent_count %> sent</div>
+                      <% if rate %>
+                        <small class="<%= rate >= 90 ? 'text-success' : rate >= 70 ? 'text-warning' : 'text-danger' %>">
+                          <%= rate %>% delivered
+                        </small>
+                      <% end %>
                     <% else %>
                       <small class="text-muted">—</small>
                     <% end %>
                   </td>
-                  <td class="text-center"><%= ve.opt_in_count %></td>
-                  <td class="text-center"><%= ve.broadcasts.sent.count %></td>
                 </tr>
               <% end %>
             </tbody>
@@ -141,3 +155,36 @@
     </div>
   </div>
 </div>
+
+<%# ── Event-wide opt-in heatmap (11.6) ── %>
+<% if @event_opt_in_timeline.any? %>
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h6 class="mb-0">Floor Traffic — Opt-in Timeline (All Vendors)</h6>
+      <small class="text-muted"><%= @event_opt_in_timeline.values.sum %> total opt-ins</small>
+    </div>
+    <div class="card-body" style="overflow-x: auto; padding-bottom: 14px;">
+      <% tl_max = @event_opt_in_timeline.values.max.to_f %>
+      <% tl_min_width = [@event_opt_in_timeline.size * 34, 300].max %>
+      <div style="display:flex; align-items:flex-end; gap:6px; height:80px; min-width:<%= tl_min_width %>px;">
+        <% @event_opt_in_timeline.each do |hour, count| %>
+          <div style="flex:1; min-width:28px; display:flex; flex-direction:column; align-items:center; gap:3px;">
+            <div style="font-size:9px; color:#6c757d; font-weight:600; min-height:12px;">
+              <%= count %>
+            </div>
+            <div style="width:100%; background:#6ea8fe; border-radius:3px 3px 0 0;
+                        height:<%= [(count / tl_max * 56).round, 4].max %>px;"></div>
+          </div>
+        <% end %>
+      </div>
+      <div style="display:flex; gap:6px; margin-top:5px; min-width:<%= tl_min_width %>px;">
+        <% @event_opt_in_timeline.each do |hour, _| %>
+          <div style="flex:1; min-width:28px; font-size:9px; color:#adb5bd;
+                      text-align:center; overflow:hidden; white-space:nowrap;">
+            <%= hour.strftime('%-I%p').downcase %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

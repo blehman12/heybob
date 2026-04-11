@@ -166,8 +166,9 @@ class Admin::EventsController < Admin::BaseController
 
   def cockpit
     @vendor_events = @event.vendor_events
-                           .includes(:vendor, :broadcasts)
-                           .order(:category, 'vendors.name')
+                           .includes(:vendor, broadcasts: :broadcast_receipts)
+                           .to_a
+                           .sort_by { |ve| -ve.opt_in_count }
 
     @checked_in_count  = @event.event_participants.checked_in.count
     @total_rsvped      = @event.event_participants.where(rsvp_status: [:yes, :maybe]).count
@@ -181,6 +182,13 @@ class Admin::EventsController < Admin::BaseController
                                   .where.not(sent_at: nil)
                                   .order(sent_at: :desc)
                                   .limit(10)
+
+    @event_opt_in_timeline = ConOptIn
+                               .where(event_id: @event.id)
+                               .where.not(opted_in_at: nil)
+                               .group(Arel.sql("date_trunc('hour', opted_in_at)"))
+                               .order(Arel.sql("date_trunc('hour', opted_in_at)"))
+                               .count
   end
 
   def qr_code
