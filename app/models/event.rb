@@ -141,6 +141,8 @@ class Event < ApplicationRecord
     # Generate slug from event name and date
     base_slug = name.parameterize
     date_slug = event_date.strftime('%Y') if event_date.present?
+    # Strip trailing year from base_slug if name already contains it (e.g. "SakuraCon 2026" → "sakuracon-2026" → strip → "sakuracon")
+    base_slug = base_slug.sub(/-#{date_slug}$/, '') if date_slug && base_slug.end_with?("-#{date_slug}")
     candidate_slug = date_slug ? "#{base_slug}-#{date_slug}" : base_slug
     
     # Ensure uniqueness
