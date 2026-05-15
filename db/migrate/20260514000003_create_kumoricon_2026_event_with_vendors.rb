@@ -11,9 +11,6 @@ class CreateKumoricon2026EventWithVendors < ActiveRecord::Migration[7.1]
     # Find or create venue
     venue = Venue.find_or_create_by!(name: 'Oregon Convention Center') do |v|
       v.address  = '777 NE Martin Luther King Jr Blvd, Portland, OR 97232'
-      v.city     = 'Portland'
-      v.state    = 'OR'
-      v.zip      = '97232'
       v.capacity = 5000
     end
 
@@ -32,6 +29,7 @@ class CreateKumoricon2026EventWithVendors < ActiveRecord::Migration[7.1]
         start_time:           Time.zone.parse('10:00'),
         end_time:             Time.zone.parse('22:00'),
         max_attendees:        5000,
+        rsvp_deadline:        Date.new(2026, 11, 1),
         public_rsvp_enabled:  false,
         map_enabled:          false
       )
@@ -116,7 +114,6 @@ class CreateKumoricon2026EventWithVendors < ActiveRecord::Migration[7.1]
         v.user             = admin
         v.participant_type = :business
         v.description      = "#{b[:name]} — Kumoricon exhibitor"
-        v.active           = true
       end
 
       next if VendorEvent.exists?(vendor: vendor, event: event)
