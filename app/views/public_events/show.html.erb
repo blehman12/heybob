@@ -95,6 +95,15 @@
             </div>
           <% end %>
 
+          <!-- Vendor map link -->
+          <% if @event.map_enabled? && @event.floor_map.attached? %>
+            <div class="mt-3">
+              <%= link_to public_event_map_path(@event.slug), class: 'btn btn-outline-info' do %>
+                <i class="bi bi-map"></i> View Vendor Map
+              <% end %>
+            </div>
+          <% end %>
+
           <!-- External link — reference/participating -->
           <% if (@event.reference? || @event.participating?) && @event.external_url.present? %>
             <div class="mt-4">

@@ -28,6 +28,18 @@ class VendorEvent < ApplicationRecord
     metadata&.dig('hall')
   end
 
+  def map_x
+    metadata&.dig('map_x')
+  end
+
+  def map_y
+    metadata&.dig('map_y')
+  end
+
+  def map_positioned?
+    map_x.present? && map_y.present?
+  end
+
   def opt_in_count
     con_opt_ins.count
   end

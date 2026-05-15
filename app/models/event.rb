@@ -1,5 +1,7 @@
 class Event < ApplicationRecord
   include HasExternalId
+  has_one_attached :floor_map
+
   # Associations
   belongs_to :venue, optional: true
   belongs_to :creator, class_name: 'User'

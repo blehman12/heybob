@@ -1,0 +1,106 @@
+<% content_for :title, "Vendor Map — #{@event.name}" %>
+
+<div class="container-fluid px-0">
+  <%# Header %>
+  <div class="bg-dark text-white py-3 px-4 d-flex align-items-center gap-3">
+    <%= link_to public_event_path(@event.slug), class: 'btn btn-outline-light btn-sm' do %>
+      <i class="bi bi-arrow-left"></i> Back to Event
+    <% end %>
+    <div>
+      <h1 class="h5 mb-0"><%= @event.name %></h1>
+      <div class="text-white-50 small">Vendor Map</div>
+    </div>
+  </div>
+
+  <% if @event.floor_map.attached? && @vendor_events.any? %>
+    <%# Map container %>
+    <div class="position-relative" style="overflow:auto; background:#f8f9fa;">
+      <div id="map-wrapper" style="position:relative; display:inline-block; min-width:100%; touch-action:pinch-zoom;">
+        <%= image_tag rails_blob_url(@event.floor_map),
+              id: 'floor-map-img',
+              style: 'width:100%; max-width:1200px; display:block; user-select:none;',
+              draggable: false %>
+
+        <% @vendor_events.each do |ve| %>
+          <div class="pub-pin"
+               data-id="<%= ve.id %>"
+               style="position:absolute; left:<%= ve.map_x %>%; top:<%= ve.map_y %>%; transform:translate(-50%,-100%); z-index:10; cursor:pointer;"
+               data-bs-toggle="popover"
+               data-bs-trigger="click"
+               data-bs-placement="top"
+               data-bs-html="true"
+               data-bs-content="<%= vendor_pin_popover(ve) %>">
+            <div class="pub-pin-marker <%= pin_color_class(ve.category) %>">
+              <i class="bi bi-geo-alt-fill"></i>
+            </div>
+            <div class="pub-pin-label"><%= ve.booth_number %></div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Vendor list below map (mobile-friendly fallback) %>
+    <div class="container py-4">
+      <h2 class="h5 mb-3">All Vendors (<%= @all_vendor_events.count %>)</h2>
+      <div class="row g-2">
+        <% @all_vendor_events.each do |ve| %>
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card card-body py-2 px-3 h-100 <%= ve.map_positioned? ? '' : 'border-0 bg-light' %>">
+              <div class="d-flex align-items-start gap-2">
+                <span class="mt-1" style="color:<%= pin_hex_color(ve.category) %>; font-size:1.1rem;">
+                  <i class="bi bi-geo-alt-fill"></i>
+                </span>
+                <div>
+                  <div class="fw-semibold small"><%= ve.vendor.name %></div>
+                  <div class="text-muted" style="font-size:0.72rem;">
+                    Booth <%= ve.booth_number %> · <%= ve.category_label %>
+                  </div>
+                  <%= link_to 'Profile →', public_vendor_path(ve.vendor), class: 'stretched-link', style: 'font-size:0.72rem;' %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <style>
+      .pub-pin-marker { font-size: 1.8rem; line-height:1; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6)); transition: transform 0.1s; }
+      .pub-pin:hover .pub-pin-marker { transform: scale(1.2); }
+      .pub-pin-marker.pin-dealer       { color: #0d6efd; }
+      .pub-pin-marker.pin-artist-alley { color: #e6a817; }
+      .pub-pin-marker.pin-sponsor      { color: #198754; }
+      .pub-pin-marker.pin-exhibitor    { color: #0dcaf0; }
+      .pub-pin-marker.pin-panelist     { color: #6c757d; }
+      .pub-pin-label { font-size:0.65rem; font-weight:bold; text-align:center; background:rgba(255,255,255,0.9); border-radius:2px; padding:0 2px; margin-top:-2px; white-space:nowrap; }
+    </style>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Init Bootstrap popovers on pins
+        document.querySelectorAll('.pub-pin').forEach(el => {
+          new bootstrap.Popover(el, { sanitize: false });
+        });
+        // Close popovers when clicking elsewhere
+        document.addEventListener('click', function(e) {
+          if (!e.target.closest('.pub-pin') && !e.target.closest('.popover')) {
+            document.querySelectorAll('.pub-pin').forEach(el => {
+              bootstrap.Popover.getInstance(el)?.hide();
+            });
+          }
+        });
+      });
+    </script>
+
+  <% elsif !@event.floor_map.attached? %>
+    <div class="container py-5 text-center text-muted">
+      <i class="bi bi-map" style="font-size:3rem;"></i>
+      <p class="mt-3">The floor map for this event hasn't been uploaded yet.<br>Check back closer to the event date.</p>
+    </div>
+  <% else %>
+    <div class="container py-5 text-center text-muted">
+      <i class="bi bi-geo-alt" style="font-size:3rem;"></i>
+      <p class="mt-3">No vendors have been placed on the map yet.</p>
+    </div>
+  <% end %>
+</div>

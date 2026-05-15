@@ -66,6 +66,7 @@ Rails.application.routes.draw do
   post '/e/:slug/rsvp', to: 'public_events#rsvp', as: 'public_event_rsvp'
   get '/e/:slug/confirmation', to: 'public_events#confirmation', as: 'public_event_confirmation'
   get '/e/:slug/calendar', to: 'public_events#calendar', as: 'public_event_calendar'
+  get '/e/:slug/map',      to: 'public_events#map',      as: 'public_event_map'
 
   # User profile and settings
   get 'profile/edit', to: 'users#edit', as: 'edit_profile'
@@ -147,6 +148,8 @@ resources :events do
     get :cockpit
     get :qr_code
     patch :update_status
+    get  :map_editor
+    patch :update_map
     # Check-in management (routed to Admin::CheckinController)
     get  :checkin_dashboard,    controller: 'checkin'
     get  :generate_qr_codes,    controller: 'checkin'

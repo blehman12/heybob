@@ -1,7 +1,7 @@
 # Public Events Controller - No authentication required
 class PublicEventsController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:index, :show, :rsvp, :confirmation, :calendar]
-  before_action :find_event, only: [:show, :rsvp, :confirmation, :calendar]
+  skip_before_action :authenticate_user!, only: [:index, :show, :rsvp, :confirmation, :calendar, :map]
+  before_action :find_event, only: [:show, :rsvp, :confirmation, :calendar, :map]
   before_action :check_public_rsvp_enabled, only: [:show, :rsvp]
 
   def index
@@ -92,6 +92,12 @@ class PublicEventsController < ApplicationController
     unless authorized
       redirect_to public_event_path(@event.slug), alert: 'RSVP confirmation not found.'
     end
+  end
+
+  def map
+    all = @event.vendor_events.includes(:vendor).order('vendors.name')
+    @all_vendor_events = all
+    @vendor_events = all.select(&:map_positioned?)
   end
 
   def calendar

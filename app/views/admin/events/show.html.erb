@@ -32,6 +32,9 @@
       </div>
     </div>
     <div class="col-md-4 text-end">
+      <%= link_to map_editor_admin_event_path(@event), class: "btn btn-outline-info me-1", title: "Floor map editor" do %>
+        <i class="bi bi-map"></i> Map Editor
+      <% end %>
       <%= link_to qr_code_admin_event_path(@event), class: "btn btn-outline-secondary me-1", target: "_blank", title: "Print event QR code" do %>
         <i class="bi bi-qr-code"></i> QR Code
       <% end %>

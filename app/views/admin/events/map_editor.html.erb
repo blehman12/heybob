@@ -1,0 +1,249 @@
+<% content_for :title, "Map Editor — #{@event.name}" %>
+
+<div class="container-fluid py-4">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <%= link_to admin_event_path(@event), class: 'btn btn-outline-secondary btn-sm' do %>
+      <i class="bi bi-arrow-left"></i> Back to Event
+    <% end %>
+    <h1 class="h3 mb-0">Map Editor — <%= @event.name %></h1>
+  </div>
+
+  <%# Floor map upload %>
+  <div class="card mb-4">
+    <div class="card-header"><strong>Floor Plan Image</strong></div>
+    <div class="card-body">
+      <%= form_with url: update_map_admin_event_path(@event), method: :patch, multipart: true do |f| %>
+        <div class="d-flex align-items-center gap-3">
+          <input type="file" name="event[floor_map]" accept="image/*" class="form-control" style="max-width:400px">
+          <%= f.submit 'Upload Floor Plan', class: 'btn btn-primary' %>
+          <% if @event.floor_map.attached? %>
+            <span class="text-success"><i class="bi bi-check-circle"></i> Floor plan uploaded</span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @event.floor_map.attached? %>
+    <div class="row g-4">
+      <%# Map canvas %>
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <strong>Place Vendor Pins</strong>
+            <span class="text-muted small">Drag pins onto the map, then click Save Positions</span>
+          </div>
+          <div class="card-body p-2">
+            <div id="map-container" style="position:relative; display:inline-block; width:100%; cursor:crosshair;">
+              <%= image_tag rails_blob_url(@event.floor_map), id: 'floor-map-img', style: 'width:100%; display:block;', draggable: false %>
+              <%# Render existing pins %>
+              <% @vendor_events.each do |ve| %>
+                <% if ve.map_positioned? %>
+                  <div class="map-pin"
+                       data-id="<%= ve.id %>"
+                       data-x="<%= ve.map_x %>"
+                       data-y="<%= ve.map_y %>"
+                       style="position:absolute; left:<%= ve.map_x %>%; top:<%= ve.map_y %>%; transform:translate(-50%,-100%); cursor:grab; z-index:10;"
+                       title="<%= ve.vendor.name %> — Booth <%= ve.booth_number %>">
+                    <div class="pin-marker <%= pin_color_class(ve.category) %>">
+                      <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <div class="pin-label"><%= ve.booth_number %></div>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="mt-2">
+          <button id="save-pins-btn" class="btn btn-success">
+            <i class="bi bi-check-lg"></i> Save Positions
+          </button>
+          <span id="save-status" class="ms-2 text-muted small"></span>
+        </div>
+      </div>
+
+      <%# Vendor list panel %>
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header"><strong>Vendors</strong> — drag onto map to place</div>
+          <div class="card-body p-0" style="max-height:600px; overflow-y:auto;">
+            <table class="table table-sm table-hover mb-0">
+              <thead class="table-light sticky-top">
+                <tr>
+                  <th>Booth</th>
+                  <th>Vendor</th>
+                  <th>Pinned</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @vendor_events.each do |ve| %>
+                  <tr class="vendor-row"
+                      data-id="<%= ve.id %>"
+                      data-name="<%= ve.vendor.name %>"
+                      data-booth="<%= ve.booth_number %>"
+                      data-category="<%= ve.category %>"
+                      style="cursor:grab;">
+                    <td><%= ve.booth_number %></td>
+                    <td><%= ve.vendor.name %></td>
+                    <td id="pin-status-<%= ve.id %>">
+                      <% if ve.map_positioned? %>
+                        <i class="bi bi-geo-alt-fill text-success"></i>
+                      <% else %>
+                        <i class="bi bi-dash text-muted"></i>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="mt-3">
+          <h6>Legend</h6>
+          <div class="d-flex flex-column gap-1 small">
+            <span><span class="badge bg-primary">●</span> Dealer's Room</span>
+            <span><span class="badge bg-warning text-dark">●</span> Artist Alley</span>
+            <span><span class="badge bg-success">●</span> Sponsor</span>
+            <span><span class="badge bg-info text-dark">●</span> Exhibitor</span>
+            <span><span class="badge bg-secondary">●</span> Panelist</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      .pin-marker { font-size: 1.5rem; line-height:1; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
+      .pin-marker.pin-dealer      { color: #0d6efd; }
+      .pin-marker.pin-artist-alley { color: #ffc107; }
+      .pin-marker.pin-sponsor     { color: #198754; }
+      .pin-marker.pin-exhibitor   { color: #0dcaf0; }
+      .pin-marker.pin-panelist    { color: #6c757d; }
+      .pin-label { font-size:0.65rem; font-weight:bold; text-align:center; background:rgba(255,255,255,0.85); border-radius:2px; padding:0 2px; margin-top:-2px; }
+      .map-pin:hover { z-index:20 !important; }
+      .vendor-row.placed td { background: #f0fff0; }
+    </style>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('map-container');
+        const img = document.getElementById('floor-map-img');
+        const pins = {}; // id => {x, y}
+
+        // Load existing positions
+        document.querySelectorAll('.map-pin').forEach(pin => {
+          const id = pin.dataset.id;
+          pins[id] = { x: parseFloat(pin.dataset.x), y: parseFloat(pin.dataset.y) };
+          makePinDraggable(pin);
+          markRowPlaced(id);
+        });
+
+        // Click on map to place selected vendor
+        let selectedRow = null;
+        document.querySelectorAll('.vendor-row').forEach(row => {
+          row.addEventListener('click', function() {
+            document.querySelectorAll('.vendor-row').forEach(r => r.classList.remove('table-active'));
+            row.classList.add('table-active');
+            selectedRow = row;
+            container.style.cursor = 'crosshair';
+          });
+        });
+
+        container.addEventListener('click', function(e) {
+          if (!selectedRow) return;
+          if (e.target.closest('.map-pin')) return; // ignore clicks on existing pins
+
+          const rect = container.getBoundingClientRect();
+          const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(2);
+          const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(2);
+          const id = selectedRow.dataset.id;
+
+          // Remove existing pin for this vendor if any
+          const existing = container.querySelector(`.map-pin[data-id="${id}"]`);
+          if (existing) existing.remove();
+
+          // Create new pin
+          const pin = createPin(id, selectedRow.dataset.name, selectedRow.dataset.booth, selectedRow.dataset.category, x, y);
+          container.appendChild(pin);
+          makePinDraggable(pin);
+          pins[id] = { x: parseFloat(x), y: parseFloat(y) };
+          markRowPlaced(id);
+
+          selectedRow.classList.remove('table-active');
+          selectedRow = null;
+        });
+
+        function createPin(id, name, booth, category, x, y) {
+          const div = document.createElement('div');
+          div.className = 'map-pin';
+          div.dataset.id = id;
+          div.dataset.x = x;
+          div.dataset.y = y;
+          div.title = `${name} — Booth ${booth}`;
+          div.style.cssText = `position:absolute; left:${x}%; top:${y}%; transform:translate(-50%,-100%); cursor:grab; z-index:10;`;
+          div.innerHTML = `<div class="pin-marker ${pinColorClass(category)}"><i class="bi bi-geo-alt-fill"></i></div><div class="pin-label">${booth}</div>`;
+          return div;
+        }
+
+        function pinColorClass(cat) {
+          const map = { dealer: 'pin-dealer', artist_alley: 'pin-artist-alley', sponsor: 'pin-sponsor', exhibitor: 'pin-exhibitor', panelist: 'pin-panelist' };
+          return map[cat] || 'pin-dealer';
+        }
+
+        function makePinDraggable(pin) {
+          let dragging = false, startX, startY, startLeft, startTop;
+          pin.addEventListener('mousedown', function(e) {
+            e.stopPropagation();
+            dragging = true;
+            startX = e.clientX; startY = e.clientY;
+            const rect = container.getBoundingClientRect();
+            startLeft = parseFloat(pin.style.left);
+            startTop = parseFloat(pin.style.top);
+            pin.style.cursor = 'grabbing';
+            e.preventDefault();
+          });
+          document.addEventListener('mousemove', function(e) {
+            if (!dragging) return;
+            const rect = container.getBoundingClientRect();
+            const dx = (e.clientX - startX) / rect.width * 100;
+            const dy = (e.clientY - startY) / rect.height * 100;
+            const newX = Math.max(0, Math.min(100, startLeft + dx));
+            const newY = Math.max(0, Math.min(100, startTop + dy));
+            pin.style.left = newX + '%';
+            pin.style.top = newY + '%';
+            pins[pin.dataset.id] = { x: newX, y: newY };
+          });
+          document.addEventListener('mouseup', function() {
+            if (dragging) { dragging = false; pin.style.cursor = 'grab'; }
+          });
+        }
+
+        function markRowPlaced(id) {
+          const row = document.querySelector(`.vendor-row[data-id="${id}"]`);
+          if (row) row.classList.add('placed');
+          const statusCell = document.getElementById(`pin-status-${id}`);
+          if (statusCell) statusCell.innerHTML = '<i class="bi bi-geo-alt-fill text-success"></i>';
+        }
+
+        // Save positions
+        document.getElementById('save-pins-btn').addEventListener('click', function() {
+          const statusEl = document.getElementById('save-status');
+          statusEl.textContent = 'Saving...';
+          const pinsArray = Object.entries(pins).map(([id, pos]) => ({ id, x: pos.x, y: pos.y }));
+          fetch('<%= update_map_admin_event_path(@event) %>', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content },
+            body: JSON.stringify({ pins: pinsArray })
+          }).then(r => r.json()).then(data => {
+            statusEl.textContent = data.ok ? '✓ Saved!' : 'Error saving';
+            statusEl.className = data.ok ? 'ms-2 text-success small' : 'ms-2 text-danger small';
+          });
+        });
+      });
+    </script>
+  <% else %>
+    <div class="alert alert-info">
+      Upload a floor plan image above to start placing vendor pins.
+    </div>
+  <% end %>
+</div>

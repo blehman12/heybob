@@ -2,7 +2,7 @@
 require 'csv'
 
 class Admin::EventsController < Admin::BaseController
-  before_action :set_event, only: [:show, :edit, :update, :destroy, :update_status, :participants, :add_participant, :export_participants, :bulk_invite, :cockpit, :qr_code]
+  before_action :set_event, only: [:show, :edit, :update, :destroy, :update_status, :participants, :add_participant, :export_participants, :bulk_invite, :cockpit, :qr_code, :map_editor, :update_map]
   before_action :load_venues, only: [:new, :create, :edit, :update]
   before_action :load_users, only: [:new, :create, :edit, :update]
 
@@ -233,6 +233,8 @@ class Admin::EventsController < Admin::BaseController
       :rsvp_deadline,
       :public_rsvp_enabled,
       :lifecycle_status,
+      :map_enabled,
+      :floor_map,
       custom_questions: [],
       category_ids: []
     )
@@ -308,5 +310,33 @@ class Admin::EventsController < Admin::BaseController
     end
 
     { name: recent.first.name, fields: fields, category_ids: suggested_cat_ids }
+  end
+
+  public
+
+  def map_editor
+    @vendor_events = @event.vendor_events.includes(:vendor).order('vendors.name')
+  end
+
+  def update_map
+    # Handle floor map image upload
+    if params[:event] && params[:event][:floor_map].present?
+      @event.floor_map.attach(params[:event][:floor_map])
+      @event.update!(map_enabled: true)
+    end
+
+    # Handle pin position updates (JSON body: { pins: [{id: 1, x: 42.5, y: 67.3}, ...] })
+    if params[:pins].present?
+      params[:pins].each do |pin|
+        ve = @event.vendor_events.find_by(id: pin[:id])
+        next unless ve
+        ve.metadata ||= {}
+        ve.metadata = ve.metadata.merge('map_x' => pin[:x].to_f, 'map_y' => pin[:y].to_f)
+        ve.save!
+      end
+      render json: { ok: true } and return
+    end
+
+    redirect_to map_editor_admin_event_path(@event), notice: 'Map updated.'
   end
 end
