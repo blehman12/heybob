@@ -2,7 +2,7 @@
 require 'csv'
 
 class Admin::EventsController < Admin::BaseController
-  before_action :set_event, only: [:show, :edit, :update, :destroy, :update_status, :participants, :add_participant, :export_participants, :bulk_invite, :cockpit, :qr_code, :map_editor, :update_map]
+  before_action :set_event, only: [:show, :edit, :update, :destroy, :update_status, :participants, :add_participant, :export_participants, :bulk_invite, :cockpit, :qr_code, :map_editor, :update_map, :auto_arrange]
   before_action :load_venues, only: [:new, :create, :edit, :update]
   before_action :load_users, only: [:new, :create, :edit, :update]
 
@@ -313,6 +313,37 @@ class Admin::EventsController < Admin::BaseController
   end
 
   public
+
+  def auto_arrange
+    vendor_events = @event.vendor_events.includes(:vendor).to_a
+
+    # Group by booth number prefix (hundreds digit), sort groups ascending
+    groups = vendor_events
+      .group_by { |ve| ve.booth_number.to_i / 100 }
+      .sort_by   { |prefix, _| prefix }
+
+    n_groups = groups.size
+    count = 0
+
+    groups.each_with_index do |(_, ves), group_idx|
+      ves_sorted = ves.sort_by { |ve| ve.booth_number.to_i }
+      n = ves_sorted.size
+
+      # Evenly space group rows between 15% and 85% of map height
+      y = n_groups <= 1 ? 50.0 : 15.0 + (group_idx.to_f / (n_groups - 1)) * 70.0
+
+      ves_sorted.each_with_index do |ve, i|
+        t = n <= 1 ? 0.5 : i.to_f / (n - 1)
+        x = 5.0 + t * 90.0
+
+        ve.metadata = (ve.metadata || {}).merge('map_x' => x.round(1), 'map_y' => y.round(1))
+        ve.save!
+        count += 1
+      end
+    end
+
+    render json: { ok: true, count: count }
+  end
 
   def map_editor
     @vendor_events = @event.vendor_events.includes(:vendor).order('vendors.name')

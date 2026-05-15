@@ -150,6 +150,7 @@ resources :events do
     patch :update_status
     get  :map_editor
     patch :update_map
+    post :auto_arrange
     # Check-in management (routed to Admin::CheckinController)
     get  :checkin_dashboard,    controller: 'checkin'
     get  :generate_qr_codes,    controller: 'checkin'

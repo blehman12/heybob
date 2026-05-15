@@ -55,11 +55,14 @@
             </div>
           </div>
         </div>
-        <div class="mt-2">
+        <div class="mt-2 d-flex align-items-center gap-2 flex-wrap">
           <button id="save-pins-btn" class="btn btn-success">
             <i class="bi bi-check-lg"></i> Save Positions
           </button>
-          <span id="save-status" class="ms-2 text-muted small"></span>
+          <button id="auto-arrange-btn" class="btn btn-outline-secondary">
+            <i class="bi bi-grid-3x3-gap"></i> Auto-arrange by booth #
+          </button>
+          <span id="save-status" class="text-muted small"></span>
         </div>
       </div>
 
@@ -224,6 +227,24 @@
           const statusCell = document.getElementById(`pin-status-${id}`);
           if (statusCell) statusCell.innerHTML = '<i class="bi bi-geo-alt-fill text-success"></i>';
         }
+
+        // Auto-arrange by booth number
+        document.getElementById('auto-arrange-btn').addEventListener('click', function() {
+          if (!confirm('Auto-arrange all pins by booth number zone? This overwrites current positions.')) return;
+          const statusEl = document.getElementById('save-status');
+          statusEl.textContent = 'Arranging...';
+          fetch('<%= auto_arrange_admin_event_path(@event) %>', {
+            method: 'POST',
+            headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content }
+          }).then(r => r.json()).then(data => {
+            if (data.ok) {
+              statusEl.textContent = `✓ Arranged ${data.count} pins — reloading…`;
+              setTimeout(() => location.reload(), 800);
+            } else {
+              statusEl.textContent = 'Error arranging pins';
+            }
+          });
+        });
 
         // Save positions
         document.getElementById('save-pins-btn').addEventListener('click', function() {
