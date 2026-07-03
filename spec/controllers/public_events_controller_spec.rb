@@ -80,6 +80,70 @@ RSpec.describe PublicEventsController, type: :controller do
       end
     end
 
+    context 'invalid guest RSVP (render path)' do
+      # render_views is load-bearing here: the failure path re-renders :show,
+      # and the template needs @vendor_events — without rendering, a missing
+      # ivar passes the spec but 500s in production.
+      render_views
+
+      it 'renders show with a visible alert and 422' do
+        expect {
+          post :rsvp, params: {
+            slug: public_event.slug,
+            event_participant: {
+              guest_name: '',
+              rsvp_status: 'yes'
+            }
+          }
+        }.not_to change(EventParticipant, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(flash.now[:alert]).to eq('Unable to save RSVP. Please check the form.')
+      end
+    end
+
+    context 'RSVP rules enforcement (B2)' do
+      it 'rejects a POST after the RSVP deadline' do
+        closed_event = create(:event,
+                              venue: venue,
+                              creator: creator,
+                              slug: 'closed-event-2026',
+                              public_rsvp_enabled: true,
+                              rsvp_deadline: 1.day.ago)
+
+        expect {
+          post :rsvp, params: {
+            slug: closed_event.slug,
+            event_participant: { guest_name: 'Late Larry', rsvp_status: 'yes' }
+          }
+        }.not_to change(EventParticipant, :count)
+
+        expect(response).to redirect_to(public_event_path(closed_event.slug))
+        expect(flash[:alert]).to eq('The RSVP deadline for this event has passed.')
+      end
+
+      it 'rejects a new "yes" when the event is at capacity' do
+        full_event = create(:event,
+                            venue: venue,
+                            creator: creator,
+                            slug: 'full-event-2026',
+                            public_rsvp_enabled: true,
+                            max_attendees: 1)
+        create(:event_participant, event: full_event, guest_name: 'First Guest',
+                                   is_guest: true, user: nil, rsvp_status: 'yes')
+
+        expect {
+          post :rsvp, params: {
+            slug: full_event.slug,
+            event_participant: { guest_name: 'Second Guest', rsvp_status: 'yes' }
+          }
+        }.not_to change(EventParticipant, :count)
+
+        expect(response).to redirect_to(public_event_path(full_event.slug))
+        expect(flash[:alert]).to eq('This event is at capacity.')
+      end
+    end
+
     context 'logged in user RSVP' do
       let(:user) { create(:user) }
 

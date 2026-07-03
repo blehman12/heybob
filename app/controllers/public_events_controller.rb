@@ -23,8 +23,7 @@ class PublicEventsController < ApplicationController
 
   def show
     @event_participant = EventParticipant.new
-    @vendor_events = @event.vendor_events.includes(vendor: [:categories, :hero_image_attachment])
-                           .order('vendors.name')
+    load_show_data
 
     # If user is logged in, check if they already have an RSVP
     if current_user
@@ -52,6 +51,7 @@ class PublicEventsController < ApplicationController
           redirect_to public_event_confirmation_path(@event.slug, participant_id: existing_rsvp.id)
         else
           @event_participant = existing_rsvp
+          load_show_data
           flash.now[:alert] = 'Unable to update RSVP. Please check the form.'
           render :show, status: :unprocessable_entity
         end
@@ -70,6 +70,7 @@ class PublicEventsController < ApplicationController
       session[:confirmed_rsvp_ids] |= [@event_participant.id]
       redirect_to public_event_confirmation_path(@event.slug, participant_id: @event_participant.id)
     else
+      load_show_data
       flash.now[:alert] = 'Unable to save RSVP. Please check the form.'
       render :show, status: :unprocessable_entity
     end
@@ -171,6 +172,14 @@ class PublicEventsController < ApplicationController
     unless @event.published?
       redirect_to root_path, alert: 'Event not found.'
     end
+  end
+
+  # Data the show template needs regardless of which action renders it.
+  # The rsvp failure paths re-render :show, so they must load this too —
+  # without it the template crashes on @vendor_events (nil).
+  def load_show_data
+    @vendor_events = @event.vendor_events.includes(vendor: [:categories, :hero_image_attachment])
+                           .order('vendors.name')
   end
 
   def check_public_rsvp_enabled
