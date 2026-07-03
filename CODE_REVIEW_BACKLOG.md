@@ -90,8 +90,20 @@ Run before commit (Bob or Claude Code):
    - `visitor_opt_in_spec` (4): /join page now renders the live-updates feed, spec predates it
    - `admin_event_management_spec` (2), `dashboard_controller_spec` (2), `authentication_spec` logout (1), `event_notification_mailer_spec` (1, stale from-address)
 3. ✅ diff review — all edits match the items above (B1–B4, S1–S5, P2, T1 conventions)
-4. ⬜ post-deploy smoke — pending deploy
-5. ⬜ commit/push — pending
+4. ✅ post-deploy smoke (2026-07-03, commits e9e037d + 23878a4 live):
+   - `/up` 200; spoofed Host header rejected; legit requests 200 (S4)
+   - `/api/v1/*` now 404 instead of 500 (B4)
+   - Kumoricon public map + vendor list render; public events index OK
+   - Invalid RSVP POST (CSRF-valid, blank name) → 422 + visible alert (B2/B3).
+     First attempt 500'd — show-template ivars missing on re-render; fixed in 23878a4
+   - Past-deadline + at-capacity POSTs covered by new controller specs
+   - `/admin/export` 200 with a real guest participant (`user_external_id: null`) in payload (B1)
+   - `/admin/sidekiq` loads for super_admin (S1). Vendor-login denial not yet GUI-tested
+   - Password reset for unknown email → generic paranoid-mode message (S3)
+   - NOTE: smoke created a guest RSVP "Smoke Test Guest (delete me)" on the
+     Pacific NW CAD/CAM Meetup — delete via admin when convenient
+5. ✅ committed & pushed: e9e037d (review batch), 23878a4 (B3 follow-up fix)
+   ⚠️ WSL git can no longer push (expired GitHub PAT — see S10); Windows git works
 
 **Side fixes made during verification** (include in the commit):
 - `db/migrate/20260408000002_change_event_dates_to_date.rb` — Postgres-only `using: 'x::date'` broke SQLite test-db migration; now adapter-guarded (convention #8 / P3 in action). Prod already ran this migration, so the edit is inert there.
