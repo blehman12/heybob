@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_16_172110) do
+ActiveRecord::Schema[7.1].define(version: 2026_05_15_000001) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -147,7 +147,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_16_172110) do
   create_table "events", force: :cascade do |t|
     t.string "name"
     t.text "description"
-    t.datetime "event_date"
+    t.date "event_date"
     t.time "start_time"
     t.time "end_time"
     t.integer "max_attendees"
@@ -163,12 +163,42 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_16_172110) do
     t.string "external_url"
     t.string "external_id"
     t.integer "lifecycle_status", default: 1, null: false
+    t.date "end_date"
+    t.boolean "map_enabled", default: false, null: false
     t.index ["creator_id"], name: "index_events_on_creator_id"
     t.index ["event_type"], name: "index_events_on_event_type"
     t.index ["external_id"], name: "index_events_on_external_id", unique: true
     t.index ["lifecycle_status"], name: "index_events_on_lifecycle_status"
     t.index ["slug"], name: "index_events_on_slug", unique: true
     t.index ["venue_id"], name: "index_events_on_venue_id"
+  end
+
+  create_table "guest_appearances", force: :cascade do |t|
+    t.integer "guest_id", null: false
+    t.integer "event_id", null: false
+    t.text "notes"
+    t.integer "display_order", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_guest_appearances_on_event_id"
+    t.index ["guest_id", "event_id"], name: "index_guest_appearances_on_guest_id_and_event_id", unique: true
+    t.index ["guest_id"], name: "index_guest_appearances_on_guest_id"
+  end
+
+  create_table "guests", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "bio"
+    t.integer "guest_type", default: 0, null: false
+    t.string "website"
+    t.string "instagram_handle"
+    t.string "twitter_handle"
+    t.string "tiktok_handle"
+    t.string "youtube_handle"
+    t.boolean "is_active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["guest_type"], name: "index_guests_on_guest_type"
+    t.index ["is_active"], name: "index_guests_on_is_active"
   end
 
   create_table "interest_signups", force: :cascade do |t|
@@ -181,6 +211,30 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_16_172110) do
     t.datetime "updated_at", null: false
     t.index ["created_at"], name: "index_interest_signups_on_created_at"
     t.index ["email"], name: "index_interest_signups_on_email"
+  end
+
+  create_table "sponsor_events", force: :cascade do |t|
+    t.integer "sponsor_id", null: false
+    t.integer "event_id", null: false
+    t.integer "display_order", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_sponsor_events_on_event_id"
+    t.index ["sponsor_id", "event_id"], name: "index_sponsor_events_on_sponsor_id_and_event_id", unique: true
+    t.index ["sponsor_id"], name: "index_sponsor_events_on_sponsor_id"
+  end
+
+  create_table "sponsors", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.string "website"
+    t.integer "tier", default: 4, null: false
+    t.integer "display_order", default: 0, null: false
+    t.boolean "is_active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["is_active"], name: "index_sponsors_on_is_active"
+    t.index ["tier"], name: "index_sponsors_on_tier"
   end
 
   create_table "users", force: :cascade do |t|
@@ -222,6 +276,20 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_16_172110) do
     t.index ["vendor_id"], name: "index_vendor_events_on_vendor_id"
   end
 
+  create_table "vendor_follows", force: :cascade do |t|
+    t.integer "vendor_id", null: false
+    t.string "name", null: false
+    t.string "phone"
+    t.string "email"
+    t.string "source", default: "profile"
+    t.datetime "followed_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["vendor_id", "email"], name: "index_vendor_follows_on_vendor_email", unique: true, where: "email IS NOT NULL AND email != ''"
+    t.index ["vendor_id", "phone"], name: "index_vendor_follows_on_vendor_phone", unique: true, where: "phone IS NOT NULL AND phone != ''"
+    t.index ["vendor_id"], name: "index_vendor_follows_on_vendor_id"
+  end
+
   create_table "vendor_opt_ins", force: :cascade do |t|
     t.integer "vendor_event_id", null: false
     t.integer "con_opt_in_id", null: false
@@ -257,8 +325,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_16_172110) do
     t.string "twitter_handle"
     t.string "tiktok_handle"
     t.string "external_id"
+    t.string "slug"
     t.index ["external_id"], name: "index_vendors_on_external_id", unique: true
     t.index ["participant_type"], name: "index_vendors_on_participant_type"
+    t.index ["slug"], name: "index_vendors_on_slug", unique: true
     t.index ["user_id"], name: "index_vendors_on_user_id"
   end
 
@@ -284,8 +354,13 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_16_172110) do
   add_foreign_key "event_participants", "events"
   add_foreign_key "event_participants", "users"
   add_foreign_key "event_participants", "users", column: "checked_in_by_id"
+  add_foreign_key "guest_appearances", "events"
+  add_foreign_key "guest_appearances", "guests"
+  add_foreign_key "sponsor_events", "events"
+  add_foreign_key "sponsor_events", "sponsors"
   add_foreign_key "vendor_events", "events"
   add_foreign_key "vendor_events", "vendors"
+  add_foreign_key "vendor_follows", "vendors"
   add_foreign_key "vendor_opt_ins", "con_opt_ins"
   add_foreign_key "vendor_opt_ins", "vendor_events"
   add_foreign_key "vendor_users", "users"

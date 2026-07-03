@@ -95,6 +95,12 @@ Rails.application.configure do
   # ]
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+
+  # S4 (CODE_REVIEW_BACKLOG.md): Host header / DNS-rebinding protection.
+  # Only accept requests addressed to our domain. APP_HOST is already the source
+  # of truth for QR code URLs, so a future custom domain only changes one env var.
+  config.hosts = [ENV.fetch('APP_HOST', 'heybob-production.up.railway.app')]
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
   
   config.action_mailer.delivery_method = :resend
   config.action_mailer.perform_deliveries = true

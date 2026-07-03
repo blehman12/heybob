@@ -3,6 +3,7 @@ class PublicEventsController < ApplicationController
   skip_before_action :authenticate_user!, only: [:index, :show, :rsvp, :confirmation, :calendar, :map]
   before_action :find_event, only: [:show, :rsvp, :confirmation, :calendar, :map]
   before_action :check_public_rsvp_enabled, only: [:show, :rsvp]
+  before_action :enforce_rsvp_rules, only: [:rsvp]
 
   def index
     @events = Event.includes(:venue, :categories)
@@ -51,7 +52,8 @@ class PublicEventsController < ApplicationController
           redirect_to public_event_confirmation_path(@event.slug, participant_id: existing_rsvp.id)
         else
           @event_participant = existing_rsvp
-          render :show, alert: 'Unable to update RSVP. Please check the form.'
+          flash.now[:alert] = 'Unable to update RSVP. Please check the form.'
+          render :show, status: :unprocessable_entity
         end
         return
       end
@@ -68,7 +70,8 @@ class PublicEventsController < ApplicationController
       session[:confirmed_rsvp_ids] |= [@event_participant.id]
       redirect_to public_event_confirmation_path(@event.slug, participant_id: @event_participant.id)
     else
-      render :show, alert: 'Unable to save RSVP. Please check the form.'
+      flash.now[:alert] = 'Unable to save RSVP. Please check the form.'
+      render :show, status: :unprocessable_entity
     end
   end
 
@@ -173,6 +176,27 @@ class PublicEventsController < ApplicationController
   def check_public_rsvp_enabled
     unless @event.public_rsvp_enabled?
       redirect_to root_path, alert: 'This event does not accept public RSVPs.'
+    end
+  end
+
+  # Server-side enforcement of RSVP business rules (B2 in CODE_REVIEW_BACKLOG.md).
+  # The UI hides the form after the deadline / at capacity, but a direct POST
+  # to /e/:slug/rsvp must also be rejected — never trust the client.
+  def enforce_rsvp_rules
+    unless @event.rsvp_open?
+      redirect_to public_event_path(@event.slug), alert: 'The RSVP deadline for this event has passed.'
+      return
+    end
+
+    # Capacity only matters for a new "yes"
+    return unless params.dig(:event_participant, :rsvp_status) == 'yes'
+    return if @event.spots_remaining.to_i > 0
+
+    # A user who already holds a "yes" may resubmit (e.g. updating answers)
+    # without consuming a new spot.
+    existing = current_user && @event.event_participants.find_by(user: current_user)
+    unless existing&.rsvp_status == 'yes'
+      redirect_to public_event_path(@event.slug), alert: 'This event is at capacity.'
     end
   end
 

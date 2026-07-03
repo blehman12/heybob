@@ -310,3 +310,14 @@ Discussed three tiers of AI-assisted pre-population:
 5. /admin/bulk_users — bulk management loads (not root redirect)
 6. Export data JSON has schema_version field
 ```
+
+---
+
+## CODE REVIEW — JULY 2026
+
+Full security/performance/correctness review completed 2026-07-03. All findings, owners,
+and statuses live in **`CODE_REVIEW_BACKLOG.md`** — treat that file as the active backlog
+for review items. Conventions extracted from the review were added to `CLAUDE.md`
+§ "Security & Review Conventions". Six fixes were applied on 2026-07-03 (guest export
+crash, server-side RSVP enforcement, flash rendering, Sidekiq lockdown, Devise hardening,
+host authorization, PII log filtering) — pending verification and commit.

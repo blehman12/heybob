@@ -43,7 +43,7 @@ class Admin::ExportController < Admin::BaseController
   end
 
   def export_users
-    User.order(:created_at).map do |u|
+    User.includes(:interests).order(:created_at).map do |u|
       {
         external_id:  u.external_id,
         email:        u.email,
@@ -54,7 +54,7 @@ class Admin::ExportController < Admin::BaseController
         role:         u.role,
         text_capable: u.text_capable,
         created_at:   u.created_at.iso8601,
-        interest_external_ids: u.interests.pluck(:external_id)
+        interest_external_ids: u.interests.map(&:external_id)
       }
     end
   end
@@ -81,7 +81,10 @@ class Admin::ExportController < Admin::BaseController
         category_external_ids: e.categories.map(&:external_id),
         participants: e.event_participants.map do |ep|
           {
-            user_external_id: ep.user.external_id,
+            user_external_id: ep.user&.external_id, # nil for guest RSVPs (B1: was crashing export)
+            is_guest:         ep.is_guest?,
+            guest_name:       (ep.guest_name if ep.is_guest?),
+            guest_email:      (ep.guest_email if ep.is_guest?),
             role:             ep.role,
             rsvp_status:      ep.rsvp_status,
             checked_in:       ep.checked_in?,

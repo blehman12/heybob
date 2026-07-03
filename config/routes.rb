@@ -122,7 +122,8 @@ namespace :admin do
   
   # Sidekiq Web UI - ADD IT HERE (AFTER resources :users)
   require 'sidekiq/web'
-  authenticate :user, ->(user) { user.admin? } do
+  # S1 (CODE_REVIEW_BACKLOG.md): super_admin only — Sidekiq Web can delete queues / kill jobs
+  authenticate :user, ->(user) { user.super_admin? } do
     mount Sidekiq::Web => '/sidekiq'
   end
 
@@ -228,30 +229,9 @@ end
     get 'reports/export/:type', to: 'reports#export', as: 'export_report'
   end
 
-  # API routes (if needed for mobile apps or AJAX)
-  namespace :api do
-    namespace :v1 do
-      # Authentication
-      post 'auth/login', to: 'authentication#login'
-      post 'auth/logout', to: 'authentication#logout'
-      
-      # Events
-      resources :events, only: [:index, :show] do
-        member do
-          post 'rsvp'
-          get 'participants'
-        end
-      end
-      
-      # Check-ins
-      post 'checkins', to: 'checkins#create'
-      get 'checkins/verify', to: 'checkins#verify'
-      
-      # User profile
-      get 'profile', to: 'users#show'
-      patch 'profile', to: 'users#update'
-    end
-  end
+  # /api/v1 namespace removed 2026-07-03 (B4 in CODE_REVIEW_BACKLOG.md) — controllers
+  # were never implemented, so every route was a live 500. Restore from git history
+  # when the mobile API is actually built.
 
   # Legacy routes for backwards compatibility (if needed)
   get '/events/:id/rsvp', to: redirect('/rsvp/%{id}')

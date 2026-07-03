@@ -1156,3 +1156,31 @@ Key documentation files in the repository:
 - AI-assisted interest inference (Phase 4)
 - More sophisticated reporting/analytics
 
+---
+
+## Security & Review Conventions (added 2026-07-03)
+
+These conventions came out of a full code review — see `CODE_REVIEW_BACKLOG.md` for the
+findings and open items. Every session working on this codebase must follow them:
+
+1. **Public POST endpoints enforce their business rules server-side.** Hiding a form in
+   the view is UX, not enforcement. Deadline, capacity, and enablement checks belong in
+   a `before_action` (see `PublicEventsController#enforce_rsvp_rules` as the pattern).
+2. **Guest participants have `user_id: nil`.** Any code that touches
+   `event_participant.user` must use safe navigation (`ep.user&.method`) or the
+   `display_*` helpers. A bare `ep.user.anything` is a latent crash.
+3. **Never render with `alert:`.** `alert:` is a redirect option only. For re-renders use
+   `flash.now[:alert] = ...` then `render ..., status: :unprocessable_entity`.
+4. **No dead routes.** Do not add routes before their controllers exist.
+5. **Privileged mounts are super_admin only.** Sidekiq Web (and anything similar) uses
+   `->(user) { user.super_admin? }`, never `user.admin?`.
+6. **PII stays out of logs.** `:phone` and `:email` are in `filter_parameters` — keep
+   them there, and add new PII param names as they appear.
+7. **Gemfile changes require `bundle install` before push.** Docker builds with
+   `BUNDLE_DEPLOYMENT=1`; a stale `Gemfile.lock` fails the Railway deploy.
+8. **SQL must be portable between SQLite (dev) and Postgres (prod)** until dev parity is
+   fixed (P3 in the backlog). Avoid `strftime`/`date_trunc`-style dialect functions in
+   raw SQL, or guard by adapter.
+9. **Phone numbers are normalized to E.164 before storage or comparison** (once B6 lands;
+   until then, don't add new raw-phone lookups).
+

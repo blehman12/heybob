@@ -90,7 +90,8 @@ Devise.setup do |config|
   # It will change confirmation, password recovery and other workflows
   # to behave the same regardless if the e-mail provided was right or wrong.
   # Does not affect registerable.
-  # config.paranoid = true
+  # S3 (CODE_REVIEW_BACKLOG.md): enabled to prevent account enumeration via reset flow
+  config.paranoid = true
 
   # By default Devise will store the user in session. You can skip storage for
   # particular strategies by setting this option.
@@ -178,7 +179,9 @@ Devise.setup do |config|
 
   # ==> Configuration for :validatable
   # Range for password length.
-  config.password_length = 6..128
+  # S2 (CODE_REVIEW_BACKLOG.md): floor raised 6 → 8. Existing passwords still work;
+  # enforced on new registrations and password changes only.
+  config.password_length = 8..128
 
   # Email regex used to validate email formats. It simply asserts that
   # one (and only one) @ exists in the given string. This is mainly
