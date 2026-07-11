@@ -3,10 +3,16 @@
 Experimental tooling for the BLE foot-traffic differentiator: Raspberry Pi units
 that passively detect nearby phones to estimate booth/area foot traffic.
 
-**Status (Jun 2026):** proof-of-concept / validation stage. Hardware: 2× Raspberry
-Pi Zero 2 W (headless) + a CanaKit Pi 4 8GB as the dev/test bench. These scripts
-are for the **validation question**: do passing phones actually show up on a passive
-BLE scan, and how reliably?
+**Status (Jul 2026):** validation run complete. Hardware: 2× Raspberry Pi Zero 2 W
+(headless, both booting + on WiFi) + a CanaKit Pi 4 8GB as the dev/test bench.
+
+**Validation result (Jul 10 2026, on `bob1`):**
+- ✅ **Phones are detectable** — a phone brought near appeared at strong RSSI (~−50 dBm).
+- ⚠️ **One phone = multiple rotating MACs** — toggling a phone's Bluetooth produced 2+
+  new "devices" at once (Resolvable Private Addresses). So the **unique-MAC count
+  overcounts people** — treat it as an upper bound, not a person count.
+- **Next:** a dedup/correction layer (RSSI+timing clustering, calibrated factor, payload
+  fingerprinting, or a WiFi-probe cross-check) to turn raw MAC hits into a people estimate.
 
 ## Scripts
 
