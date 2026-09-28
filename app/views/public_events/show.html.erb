@@ -141,9 +141,9 @@
                 </div>
 
                 <div class="mb-3">
-                  <label for="event_participant_guest_email" class="form-label">Email (optional - for updates)</label>
+                  <label for="event_participant_guest_email" class="form-label">Email <span class="text-muted fw-normal">(optional)</span></label>
                   <%= f.email_field :guest_email, class: 'form-control', placeholder: 'john@example.com' %>
-                  <small class="form-text text-muted">We'll only use this to send you event updates</small>
+                  <small class="form-text fw-semibold text-primary d-block mt-1">📧 Please include your email so we can send you updates about this and future events.</small>
                 </div>
 
                 <div class="mb-3">

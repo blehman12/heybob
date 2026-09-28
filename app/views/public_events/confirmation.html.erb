@@ -82,9 +82,10 @@
             </h5>
             <p class="text-muted small mb-4">Show this at the door — staff will scan it to check you in.</p>
 
+            <style>#qr-container svg { width: 220px; height: 220px; display: block; }</style>
             <div id="qr-container" class="d-inline-block p-3 bg-white rounded-3 border mb-3"
                  style="line-height:0;">
-              <%# Populated by JS below %>
+              <%= raw RQRCode::QRCode.new(qr_url).as_svg(module_size: 6, standalone: true, use_path: true) %>
             </div>
 
             <br>
@@ -142,28 +143,12 @@
   </div>
 </div>
 
-<%# QR code library + render -%>
+<%# QR is server-rendered as inline SVG above; this is just the print helper -%>
 <% if going && qr_url.present? %>
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script>
-    // Inline execution — qr-container is already in DOM above this script,
-    // and the synchronous <script src> above guarantees QRCode is defined.
-    (function() {
-      const el = document.getElementById("qr-container");
-      if (el && typeof QRCode !== "undefined" && el.children.length === 0) {
-        new QRCode(el, {
-          text: "<%= j qr_url %>",
-          width: 240,
-          height: 240,
-          colorDark: "#000000",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.M
-        });
-      }
-    })();
-
     function printQr() {
       const qrCard = document.getElementById("qr-card");
+      const qr = qrCard.querySelector("svg,canvas,img");
       const w = window.open("", "_blank", "width=400,height=500");
       w.document.write(`
         <html><head><title>Check-in QR — <%= j @event.name %></title>
@@ -171,11 +156,11 @@
           body { font-family: sans-serif; text-align: center; padding: 2rem; }
           h2 { margin-bottom: 0.25rem; }
           p  { color: #555; font-size: 0.9rem; margin-top: 0; }
-          img { width: 240px; height: 240px; }
+          svg, img { width: 240px; height: 240px; }
         </style></head><body>
         <h2><%= j @event.name %></h2>
         <p><%= j @event.event_date.strftime('%B %-d, %Y') %></p>
-        ${qrCard.querySelector("canvas,img") ? qrCard.querySelector("canvas,img").outerHTML : "<p>QR unavailable</p>"}
+        ${qr ? qr.outerHTML : "<p>QR unavailable</p>"}
         <p style="margin-top:1rem; font-size:0.75rem; color:#999;">
           Ref #<%= @event_participant.id %> &nbsp;·&nbsp; Show this at the door
         </p>
