@@ -1,6 +1,7 @@
 class Event < ApplicationRecord
   include HasExternalId
   has_one_attached :floor_map
+  has_one_attached :cover_image
 
   # Associations
   belongs_to :venue, optional: true

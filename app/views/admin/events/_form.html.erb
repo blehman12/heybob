@@ -2,7 +2,7 @@
   <div class="col-md-8">
     <div class="card">
       <div class="card-body">
-        <%= form_with(model: [:admin, @event], local: true) do |form| %>
+        <%= form_with(model: [:admin, @event], local: true, html: { multipart: true }) do |form| %>
           <%# ── Context-aware defaults setup ── %>
           <% suggested = defined?(@suggested_fields) ? (@suggested_fields || Set.new) : Set.new %>
           <% has_suggestions = @event.new_record? && suggested.any? %>
@@ -80,6 +80,18 @@
           <div class="mb-3">
             <%= form.label :description, class: "form-label" %>
             <%= form.text_area :description, class: "form-control", rows: 3 %>
+          </div>
+
+          <%# ── Cover image ── %>
+          <div class="mb-3">
+            <%= form.label :cover_image, "Cover Image", class: "form-label" %>
+            <% if @event.cover_image.attached? %>
+              <div class="mb-2">
+                <%= image_tag @event.cover_image, style: "max-height:120px; border-radius:6px;" %>
+              </div>
+            <% end %>
+            <%= form.file_field :cover_image, class: "form-control", accept: "image/*" %>
+            <small class="text-muted">Shown as a banner on the public event page. JPG/PNG; a wide/landscape photo looks best.</small>
           </div>
 
           <%# ── Dates ── %>

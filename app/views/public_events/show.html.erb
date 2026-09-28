@@ -4,6 +4,9 @@
       
       <!-- Event Header -->
       <div class="card shadow-sm mb-4">
+        <% if @event.cover_image.attached? %>
+          <%= image_tag @event.cover_image, class: "card-img-top", style: "max-height:340px; object-fit:cover; width:100%;", alt: @event.name %>
+        <% end %>
         <div class="card-body">
           <h1 class="display-4 mb-3">
             <%= @event.name %>

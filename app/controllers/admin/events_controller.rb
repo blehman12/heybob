@@ -222,6 +222,7 @@ class Admin::EventsController < Admin::BaseController
     p = params.require(:event).permit(
       :name,
       :description,
+      :cover_image,
       :event_type,
       :external_url,
       :venue_id,
