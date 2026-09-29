@@ -141,7 +141,9 @@
               </td>
               <td>
                 <div class="btn-group btn-group-sm" role="group">
-                  <%= link_to "View", admin_user_path(participant.user), class: "btn btn-outline-primary" %>
+                  <% if participant.user %>
+                    <%= link_to "View", admin_user_path(participant.user), class: "btn btn-outline-primary" %>
+                  <% end %>
                   <%= button_to "Remove", remove_participant_admin_event_path(@event), 
                       method: :delete, 
                       params: { participant_id: participant.id },
