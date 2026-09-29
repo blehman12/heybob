@@ -112,9 +112,9 @@
         <tbody>
           <% @participants.each do |participant| %>
             <tr>
-              <td><%= participant.user.first_name %> <%= participant.user.last_name %></td>
-              <td><%= participant.user.email %></td>
-              <td><%= participant.user.company %></td>
+              <td><%= participant.display_name %></td>
+              <td><%= participant.display_email %></td>
+              <td><%= participant.user&.company %></td>
               <td>
                 <span class="badge bg-<%= participant.rsvp_status == 'yes' ? 'success' : 
                                         participant.rsvp_status == 'maybe' ? 'warning' : 
@@ -145,7 +145,7 @@
                   <%= button_to "Remove", remove_participant_admin_event_path(@event), 
                       method: :delete, 
                       params: { participant_id: participant.id },
-                      confirm: "Remove #{participant.user.first_name} #{participant.user.last_name} from this event?",
+                      confirm: "Remove #{participant.display_name} from this event?",
                       data: { turbo: false },
                       class: "btn btn-outline-danger" %>
                 </div>

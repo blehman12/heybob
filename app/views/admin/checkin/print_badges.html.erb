@@ -57,12 +57,11 @@
             <div class="badge-body">
               <div class="participant-info">
                 <h3 class="participant-name">
-                  <%= participant.user.first_name %><br>
-                  <%= participant.user.last_name %>
+                  <%= participant.display_name %>
                 </h3>
-                <p class="participant-email"><%= participant.user.email %></p>
-                <% if participant.user.company.present? %>
-                  <p class="participant-company"><%= participant.user.company %></p>
+                <p class="participant-email"><%= participant.display_email %></p>
+                <% if participant.user&.company.present? %>
+                  <p class="participant-company"><%= participant.user&.company %></p>
                 <% end %>
               </div>
               

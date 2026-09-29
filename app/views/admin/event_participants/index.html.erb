@@ -28,8 +28,8 @@
               <tbody>
                 <% @participants.each do |participant| %>
                   <tr>
-                    <td><%= participant.user.full_name %></td>
-                    <td><%= participant.user.company %></td>
+                    <td><%= participant.display_name %></td>
+                    <td><%= participant.user&.company %></td>
                     <td>
                       <%= form_with(model: [:admin, @event, participant], local: true, method: :patch) do |form| %>
                         <%= form.select :role, 

@@ -172,8 +172,8 @@
                   <tbody>
                     <% organizers.each do |participant| %>
                       <tr>
-                        <td><%= participant.user&.full_name || 'Unknown' %></td>
-                        <td><%= participant.user&.email || 'N/A' %></td>
+                        <td><%= participant.display_name %></td>
+                        <td><%= participant.display_email %></td>
                         <td><%= participant.user&.company || 'N/A' %></td>
                         <td>
                           <% 
@@ -221,8 +221,8 @@
                   <tbody>
                     <% vendors.each do |participant| %>
                       <tr>
-                        <td><%= participant.user&.full_name || 'Unknown' %></td>
-                        <td><%= participant.user&.email || 'N/A' %></td>
+                        <td><%= participant.display_name %></td>
+                        <td><%= participant.display_email %></td>
                         <td><%= participant.user&.company || 'N/A' %></td>
                         <td>
                           <% 
@@ -270,8 +270,8 @@
                   <tbody>
                     <% attendees.each do |participant| %>
                       <tr>
-                        <td><%= participant.user&.full_name || 'Unknown' %></td>
-                        <td><%= participant.user&.email || 'N/A' %></td>
+                        <td><%= participant.display_name %></td>
+                        <td><%= participant.display_email %></td>
                         <td><%= participant.user&.company || 'N/A' %></td>
                         <td>
                           <% 

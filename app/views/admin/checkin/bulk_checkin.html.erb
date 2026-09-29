@@ -67,15 +67,15 @@
                                 { class: "participant-checkbox form-check-input" } %>
                         </td>
                         <td>
-                          <strong><%= participant.user.first_name %> <%= participant.user.last_name %></strong>
+                          <strong><%= participant.display_name %></strong>
                         </td>
-                        <td><%= participant.user.email %></td>
+                        <td><%= participant.display_email %></td>
                         <td>
                           <span class="badge bg-<%= participant.rsvp_status == 'yes' ? 'success' : 'warning' %>">
                             <%= participant.rsvp_status_text %>
                           </span>
                         </td>
-                        <td><%= participant.user.phone || '-' %></td>
+                        <td><%= participant.display_phone || '-' %></td>
                         <td>
                           <% if participant.has_custom_answers? %>
                             <button type="button" class="btn btn-sm btn-outline-info" 

@@ -64,9 +64,9 @@
                   <% @recent_checkins.each do |participant| %>
                     <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
                       <div>
-                        <strong><%= participant.user.first_name %> <%= participant.user.last_name %></strong>
+                        <strong><%= participant.display_name %></strong>
                         <br>
-                        <small class="text-muted"><%= participant.user.email %></small>
+                        <small class="text-muted"><%= participant.display_email %></small>
                       </div>
                       <div class="text-end">
                         <div class="badge bg-success"><%= participant.check_in_method_text %></div>
@@ -96,9 +96,9 @@
                 <% @not_checked_in.each do |participant| %>
                   <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
                     <div>
-                      <strong><%= participant.user.first_name %> <%= participant.user.last_name %></strong>
+                      <strong><%= participant.display_name %></strong>
                       <br>
-                      <small class="text-muted"><%= participant.user.email %></small>
+                      <small class="text-muted"><%= participant.display_email %></small>
                     </div>
                     <div class="text-end">
                       <span class="badge bg-<%= participant.rsvp_status == 'yes' ? 'success' : 'warning' %>">
@@ -145,9 +145,9 @@
                 <% @participants.each do |participant| %>
                   <tr class="<%= participant.checked_in? ? 'table-success' : '' %>">
                     <td>
-                      <strong><%= participant.user.first_name %> <%= participant.user.last_name %></strong>
+                      <strong><%= participant.display_name %></strong>
                     </td>
-                    <td><%= participant.user.email %></td>
+                    <td><%= participant.display_email %></td>
                     <td>
                       <span class="badge bg-<%= participant.rsvp_status == 'yes' ? 'success' : participant.rsvp_status == 'maybe' ? 'warning' : 'secondary' %>">
                         <%= participant.rsvp_status_text %>
