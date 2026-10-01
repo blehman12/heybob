@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_05_15_000001) do
+ActiveRecord::Schema[7.1].define(version: 2026_10_01_000001) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -165,6 +165,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_15_000001) do
     t.integer "lifecycle_status", default: 1, null: false
     t.date "end_date"
     t.boolean "map_enabled", default: false, null: false
+    t.boolean "notify_host_on_rsvp", default: false, null: false
+    t.string "host_notify_email"
     t.index ["creator_id"], name: "index_events_on_creator_id"
     t.index ["event_type"], name: "index_events_on_event_type"
     t.index ["external_id"], name: "index_events_on_external_id", unique: true

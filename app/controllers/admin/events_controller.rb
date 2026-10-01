@@ -136,24 +136,27 @@ class Admin::EventsController < Admin::BaseController
 
   def export_participants
     @participants = @event.event_participants.includes(:user)
+    questions = (@event.custom_questions || []).select { |q| q.is_a?(Hash) }
 
     respond_to do |format|
       format.csv do
         csv_data = CSV.generate(headers: true) do |csv|
-          # FIXED: Use participant.rsvp_status instead of user.rsvp_status
-          csv << ['Name', 'Email', 'Company', 'Phone', 'RSVP Status', 'Role', 'Checked In', 'Check-in Time']
-          
+          # Guest-safe: use display_* helpers (guests have no user). + one column per custom question.
+          csv << ['Name', 'Email', 'Company', 'Phone', 'RSVP Status', 'Role', 'Checked In', 'Check-in Time'] +
+                 questions.map { |q| q['question'] }
+
           @participants.each do |participant|
+            answers = participant.rsvp_answers.is_a?(Hash) ? participant.rsvp_answers : {}
             csv << [
-              participant.user.full_name,
-              participant.user.email,
-              participant.user.company,
-              participant.user.phone,
-              participant.rsvp_status.humanize,  # From event_participant, not user
+              participant.display_name,
+              participant.display_email,
+              participant.user&.company,
+              participant.display_phone,
+              participant.rsvp_status.humanize,  # from event_participant, not user
               participant.role.humanize,
               participant.checked_in? ? 'Yes' : 'No',
               participant.checked_in_at&.strftime('%m/%d/%Y %I:%M %p')
-            ]
+            ] + questions.map { |q| answers[q['id'].to_s] }
           end
         end
 
@@ -233,6 +236,8 @@ class Admin::EventsController < Admin::BaseController
       :max_attendees,
       :rsvp_deadline,
       :public_rsvp_enabled,
+      :notify_host_on_rsvp,
+      :host_notify_email,
       :lifecycle_status,
       :map_enabled,
       :floor_map,

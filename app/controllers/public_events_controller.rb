@@ -46,6 +46,7 @@ class PublicEventsController < ApplicationController
       existing_rsvp = @event.event_participants.find_by(user: current_user)
       if existing_rsvp
         if existing_rsvp.update(event_participant_params)
+          notify_host(existing_rsvp)
           session[:confirmed_rsvp_ids] ||= []
           session[:confirmed_rsvp_ids] |= [existing_rsvp.id]
           redirect_to public_event_confirmation_path(@event.slug, participant_id: existing_rsvp.id)
@@ -66,6 +67,7 @@ class PublicEventsController < ApplicationController
     @event_participant.responded_at = Time.current
 
     if @event_participant.save
+      notify_host(@event_participant)
       session[:confirmed_rsvp_ids] ||= []
       session[:confirmed_rsvp_ids] |= [@event_participant.id]
       redirect_to public_event_confirmation_path(@event.slug, participant_id: @event_participant.id)
@@ -207,6 +209,14 @@ class PublicEventsController < ApplicationController
     unless existing&.rsvp_status == 'yes'
       redirect_to public_event_path(@event.slug), alert: 'This event is at capacity.'
     end
+  end
+
+  # Email the host when someone RSVPs, if enabled for this event. Never blocks the RSVP.
+  def notify_host(participant)
+    return unless @event.respond_to?(:notify_host_on_rsvp?) && @event.notify_host_on_rsvp?
+    EventNotificationMailer.host_rsvp_notification(participant).deliver_later(queue: :mailers)
+  rescue => e
+    Rails.logger.error("host RSVP notification failed: #{e.class}: #{e.message}")
   end
 
   def event_participant_params

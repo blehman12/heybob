@@ -243,6 +243,18 @@
             <div class="form-text">When enabled, anyone can view and RSVP to this event without logging in.</div>
           </div>
 
+          <div class="mb-3 form-check">
+            <%= form.check_box :notify_host_on_rsvp, class: "form-check-input" %>
+            <%= form.label :notify_host_on_rsvp, "Email me when someone RSVPs", class: "form-check-label" %>
+            <div class="form-text">Sends a notification on every RSVP (any response). Great for small events.</div>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :host_notify_email, "Notification email (optional)", class: "form-label" %>
+            <%= form.email_field :host_notify_email, class: "form-control", placeholder: "Defaults to your account email (#{@event.creator&.email})" %>
+            <div class="form-text">Leave blank to use the event creator's email.</div>
+          </div>
+
           <div class="d-grid gap-2 d-md-flex justify-content-md-end">
             <%= link_to "Cancel", admin_events_path, class: "btn btn-outline-secondary me-md-2" %>
             <%= form.submit class: "btn btn-primary" %>
