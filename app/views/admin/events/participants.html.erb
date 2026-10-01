@@ -106,6 +106,7 @@
             <th>RSVP Status</th>
             <th>Role</th>
             <th>Checked In</th>
+            <th>Responses</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -137,6 +138,22 @@
                   <small class="text-muted"><%= participant.checked_in_at.strftime('%m/%d %I:%M %p') %></small>
                 <% else %>
                   <span class="badge bg-secondary">No</span>
+                <% end %>
+              </td>
+              <td>
+                <% answers = participant.rsvp_answers.is_a?(Hash) ? participant.rsvp_answers : {} %>
+                <% shown = (@event.custom_questions || []).select { |q| q.is_a?(Hash) && answers[q['id'].to_s].present? } %>
+                <% if shown.any? %>
+                  <details>
+                    <summary class="small text-primary" style="cursor:pointer">View (<%= shown.size %>)</summary>
+                    <ul class="small mb-0 mt-1 ps-3">
+                      <% shown.each do |q| %>
+                        <li><strong><%= q['question'] %></strong><br><%= answers[q['id'].to_s] %></li>
+                      <% end %>
+                    </ul>
+                  </details>
+                <% else %>
+                  <span class="text-muted small">—</span>
                 <% end %>
               </td>
               <td>
